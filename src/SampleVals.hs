@@ -2,5 +2,5 @@ module TestVars where
 
 import Env
 
-xc = XCoord 5
-yc = YCoord -3
+xc = XPos 5
+yc = YPos (-3)

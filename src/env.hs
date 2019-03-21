@@ -1,3 +1,5 @@
+module Env where
+
 --Levels of Scrutiny that may be required for a patch in the search space
 data DetailReq = Close | Far
   deriving Show

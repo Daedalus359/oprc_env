@@ -4,13 +4,18 @@ module Env where
 data DetailReq = Close | Far
   deriving Show
 
-newtype XCoord = XPos Int
-  deriving Show
-newtype YCoord = YPos Int
-  deriving Show
+type XCoord = Int
+type YCoord = Int
 
 --location for a patch (horizontal information only)
 data Position = Position XCoord YCoord
+
+--pretty printing for positions
+instance Show Position where
+  show (Position xc yc) = concat ["Position: (", show xc, ", ", show yc, ")"]
+
+data ObservationLevel = Unseen | Classified | FullyObserved
+  deriving Show
 
 --a patch is the a single spot in the map
 data Patch = Patch Position DetailReq
@@ -21,12 +26,7 @@ instance Show Patch where
                                                     "\t", show position, "\n", 
                                                     "\tScrutiny Needed: ", show observationLevel]
 
---pretty printing for positions
-instance Show Position where
-  show (Position (XPos xc) (YPos yc)) = concat ["Position: (", show xc, ", ", show yc, ")"]
-
-data ObservationLevel = Unseen | Classified | FullyObserved
-  deriving Show
+data SearchSpace = MkSpace [Patch]
 
 --function to tell if a coordinate is inside the boundary of the map
 inBounds :: Position -> Bool
@@ -38,3 +38,29 @@ inBounds = undefined
 --Heights that the drone can fly at
 data Altitude = High | Low
   deriving Show
+
+--compass directions
+class Direction d where
+  deltas :: d -> (Int, Int)
+
+data CardinalDir = North | South | East | West
+  deriving (Show, Eq)
+
+instance Direction CardinalDir where
+  deltas North = (0, 1)
+  deltas South = (0, -1)
+  deltas East = (1, 0)
+  deltas West = (-1, 0)
+
+data IntercardinalDir = NE | SE | NW | SW
+  deriving (Show, Eq)
+
+instance Direction IntercardinalDir where
+  deltas NE = (1, 1)
+  deltas SE = (1, -1)
+  deltas NW = (-1, 1)
+  deltas SW = (-1, -1)
+
+-- "position to North (3,4) = (3,5)""
+neighborTo :: Direction d => d -> Position -> Position
+neighborTo dir (Position x y) = Position (x + (fst (deltas dir))) (y + (snd (deltas dir)))

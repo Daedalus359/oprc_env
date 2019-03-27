@@ -20,6 +20,12 @@ data ObservationLevel = Unseen | Classified | FullyObserved
 --a patch is the a single spot in the map
 data Patch = Patch Position DetailReq
 
+data World = World [Patch]
+
+instance Show World where
+  --make this into an actual visualization later
+  show (World pats) = concat["World: ", (show pats)]
+
 --pretty printing for patches
 instance Show Patch where
   show (Patch position observationLevel) = concat ["Patch:\n", 

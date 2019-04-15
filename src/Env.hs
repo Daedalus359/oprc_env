@@ -45,9 +45,12 @@ inBounds = undefined
 data Altitude = High | Low
   deriving Show
 
+--type synonym representing a chainge in position
+type Hop = (Int, Int)
+
 --compass directions
 class Direction d where
-  deltas :: d -> (Int, Int)
+  deltas :: d -> Hop
 
 data CardinalDir = North | South | East | West
   deriving (Show, Eq)
@@ -67,6 +70,6 @@ instance Direction IntercardinalDir where
   deltas NW = (-1, 1)
   deltas SW = (-1, -1)
 
--- "position to North (3,4) = (3,5)""
+-- "NeighborTo North (3,4) = (3,5)""
 neighborTo :: Direction d => d -> Position -> Position
 neighborTo dir (Position x y) = Position (x + (fst (deltas dir))) (y + (snd (deltas dir)))

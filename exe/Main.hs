@@ -5,9 +5,12 @@
 module Main where
 
 --oprc imports
-import Env
+import qualified Env
 import MoveCosts
 import qualified SampleVals as SV
+
+--other oprc dependencies
+import qualified Data.Map as Map
 
 --diagrams imports
 import qualified Diagrams.Prelude as D
@@ -20,5 +23,6 @@ main :: IO ()
 main = do
   putStrLn "Starting Environment"
   putStrLn $ show SV.pat
-
+  putStrLn "Checking what is at position (1,1): "
+  print (show (Map.lookup (Env.Position 1 1) SV.world))
 --main = BE.mainWith myCircle

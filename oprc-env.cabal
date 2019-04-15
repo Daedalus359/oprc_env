@@ -21,6 +21,7 @@ library
         hs-source-dirs:         src
         exposed-modules:        Env, MoveCosts, SampleVals
         build-depends:          base >=4.8 && <4.9
+                              , containers
         default-language:       Haskell2010
 
 Test-Suite oprc-env-test
@@ -33,6 +34,7 @@ Test-Suite oprc-env-test
 executable oprc-env
   main-is:             Main.hs
   build-depends:       base >=4.8 && <4.9, oprc-env
+                     , containers
                      , diagrams
                      , diagrams-lib
                      , diagrams-core

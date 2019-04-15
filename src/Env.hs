@@ -1,6 +1,7 @@
 module Env where --The simulated world
 
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 --location for a patch (horizontal information only)
 type XCoord = Int
@@ -29,8 +30,8 @@ instance Show Patch where
   show (Patch detailReq) = concat ["Patch:\n", "\tScrutiny Needed: ", show detailReq]
 
 --function to tell if a coordinate is inside the boundary of the map
-inBounds :: Position -> Bool
-inBounds = undefined
+inBounds :: Footprint -> Position -> Bool
+inBounds footprint pos = Set.member pos footprint
 
 --Heights that the drone can fly at
 data Altitude = High | Low
@@ -65,8 +66,11 @@ instance Direction IntercardinalDir where
 neighborTo :: Direction d => d -> Position -> Position
 neighborTo dir (Position x y) = Position (x + (fst (deltas dir))) (y + (snd (deltas dir)))
 
---The "world" is a colection of patches at different positions
-type World = Map.Map Position Patch
+--The "environment" is a colection of patches at different positions
+type Environment = Map.Map Position Patch
+
+--The "Footprint" is a description of all points which are in bounds
+type Footprint = Set.Set Position
 
 --MOVE
 data ObservationLevel = Unseen | Classified | FullyObserved

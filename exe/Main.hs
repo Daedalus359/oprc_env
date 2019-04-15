@@ -24,5 +24,7 @@ main = do
   putStrLn "Starting Environment"
   putStrLn $ show SV.pat
   putStrLn "Checking what is at position (1,1): "
-  print (show (Map.lookup (Env.Position 1 1) SV.world))
+  putStrLn (show (Map.lookup (Env.Position 1 1) SV.env))
+  putStrLn "Checking what is at position (5,-3): "
+  putStrLn (show (Map.lookup (Env.Position 5 (-3)) SV.env))
 --main = BE.mainWith myCircle

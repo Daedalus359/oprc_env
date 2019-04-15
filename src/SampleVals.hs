@@ -21,5 +21,5 @@ pos2 = Position (xc + 1) yc
 pat2 :: Env.Patch
 pat2 = Patch Far
 
-world :: Env.World
-world  = Map.fromList [(pos, pat), (pos2, pat2)]
+env :: Env.Environment
+env  = Map.fromList [(pos, pat), (pos2, pat2)]

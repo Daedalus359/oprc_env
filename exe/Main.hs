@@ -10,11 +10,11 @@ import MoveCosts
 import qualified SampleVals as SV
 
 --diagrams imports
-import Diagrams.Prelude
+import qualified Diagrams.Prelude as D
 import qualified Diagrams.Backend.SVG.CmdLine as BE
 
-myCircle :: Diagram BE.B
-myCircle = circle 1
+myCircle :: D.Diagram BE.B
+myCircle = D.circle 1
 
 --main :: IO ()
 --main = do
@@ -22,3 +22,5 @@ myCircle = circle 1
   --putStrLn $ show SV.pat
 
 main = BE.mainWith myCircle
+
+

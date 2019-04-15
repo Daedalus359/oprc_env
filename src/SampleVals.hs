@@ -12,10 +12,12 @@ pos :: Position
 pos = Position xc yc
 
 pat :: Patch
-pat = Patch pos Close
+pat = Patch Close
 
 pos2 :: Position
 pos2 = Position (xc + 1) yc
 
 pat2 :: Patch
-pat2 = Patch pos2 Far
+pat2 = Patch Far
+
+

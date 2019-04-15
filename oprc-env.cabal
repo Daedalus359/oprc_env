@@ -60,6 +60,11 @@ Test-Suite oprc-env-test
 executable oprc-env
   main-is:             Main.hs
   build-depends:       base >=4.8 && <4.9, oprc-env
+                     , diagrams
+                     , diagrams-lib
+                     , diagrams-core
+                     , diagrams-contrib
+                     , diagrams-svg
   
   hs-source-dirs:      exe
   default-language:    Haskell2010

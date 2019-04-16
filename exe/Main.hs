@@ -8,6 +8,7 @@ module Main where
 import qualified Env
 import MoveCosts
 import qualified SampleVals as SV
+import Drone
 
 --other oprc dependencies
 import qualified Data.Map as Map
@@ -29,4 +30,8 @@ main = do
   putStrLn (show (Map.lookup (Env.Position 5 (-3)) SV.env))
   putStrLn "Showing footprint generated from the environment: "
   putStrLn (show SV.footprint)
+  putStrLn "printing neighbors of (3,6): "
+  putStrLn $ show $ Env.neighborsOf (Env.Position 3 6)
+  putStrLn "list of points viewable from (2, 5) at low altitude: "
+  putStrLn $ show $ viewableFrom (DronePos (Env.Position 2 5) Env.Low)
   BE.mainWith myCircle

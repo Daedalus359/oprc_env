@@ -4,8 +4,8 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 --location for a patch (horizontal information only)
-type XCoord = Int
-type YCoord = Int
+type XCoord = Integer
+type YCoord = Integer
 
 data Position = Position XCoord YCoord
   deriving Eq
@@ -35,10 +35,10 @@ inBounds footprint pos = Set.member pos footprint
 
 --Heights that the drone can fly at
 data Altitude = High | Low
-  deriving Show
+  deriving (Show, Eq)
 
 --type synonym representing a change in position
-type Hop = (Int, Int)
+type Hop = (Integer, Integer)
 
 --compass directions
 class Direction d where
@@ -66,15 +66,16 @@ instance Direction IntercardinalDir where
 neighborTo :: Direction d => d -> Position -> Position
 neighborTo dir (Position x y) = Position (x + (fst (deltas dir))) (y + (snd (deltas dir)))
 
+--the 8 positions which surround the input position
+neighborsOf :: Position -> [Position]
+neighborsOf pos = nl <*> [pos]
+  where nl = (fmap neighborTo [North, South, East, West]) ++ (fmap neighborTo [NE, SE, NW, SW])
+
 --The "environment" is a colection of patches at different positions
 type Environment = Map.Map Position Patch
 
 --The "Footprint" is a description of all points which are in bounds
 type Footprint = Set.Set Position
-
---MOVE
-data ObservationLevel = Unseen | Classified | FullyObserved
-  deriving Show
 
 --function to map a coordinate to the information known about a patch at that position
 ----infoState :: Position -> Maybe

@@ -27,3 +27,6 @@ env  = Map.fromList [(pos, pat), (pos2, pat2)]
 
 footprint :: Env.Footprint
 footprint = Map.keysSet env
+
+--make an example world
+--make an example policy

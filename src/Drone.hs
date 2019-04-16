@@ -27,7 +27,9 @@ viewableFrom :: DronePosition -> [Position]
 viewableFrom (DronePos pos Low) = [pos]
 viewableFrom (DronePos pos High) = pos : (Env.neighborsOf pos)
 
+type StepsRemaining = Integer
+
 data DroneStatus =
     Unassigned
   | Assigned Action
-  | Acting {action :: Action, stepsRemaining :: Integer}
+  | Acting Action StepsRemaining

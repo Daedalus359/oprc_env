@@ -1,45 +1,49 @@
 -- Cabal documentation: http://haskell.org/cabal/users-guide/
 
-name:                oprc-env
-version:             0.1.0.0
+name:                     oprc-env
+version:                  0.1.0.0
 
-synopsis:            A working game simualting a searchable environment and a team of drones able to observe it.
+synopsis:                 Simulates an environment being explored by a team of drones
 
-homepage:            https://github.com/Daedalus359/oprc_env
-license:             BSD2
-license-file:        LICENSE
+homepage:                 https://github.com/Daedalus359/oprc_env
+license:                  BSD2
+license-file:             LICENSE
 
-author:              Kevin Bradner
-maintainer:          kmb172@case.edu
+author:                   Kevin Bradner
+maintainer:               kmb172@case.edu
 
-category:            Game
-build-type:          Simple
-extra-source-files:  README.md
-cabal-version:       >=1.10
+category:                 Game
+build-type:               Simple
+extra-source-files:       README.md
+cabal-version:            >=1.10
 
 library
-        hs-source-dirs:         src
-        exposed-modules:        Env, MoveCosts, SampleVals
-        build-depends:          base >=4.8 && <4.9
-                              , containers
-        default-language:       Haskell2010
+  hs-source-dirs:         src
+  exposed-modules:        Env
+                        , MoveCosts
+                        , SampleVals
+                        , EnvView
+                        , Drone
+  build-depends:          base >=4.8 && <4.9
+                        , containers
+  default-language:       Haskell2010
 
 Test-Suite oprc-env-test
-  type:                exitcode-stdio-1.0
-  main-is:             TestSuite.hs
-  build-depends:       base >=4.8 && <4.9, oprc-env, hspec
-  hs-source-dirs:      test
-  default-language:    Haskell2010
+  type:                   exitcode-stdio-1.0
+  main-is:                TestSuite.hs
+  build-depends:          base >=4.8 && <4.9, oprc-env, hspec
+  hs-source-dirs:         test
+  default-language:       Haskell2010
 
 executable oprc-env
-  main-is:             Main.hs
-  build-depends:       base >=4.8 && <4.9, oprc-env
-                     , containers
-                     , diagrams
-                     , diagrams-lib
-                     , diagrams-core
-                     , diagrams-contrib
-                     , diagrams-svg
+  main-is:                Main.hs
+  build-depends:          base >=4.8 && <4.9, oprc-env
+                        , containers
+                        , diagrams
+                        , diagrams-lib
+                        , diagrams-core
+                        , diagrams-contrib
+                        , diagrams-svg
   
-  hs-source-dirs:      exe
-  default-language:    Haskell2010
+  hs-source-dirs:         exe
+  default-language:       Haskell2010

@@ -1,11 +1,11 @@
 
 ==================== FINAL INTERFACE ====================
-2019-04-16 03:55:17.094042 UTC
+2019-04-16 04:13:20.695519 UTC
 
 interface oprce_DrFrqvqEd8GBFfVkSxZTKM:Drone 7103
-  interface hash: b4e11a73a64b4871f5940addd9fbfd47
-  ABI hash: c691061b3452e023ef1270f499273785
-  export-list hash: ea348bd6775138910f3635e50e102be5
+  interface hash: bf3c9513aa15d1fd11804b8d0d72397d
+  ABI hash: 8d5948b437e6872f957f92b364f3f6aa
+  export-list hash: a7ae32fb2b6ad553ee4224df92bcf830
   orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
   flag hash: 962af636f8e927040c7daa9c21457292
   sig of: Nothing
@@ -13,7 +13,7 @@ interface oprce_DrFrqvqEd8GBFfVkSxZTKM:Drone 7103
   where
 exports:
   Drone.viewableFrom
-  Drone.Action{Drone.Hover Drone.MoveCardinal Drone.MoveInterCardinal Drone.MoveVertical}
+  Drone.Action{Drone.Hover Drone.MoveCardinal Drone.MoveIntercardinal Drone.MoveVertical}
   Drone.DronePosition{Drone.DronePos}
   Drone.DroneStatus{Drone.Acting Drone.Assigned Drone.Unassigned Drone.action Drone.stepsRemaining}
   Drone.Timed{Drone.duration}
@@ -128,6 +128,34 @@ be5eb3d4b7b376f877082e36ed913829
                  case w of ww { GHC.Types.I# ww1 ->
                  case w1 of ww2 { Drone.DronePos ww3 ww4 ->
                  Drone.$w$cshowsPrec ww1 ww3 ww4 w2 } }) -}
+c35c8e97e69b571a2a19e59ad4bd912f
+  $fTimedAction :: Drone.Timed Drone.Action
+  DFunId[0]
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U>,
+     Inline: INLINE (sat-args=0),
+     Unfolding: InlineRule (0, False, True)
+                Drone.$fTimedAction_$cduration
+                  `cast`
+                (Sym (Drone.NTCo:Timed[0] <Drone.Action>_N)) -}
+ea5fe13acdcf151e763dae4b38d60411
+  $fTimedAction1 :: GHC.Integer.Type.Integer
+  {- HasNoCafRefs, Unfolding: (__integer 1) -}
+7d65ebc893328a66a0574ac0cd894d95
+  $fTimedAction2 :: GHC.Integer.Type.Integer
+  {- HasNoCafRefs, Unfolding: (__integer 14) -}
+6661402aa9fece79c5da82180dec7a7b
+  $fTimedAction3 :: GHC.Integer.Type.Integer
+  {- HasNoCafRefs, Unfolding: (__integer 10) -}
+da342b125650cfc730419aeb5096ca91
+  $fTimedAction_$cduration ::
+    Drone.Action -> GHC.Integer.Type.Integer
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ ds :: Drone.Action ->
+                 case ds of wild {
+                   DEFAULT -> Drone.$fTimedAction3
+                   Drone.MoveIntercardinal ds1 -> Drone.$fTimedAction2
+                   Drone.Hover -> Drone.$fTimedAction1 }) -}
 8e8a76fb701f726bfabb20e9e2b81e82
   $w$c/= ::
     Env.XCoord
@@ -229,28 +257,28 @@ d82e2f41db77c8ac95ad25424464bac6
                            @ GHC.Types.Char
                            Drone.$fShowDronePosition2
                            (g (GHC.Types.: @ GHC.Types.Char GHC.Show.shows8 w))) }) -}
-893ad413835a1aa020e9313db822517e
+bec4b8582c51a355267f800c9028c1d1
   data Action
     = MoveCardinal Env.CardinalDir
-    | MoveInterCardinal Env.IntercardinalDir
+    | MoveIntercardinal Env.IntercardinalDir
     | MoveVertical Drone.VerticalDirection
     | Hover
     Promotable
 1c6feaac79fab925cd041893e3119af3
   data DronePosition = DronePos Env.Position Env.Altitude
-600cdc300b152596ae3698bc8f058dc4
+90f7ed730452019941ee7b53407f284f
   data DroneStatus
     = Unassigned
     | Assigned Drone.Action
     | Acting {action :: Drone.Action,
               stepsRemaining :: GHC.Integer.Type.Integer}
-512945d7e538dfc3f5e000b6f394c3d8
+c35c8e97e69b571a2a19e59ad4bd912f
   class Timed t where
     duration :: t -> GHC.Integer.Type.Integer
 b385303472d92a7fc2122a5bc1df0a0c
   data VerticalDirection = Ascend | Descend
     Promotable
-359ece943fc09e08c3b2bbb186f4813a
+bda7fb24787ac724ce899a265f1c0907
   action :: Drone.DroneStatus -> Drone.Action
   RecSel Drone.DroneStatus
   {- Arity: 1, Strictness: <S,1*U>,
@@ -258,10 +286,10 @@ b385303472d92a7fc2122a5bc1df0a0c
                 (\ ds :: Drone.DroneStatus ->
                  case ds of wild {
                    DEFAULT -> Drone.action1 Drone.Acting ds1 ds2 -> ds1 }) -}
-009a301bacc3bdc9c9835c0fc5470737
+d627949ba1d89b97608a11fea71bea80
   action1 :: Drone.Action
   {- Strictness: b -}
-c0e00912cd88bd0e8fbf57558e55e89f
+bf5eb11a74cd5ad4a1c071a3899e2d8f
   stepsRemaining :: Drone.DroneStatus -> GHC.Integer.Type.Integer
   RecSel Drone.DroneStatus
   {- Arity: 1, Strictness: <S,1*U>,
@@ -289,6 +317,7 @@ instance GHC.Classes.Eq [Drone.DronePosition]
   = Drone.$fEqDronePosition
 instance GHC.Show.Show [Drone.DronePosition]
   = Drone.$fShowDronePosition
+instance Drone.Timed [Drone.Action] = Drone.$fTimedAction
 vectorised variables:
 vectorised tycons:
 vectorised reused tycons:

@@ -1,9 +1,9 @@
 
 ==================== FINAL INTERFACE ====================
-2019-04-16 03:55:17.141335 UTC
+2019-04-16 04:13:20.74356 UTC
 
 interface oprce_DrFrqvqEd8GBFfVkSxZTKM:EnvView 7103
-  interface hash: 00cabb2d485f18a962c0bf5a80d16dc9
+  interface hash: f0a00f7dbdc123b14b20503bd543f96e
   ABI hash: a0bcd60431c0b0ecdb898cc1a8927091
   export-list hash: 92d645aa7dce4d3a9a22aa9aa358a92d
   orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
@@ -30,8 +30,8 @@ family instance modules: base-4.8.2.0:Control.Applicative
 import  -/  base-4.8.2.0:Prelude 694dcaf039efe62df1c44834e2dbd2fb
 import  -/  containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map 1800ccac43fd924c376b60eac12f4d04
 import  -/  containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map.Base 642e37808d03e24efbe8e8ff1336f343
-import  -/  Drone c691061b3452e023ef1270f499273785
-  exports: ea348bd6775138910f3635e50e102be5
+import  -/  Drone 8d5948b437e6872f957f92b364f3f6aa
+  exports: a7ae32fb2b6ad553ee4224df92bcf830
 import  -/  Env 5bec9d9b71d3f3b3e2a754c35fe74203
   exports: c6786dd068f282b1f5844a3e212cb1f4
   DetailReq 41fa8ab29b11a7ddbed19315d304d366

@@ -10,12 +10,18 @@ data VerticalDirection = Ascend | Descend
 
 data Action =
     MoveCardinal Env.CardinalDir
-  | MoveInterCardinal Env.IntercardinalDir
+  | MoveIntercardinal Env.IntercardinalDir
   | MoveVertical VerticalDirection
   | Hover
 
 class Timed t where
   duration :: t -> Integer
+
+instance Timed Action where
+  duration Hover = 1
+  duration (MoveCardinal _) = 10
+  duration (MoveIntercardinal _ ) = 14
+  duration (MoveVertical _ ) = 10
 
 viewableFrom :: DronePosition -> [Position]
 viewableFrom (DronePos pos Low) = [pos]

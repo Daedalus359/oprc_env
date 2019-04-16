@@ -1,0 +1,299 @@
+
+==================== FINAL INTERFACE ====================
+2019-04-16 03:55:17.094042 UTC
+
+interface oprce_DrFrqvqEd8GBFfVkSxZTKM:Drone 7103
+  interface hash: b4e11a73a64b4871f5940addd9fbfd47
+  ABI hash: c691061b3452e023ef1270f499273785
+  export-list hash: ea348bd6775138910f3635e50e102be5
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 962af636f8e927040c7daa9c21457292
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  Drone.viewableFrom
+  Drone.Action{Drone.Hover Drone.MoveCardinal Drone.MoveInterCardinal Drone.MoveVertical}
+  Drone.DronePosition{Drone.DronePos}
+  Drone.DroneStatus{Drone.Acting Drone.Assigned Drone.Unassigned Drone.action Drone.stepsRemaining}
+  Drone.Timed{Drone.duration}
+  Drone.VerticalDirection{Drone.Ascend Drone.Descend}
+module dependencies: Env MoveCosts
+package dependencies: array-0.5.1.0@array_67iodizgJQIIxYVTp4emlA
+                      base-4.8.2.0* containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU
+                      deepseq-1.4.1.1@deeps_6vMKxt5sPFR0XsbRWvvq59 ghc-prim-0.4.0.0
+                      integer-gmp-1.0.0.0
+orphans: base-4.8.2.0:GHC.Base base-4.8.2.0:GHC.Float
+family instance modules: base-4.8.2.0:Control.Applicative
+                         base-4.8.2.0:Data.Either base-4.8.2.0:Data.Functor.Identity
+                         base-4.8.2.0:Data.Monoid base-4.8.2.0:Data.Type.Equality
+                         base-4.8.2.0:Data.Void base-4.8.2.0:GHC.Exts
+                         base-4.8.2.0:GHC.Generics
+                         containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map.Base
+                         containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Set.Base
+import  -/  base-4.8.2.0:GHC.Base 1db77db5dae73d8c424c85b09fbadb89
+import  -/  base-4.8.2.0:GHC.Show 0e1d8380a8fb0cfb07ebeda3b70cbf38
+import  -/  base-4.8.2.0:Prelude 694dcaf039efe62df1c44834e2dbd2fb
+import  -/  ghc-prim-0.4.0.0:GHC.Classes e1f4ff80f7b5262008a595d29986fb18
+import  -/  integer-gmp-1.0.0.0:GHC.Integer.Type 371e90fe753f08ddedf0d2657a9ef5c4
+import  -/  Env 5bec9d9b71d3f3b3e2a754c35fe74203
+  exports: c6786dd068f282b1f5844a3e212cb1f4
+  Altitude 0598e7da52a2409522044c401fcee77c
+  CardinalDir 798140351eda72b6b26dcc66f57068a2
+  High 9823583da460baa62c8e9560673f7a55
+  IntercardinalDir 240d397ebcf372029f1762164c40123b
+  Low c77abfc2c1e0861cf22ef8edab1b6ddd
+  Position fda968edc0a3e2bcbd99cecfd362a455
+  neighborsOf ab37fe44d57ee247e03f570e947966ac
+import  -/  MoveCosts 8fb66c49f75f4e5200e7ad0ab54a4257
+  exports: fcfc8b1218bba54428cd08b27f800e88
+1c6feaac79fab925cd041893e3119af3
+  $fEqDronePosition :: GHC.Classes.Eq Drone.DronePosition
+  DFunId[0]
+  {- HasNoCafRefs, Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Drone.DronePosition
+                  Drone.$fEqDronePosition_$c==
+                  Drone.$fEqDronePosition_$c/= -}
+1c6feaac79fab925cd041893e3119af3
+  $fEqDronePosition_$c/= ::
+    Drone.DronePosition -> Drone.DronePosition -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs,
+     Strictness: <S(S(SL)L),1*U(1*U(1*U,1*U),1*U)><S(S(SL)L),1*U(1*U(1*U,1*U),1*U)>,
+     Inline: INLINE[0],
+     Unfolding: InlineRule (2, True, False)
+                (\ w :: Drone.DronePosition w1 :: Drone.DronePosition ->
+                 case w of ww { Drone.DronePos ww1 ww2 ->
+                 case ww1 of ww3 { Env.Position ww4 ww5 ->
+                 case w1 of ww6 { Drone.DronePos ww7 ww8 ->
+                 case ww7 of ww9 { Env.Position ww10 ww11 ->
+                 Drone.$w$c/= ww4 ww5 ww2 ww10 ww11 ww8 } } } }) -}
+1c6feaac79fab925cd041893e3119af3
+  $fEqDronePosition_$c== ::
+    Drone.DronePosition -> Drone.DronePosition -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs,
+     Strictness: <S(S(SL)L),1*U(1*U(1*U,1*U),1*U)><S(S(SL)L),1*U(1*U(1*U,1*U),1*U)>,
+     Inline: INLINE[0],
+     Unfolding: InlineRule (2, True, False)
+                (\ w :: Drone.DronePosition w1 :: Drone.DronePosition ->
+                 case w of ww { Drone.DronePos ww1 ww2 ->
+                 case ww1 of ww3 { Env.Position ww4 ww5 ->
+                 case w1 of ww6 { Drone.DronePos ww7 ww8 ->
+                 case ww7 of ww9 { Env.Position ww10 ww11 ->
+                 Drone.$w$c== ww4 ww5 ww2 ww10 ww11 ww8 } } } }) -}
+1c6feaac79fab925cd041893e3119af3
+  $fShowDronePosition :: GHC.Show.Show Drone.DronePosition
+  DFunId[0]
+  {- Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Drone.DronePosition
+                  Drone.$fShowDronePosition_$cshowsPrec
+                  Drone.$fShowDronePosition_$cshow
+                  Drone.$fShowDronePosition_$cshowList -}
+1c6feaac79fab925cd041893e3119af3
+  $fShowDronePosition1 :: Drone.DronePosition -> GHC.Show.ShowS
+  {- Arity: 2,
+     Unfolding: (\ w :: Drone.DronePosition w1 :: GHC.Base.String ->
+                 case w of ww { Drone.DronePos ww1 ww2 ->
+                 Drone.$w$cshowsPrec 0 ww1 ww2 w1 }) -}
+be5eb3d4b7b376f877082e36ed913829
+  $fShowDronePosition2 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "DronePos "#) -}
+1c6feaac79fab925cd041893e3119af3
+  $fShowDronePosition_$cshow ::
+    Drone.DronePosition -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U(1*U(U,U),1*U)>,
+     Unfolding: InlineRule (1, True, False)
+                (\ x :: Drone.DronePosition ->
+                 Drone.$fShowDronePosition_$cshowsPrec
+                   GHC.Show.shows18
+                   x
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+1c6feaac79fab925cd041893e3119af3
+  $fShowDronePosition_$cshowList ::
+    [Drone.DronePosition] -> GHC.Show.ShowS
+  {- Arity: 2,
+     Unfolding: (GHC.Show.showList__
+                   @ Drone.DronePosition
+                   Drone.$fShowDronePosition1) -}
+1c6feaac79fab925cd041893e3119af3
+  $fShowDronePosition_$cshowsPrec ::
+    GHC.Types.Int -> Drone.DronePosition -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <S,1*U(U)><S,1*U(1*U(U,U),1*U)><L,U>,
+     Inline: INLINE[0],
+     Unfolding: InlineRule (3, True, False)
+                (\ w :: GHC.Types.Int
+                   w1 :: Drone.DronePosition
+                   w2 :: GHC.Base.String ->
+                 case w of ww { GHC.Types.I# ww1 ->
+                 case w1 of ww2 { Drone.DronePos ww3 ww4 ->
+                 Drone.$w$cshowsPrec ww1 ww3 ww4 w2 } }) -}
+8e8a76fb701f726bfabb20e9e2b81e82
+  $w$c/= ::
+    Env.XCoord
+    -> Env.YCoord
+    -> Env.Altitude
+    -> Env.XCoord
+    -> Env.YCoord
+    -> Env.Altitude
+    -> GHC.Types.Bool
+  {- Arity: 6, HasNoCafRefs,
+     Strictness: <S,1*U><L,1*U><L,1*U><S,1*U><L,1*U><L,1*U>,
+     Inline: [0],
+     Unfolding: (\ ww :: Env.XCoord
+                   ww1 :: Env.YCoord
+                   ww2 :: Env.Altitude
+                   ww3 :: Env.XCoord
+                   ww4 :: Env.YCoord
+                   ww5 :: Env.Altitude ->
+                 case GHC.Integer.Type.eqInteger# ww ww3 of wild { DEFAULT ->
+                 case GHC.Prim.tagToEnum# @ GHC.Types.Bool wild of wild1 {
+                   GHC.Types.False -> GHC.Types.True
+                   GHC.Types.True
+                   -> case GHC.Integer.Type.eqInteger# ww1 ww4 of wild2 { DEFAULT ->
+                      case GHC.Prim.tagToEnum# @ GHC.Types.Bool wild2 of wild3 {
+                        GHC.Types.False -> GHC.Types.True
+                        GHC.Types.True
+                        -> case ww2 of wild4 {
+                             Env.High
+                             -> case ww5 of wild5 {
+                                  Env.High -> GHC.Types.False Env.Low -> GHC.Types.True }
+                             Env.Low
+                             -> case ww5 of wild5 {
+                                  Env.High -> GHC.Types.True
+                                  Env.Low -> GHC.Types.False } } } } } }) -}
+d82e2f41db77c8ac95ad25424464bac6
+  $w$c== ::
+    Env.XCoord
+    -> Env.YCoord
+    -> Env.Altitude
+    -> Env.XCoord
+    -> Env.YCoord
+    -> Env.Altitude
+    -> GHC.Types.Bool
+  {- Arity: 6, HasNoCafRefs,
+     Strictness: <S,1*U><L,1*U><L,1*U><S,1*U><L,1*U><L,1*U>,
+     Inline: [0],
+     Unfolding: (\ ww :: Env.XCoord
+                   ww1 :: Env.YCoord
+                   ww2 :: Env.Altitude
+                   ww3 :: Env.XCoord
+                   ww4 :: Env.YCoord
+                   ww5 :: Env.Altitude ->
+                 case GHC.Integer.Type.eqInteger# ww ww3 of wild { DEFAULT ->
+                 case GHC.Prim.tagToEnum# @ GHC.Types.Bool wild of wild1 {
+                   GHC.Types.False -> GHC.Types.False
+                   GHC.Types.True
+                   -> case GHC.Integer.Type.eqInteger# ww1 ww4 of wild2 { DEFAULT ->
+                      case GHC.Prim.tagToEnum# @ GHC.Types.Bool wild2 of wild3 {
+                        GHC.Types.False -> GHC.Types.False
+                        GHC.Types.True -> Env.$fEqAltitude_$c== ww2 ww5 } } } }) -}
+6f12b2836d98deb3e44eb47f045e7606
+  $w$cshowsPrec ::
+    GHC.Prim.Int#
+    -> Env.Position
+    -> Env.Altitude
+    -> GHC.Base.String
+    -> GHC.Base.String
+  {- Arity: 4, Strictness: <L,U><L,1*U(U,U)><L,1*U><L,U>,
+     Inline: [0],
+     Unfolding: (\ ww :: GHC.Prim.Int#
+                   ww1 :: Env.Position
+                   ww2 :: Env.Altitude
+                   w :: GHC.Base.String ->
+                 let {
+                   g :: GHC.Base.String -> GHC.Base.String
+                     {- Arity: 1, Strictness: <L,1*U> -}
+                   = \ x :: GHC.Base.String[OneShot] ->
+                     case ww1 of ww3 { Env.Position ww4 ww5 ->
+                     GHC.Base.++
+                       @ GHC.Types.Char
+                       (Env.$w$cshow1 ww4 ww5)
+                       (GHC.Types.:
+                          @ GHC.Types.Char
+                          GHC.Show.showSpace1
+                          (case ww2 of wild {
+                             Env.High -> GHC.Base.++ @ GHC.Types.Char Env.$fShowAltitude3 x
+                             Env.Low -> GHC.Base.++ @ GHC.Types.Char Env.$fShowAltitude2 x })) }
+                 } in
+                 case GHC.Prim.tagToEnum#
+                        @ GHC.Types.Bool
+                        (GHC.Prim.>=# ww 11) of wild {
+                   GHC.Types.False
+                   -> GHC.Base.++ @ GHC.Types.Char Drone.$fShowDronePosition2 (g w)
+                   GHC.Types.True
+                   -> GHC.Types.:
+                        @ GHC.Types.Char
+                        GHC.Show.shows9
+                        (GHC.Base.++
+                           @ GHC.Types.Char
+                           Drone.$fShowDronePosition2
+                           (g (GHC.Types.: @ GHC.Types.Char GHC.Show.shows8 w))) }) -}
+893ad413835a1aa020e9313db822517e
+  data Action
+    = MoveCardinal Env.CardinalDir
+    | MoveInterCardinal Env.IntercardinalDir
+    | MoveVertical Drone.VerticalDirection
+    | Hover
+    Promotable
+1c6feaac79fab925cd041893e3119af3
+  data DronePosition = DronePos Env.Position Env.Altitude
+600cdc300b152596ae3698bc8f058dc4
+  data DroneStatus
+    = Unassigned
+    | Assigned Drone.Action
+    | Acting {action :: Drone.Action,
+              stepsRemaining :: GHC.Integer.Type.Integer}
+512945d7e538dfc3f5e000b6f394c3d8
+  class Timed t where
+    duration :: t -> GHC.Integer.Type.Integer
+b385303472d92a7fc2122a5bc1df0a0c
+  data VerticalDirection = Ascend | Descend
+    Promotable
+359ece943fc09e08c3b2bbb186f4813a
+  action :: Drone.DroneStatus -> Drone.Action
+  RecSel Drone.DroneStatus
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ ds :: Drone.DroneStatus ->
+                 case ds of wild {
+                   DEFAULT -> Drone.action1 Drone.Acting ds1 ds2 -> ds1 }) -}
+009a301bacc3bdc9c9835c0fc5470737
+  action1 :: Drone.Action
+  {- Strictness: b -}
+c0e00912cd88bd0e8fbf57558e55e89f
+  stepsRemaining :: Drone.DroneStatus -> GHC.Integer.Type.Integer
+  RecSel Drone.DroneStatus
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ ds :: Drone.DroneStatus ->
+                 case ds of wild {
+                   DEFAULT -> Drone.stepsRemaining1 Drone.Acting ds1 ds2 -> ds2 }) -}
+26dfd69c06ae7e768071d4ddbd87c648
+  stepsRemaining1 :: GHC.Integer.Type.Integer
+  {- Strictness: b -}
+6e8b32b5e550a9d1cdb0ea4176345dc0
+  viewableFrom :: Drone.DronePosition -> [Env.Position]
+  {- Arity: 1, Strictness: <S(LS),1*U(U,1*U)>m2,
+     Unfolding: InlineRule (1, True, False)
+                (\ ds :: Drone.DronePosition ->
+                 case ds of wild { Drone.DronePos pos ds1 ->
+                 case ds1 of wild1 {
+                   Env.High -> GHC.Types.: @ Env.Position pos (Env.neighborsOf pos)
+                   Env.Low
+                   -> GHC.Types.:
+                        @ Env.Position
+                        pos
+                        (GHC.Types.[] @ Env.Position) } }) -}
+instance GHC.Classes.Eq [Drone.DronePosition]
+  = Drone.$fEqDronePosition
+instance GHC.Show.Show [Drone.DronePosition]
+  = Drone.$fShowDronePosition
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: safe
+require own pkg trusted: False
+

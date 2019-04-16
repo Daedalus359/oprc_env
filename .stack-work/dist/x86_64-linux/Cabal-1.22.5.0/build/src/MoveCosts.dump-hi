@@ -1,0 +1,84 @@
+
+==================== FINAL INTERFACE ====================
+2019-04-16 03:27:22.44906 UTC
+
+interface oprce_DrFrqvqEd8GBFfVkSxZTKM:MoveCosts 7103
+  interface hash: 4d320bc5fff018a79660afa7d5bc7c12
+  ABI hash: 8fb66c49f75f4e5200e7ad0ab54a4257
+  export-list hash: fcfc8b1218bba54428cd08b27f800e88
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 962af636f8e927040c7daa9c21457292
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  MoveCosts.Costed{MoveCosts.cost}
+module dependencies: Env
+package dependencies: array-0.5.1.0@array_67iodizgJQIIxYVTp4emlA
+                      base-4.8.2.0* containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU
+                      deepseq-1.4.1.1@deeps_6vMKxt5sPFR0XsbRWvvq59 ghc-prim-0.4.0.0
+                      integer-gmp-1.0.0.0
+orphans: base-4.8.2.0:GHC.Base base-4.8.2.0:GHC.Float
+family instance modules: base-4.8.2.0:Control.Applicative
+                         base-4.8.2.0:Data.Either base-4.8.2.0:Data.Functor.Identity
+                         base-4.8.2.0:Data.Monoid base-4.8.2.0:Data.Type.Equality
+                         base-4.8.2.0:Data.Void base-4.8.2.0:GHC.Exts
+                         base-4.8.2.0:GHC.Generics
+                         containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map.Base
+                         containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Set.Base
+import  -/  base-4.8.2.0:Prelude 694dcaf039efe62df1c44834e2dbd2fb
+import  -/  Env 5bec9d9b71d3f3b3e2a754c35fe74203
+  exports: c6786dd068f282b1f5844a3e212cb1f4
+  CardinalDir 798140351eda72b6b26dcc66f57068a2
+  IntercardinalDir 240d397ebcf372029f1762164c40123b
+a54a3629964148088f1d2be674cc5b19
+  $fCostedCardinalDir :: MoveCosts.Costed Env.CardinalDir
+  DFunId[0]
+  {- Arity: 1, HasNoCafRefs, Strictness: <L,A>m,
+     Inline: INLINE (sat-args=0),
+     Unfolding: InlineRule (0, False, True)
+                MoveCosts.$fCostedCardinalDir_$ccost
+                  `cast`
+                (Sym (MoveCosts.NTCo:Costed[0] <Env.CardinalDir>_N)) -}
+edc2b48e3db7f04b38ccf09846823e56
+  $fCostedCardinalDir1 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 10) -}
+5d8a192d47f5ea69e673c503ed7f02b8
+  $fCostedCardinalDir_$ccost :: Env.CardinalDir -> GHC.Types.Int
+  {- Arity: 1, HasNoCafRefs, Strictness: <L,A>m,
+     Unfolding: InlineRule (1, True, True)
+                (\ ds :: Env.CardinalDir -> MoveCosts.$fCostedCardinalDir1) -}
+a54a3629964148088f1d2be674cc5b19
+  $fCostedIntercardinalDir :: MoveCosts.Costed Env.IntercardinalDir
+  DFunId[0]
+  {- Arity: 1, HasNoCafRefs, Strictness: <L,A>m,
+     Inline: INLINE (sat-args=0),
+     Unfolding: InlineRule (0, False, True)
+                MoveCosts.$fCostedIntercardinalDir_$ccost
+                  `cast`
+                (Sym (MoveCosts.NTCo:Costed[0] <Env.IntercardinalDir>_N)) -}
+1171d7e5e3e9289767abde9c69236142
+  $fCostedIntercardinalDir1 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 14) -}
+aa3a6ff10ffbacceda09fb77a3b032c4
+  $fCostedIntercardinalDir_$ccost ::
+    Env.IntercardinalDir -> GHC.Types.Int
+  {- Arity: 1, HasNoCafRefs, Strictness: <L,A>m,
+     Unfolding: InlineRule (1, True, True)
+                (\ ds :: Env.IntercardinalDir ->
+                 MoveCosts.$fCostedIntercardinalDir1) -}
+a54a3629964148088f1d2be674cc5b19
+  class Costed c where
+    cost :: c -> GHC.Types.Int
+instance MoveCosts.Costed [Env.CardinalDir]
+  = MoveCosts.$fCostedCardinalDir
+instance MoveCosts.Costed [Env.IntercardinalDir]
+  = MoveCosts.$fCostedIntercardinalDir
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: safe
+require own pkg trusted: False
+

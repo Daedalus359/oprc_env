@@ -1,0 +1,188 @@
+
+==================== FINAL INTERFACE ====================
+2019-04-16 03:27:22.48368 UTC
+
+interface oprce_DrFrqvqEd8GBFfVkSxZTKM:SampleVals 7103
+  interface hash: 02a99ee7696650c69983cb2d087386df
+  ABI hash: d35e9f39e79dfd8eb847f647b76592c5
+  export-list hash: 72b41dd325da5f027ee83a17c3b7a1f0
+  orphan hash: e97d3380165e6969e96d30115e73aef2
+  flag hash: 962af636f8e927040c7daa9c21457292
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  SampleVals.env
+  SampleVals.footprint
+  SampleVals.pat
+  SampleVals.pat2
+  SampleVals.pos
+  SampleVals.pos2
+  SampleVals.xc
+  SampleVals.yc
+module dependencies: Env
+package dependencies: array-0.5.1.0@array_67iodizgJQIIxYVTp4emlA
+                      base-4.8.2.0* containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU
+                      deepseq-1.4.1.1@deeps_6vMKxt5sPFR0XsbRWvvq59 ghc-prim-0.4.0.0
+                      integer-gmp-1.0.0.0
+orphans: base-4.8.2.0:GHC.Base base-4.8.2.0:GHC.Float
+family instance modules: base-4.8.2.0:Control.Applicative
+                         base-4.8.2.0:Data.Either base-4.8.2.0:Data.Functor.Identity
+                         base-4.8.2.0:Data.Monoid base-4.8.2.0:Data.Type.Equality
+                         base-4.8.2.0:Data.Void base-4.8.2.0:GHC.Exts
+                         base-4.8.2.0:GHC.Generics
+                         containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map.Base
+                         containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Set.Base
+import  -/  base-4.8.2.0:GHC.Num 9f42750c866f5832ca565146bd660c60
+import  -/  base-4.8.2.0:Prelude 694dcaf039efe62df1c44834e2dbd2fb
+import  -/  containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map 1800ccac43fd924c376b60eac12f4d04
+import  -/  containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map.Base 642e37808d03e24efbe8e8ff1336f343
+import  -/  containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Set 7116dff3002cb8f8fc1c63ac63f4ea50
+import  -/  Env 5bec9d9b71d3f3b3e2a754c35fe74203
+  exports: c6786dd068f282b1f5844a3e212cb1f4
+  Close 7d067f2a2aa31ec2223f6c6bbe89b8cd
+  Environment 481e46b7b776107658344fc34372d1a2
+  Far da7aa59f0e56ba058d334dffe0381e97
+  Footprint 7a0a1fde611e5fd2f7295bff454c76e3
+  Patch d09771383f1b956daf512a579e31993e
+  Patch 61b8cd8a4369899a76572b192b24aaf9
+  Position 09e2667d7fda61b2c93222779362cabc
+  Position fda968edc0a3e2bcbd99cecfd362a455
+  XCoord 43949bbc12fc1983325e747d52c4142a
+  YCoord 2a4f8f0446726cb38ad8d57bbeaa6468
+fd9131a2da2e4e01dc25eff917bc68c4
+  $sfromList ::
+    [(Env.Position, a)] -> Data.Map.Base.Map Env.Position a
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: (\ @ a ds :: [(Env.Position, a)] ->
+                 case ds of wild {
+                   [] -> Data.Map.Base.Tip @ Env.Position @ a
+                   : ds1 ds2
+                   -> case ds1 of wild1 { (,) kx x ->
+                      case ds2 of wild2 {
+                        []
+                        -> case kx of dt { Env.Position ipv ipv1 ->
+                           Data.Map.Base.Bin
+                             @ Env.Position
+                             @ a
+                             1
+                             dt
+                             x
+                             (Data.Map.Base.Tip @ Env.Position @ a)
+                             (Data.Map.Base.Tip @ Env.Position @ a) }
+                        : ipv ipv1
+                        -> case ipv of wild3 { (,) ky ds3 ->
+                           case kx of ww { Env.Position ww1 ww2 ->
+                           case ky of ww3 { Env.Position ww4 ww5 ->
+                           case Env.$w$ccompare ww1 ww2 ww4 ww5 of wild4 {
+                             DEFAULT
+                             -> SampleVals.$sfromList1
+                                  @ a
+                                  (Data.Map.Base.Bin
+                                     @ Env.Position
+                                     @ a
+                                     1
+                                     ww
+                                     x
+                                     (Data.Map.Base.Tip @ Env.Position @ a)
+                                     (Data.Map.Base.Tip @ Env.Position @ a))
+                                  wild2
+                             GHC.Types.LT
+                             -> SampleVals.$wpoly_go10
+                                  @ a
+                                  1
+                                  (Data.Map.Base.Bin
+                                     @ Env.Position
+                                     @ a
+                                     1
+                                     ww
+                                     x
+                                     (Data.Map.Base.Tip @ Env.Position @ a)
+                                     (Data.Map.Base.Tip @ Env.Position @ a))
+                                  wild2 } } } } } } }) -}
+74d3375755c5d03a5038daae58adc42b
+  $sfromList1 ::
+    Data.Map.Base.Map Env.Position a1
+    -> [(Env.Position, a1)] -> Data.Map.Base.Map Env.Position a1
+  {- Arity: 2, Strictness: <S,1*U><S,1*U> -}
+4b336913d200024912c5872c2adebc05
+  $w$sgo10 ::
+    Env.XCoord
+    -> Env.YCoord
+    -> a1
+    -> Data.Map.Base.Map Env.Position a1
+    -> Data.Map.Base.Map Env.Position a1
+  {- Arity: 4, Strictness: <L,U><L,U><L,U><S,1*U>, Inline: [0] -}
+f39e5795e802d9d2912dd307712c075a
+  $wpoly_go10 ::
+    GHC.Prim.Int#
+    -> Data.Map.Base.Map Env.Position a
+    -> [(Env.Position, a)]
+    -> Data.Map.Base.Map Env.Position a
+  {- Arity: 3, Strictness: <L,U><S,1*U><S,1*U>, Inline: [0] -}
+3264f238cd51f32991b8e8033950fdee
+  env :: Env.Environment
+  {- Unfolding: (SampleVals.$sfromList
+                   @ Env.Patch
+                   SampleVals.env1) -}
+1ed1c2233bec0f5071a20b8ecb0923dc
+  env1 :: [(Env.Position, Env.Patch)]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ (Env.Position, Env.Patch)
+                   SampleVals.env4
+                   SampleVals.env2) -}
+072b199028a0c06dc93dcd00b9711fb3
+  env2 :: [(Env.Position, Env.Patch)]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ (Env.Position, Env.Patch)
+                   SampleVals.env3
+                   (GHC.Types.[] @ (Env.Position, Env.Patch))) -}
+ea13d2f7ef0b65224d661e49bd1b70ed
+  env3 :: (Env.Position, Env.Patch)
+  {- HasNoCafRefs, Unfolding: ((SampleVals.pos2, SampleVals.pat2)) -}
+cd70fe32158bc3a483c31f3a6b7a4897
+  env4 :: (Env.Position, Env.Patch)
+  {- HasNoCafRefs, Unfolding: ((SampleVals.pos, SampleVals.pat)) -}
+d49c7cf281f98a6963a6f47e3ca58dd1
+  footprint :: Env.Footprint
+  {- Unfolding: (Data.Map.Base.keysSet
+                   @ Env.Position
+                   @ Env.Patch
+                   SampleVals.env) -}
+2f53c70470ba1387da46da874743eb7c
+  pat :: Env.Patch
+  {- HasNoCafRefs, Strictness: m, Unfolding: (Env.Patch Env.Close) -}
+f6fdb293519c19c15c2796e262543a21
+  pat2 :: Env.Patch
+  {- HasNoCafRefs, Strictness: m, Unfolding: (Env.Patch Env.Far) -}
+79edb1b16a4e77e7bf0f87d0a2ee1226
+  pos :: Env.Position
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (Env.Position SampleVals.xc SampleVals.yc) -}
+a101d74a71fc982a7bfb9b20024b128f
+  pos1 :: GHC.Integer.Type.Integer
+  {- HasNoCafRefs, Unfolding: (__integer 6) -}
+7287c5f451c17f9f7720a77212c3b1b9
+  pos2 :: Env.Position
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (Env.Position SampleVals.pos1 SampleVals.yc) -}
+d4818865bc70402f24a52f66e7b86a5a
+  xc :: Env.XCoord
+  {- HasNoCafRefs, Unfolding: (__integer 5) -}
+bd46472013efac1dfcaf6e5d414abf3c
+  yc :: Env.YCoord
+  {- HasNoCafRefs, Unfolding: (__integer -3) -}
+"SPEC/SampleVals fromList @ Position _" [ALWAYS] forall @ a
+                                                        $dOrd :: GHC.Classes.Ord Env.Position
+  Data.Map.Base.fromList @ Env.Position @ a $dOrd
+  = SampleVals.$sfromList @ a
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: safe
+require own pkg trusted: False
+

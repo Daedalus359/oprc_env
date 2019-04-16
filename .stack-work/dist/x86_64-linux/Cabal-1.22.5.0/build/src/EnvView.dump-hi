@@ -1,0 +1,54 @@
+
+==================== FINAL INTERFACE ====================
+2019-04-16 03:55:17.141335 UTC
+
+interface oprce_DrFrqvqEd8GBFfVkSxZTKM:EnvView 7103
+  interface hash: 00cabb2d485f18a962c0bf5a80d16dc9
+  ABI hash: a0bcd60431c0b0ecdb898cc1a8927091
+  export-list hash: 92d645aa7dce4d3a9a22aa9aa358a92d
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 962af636f8e927040c7daa9c21457292
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  EnvView.EnvironmentInfo
+  EnvView.PatchInfo{EnvView.Classified EnvView.FullyObserved EnvView.Unseen}
+module dependencies: Drone Env MoveCosts
+package dependencies: array-0.5.1.0@array_67iodizgJQIIxYVTp4emlA
+                      base-4.8.2.0* containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU
+                      deepseq-1.4.1.1@deeps_6vMKxt5sPFR0XsbRWvvq59 ghc-prim-0.4.0.0
+                      integer-gmp-1.0.0.0
+orphans: base-4.8.2.0:GHC.Base base-4.8.2.0:GHC.Float
+family instance modules: base-4.8.2.0:Control.Applicative
+                         base-4.8.2.0:Data.Either base-4.8.2.0:Data.Functor.Identity
+                         base-4.8.2.0:Data.Monoid base-4.8.2.0:Data.Type.Equality
+                         base-4.8.2.0:Data.Void base-4.8.2.0:GHC.Exts
+                         base-4.8.2.0:GHC.Generics
+                         containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map.Base
+                         containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Set.Base
+import  -/  base-4.8.2.0:Prelude 694dcaf039efe62df1c44834e2dbd2fb
+import  -/  containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map 1800ccac43fd924c376b60eac12f4d04
+import  -/  containers-0.5.6.2@conta_2C3ZI8RgPO2LBMidXKTvIU:Data.Map.Base 642e37808d03e24efbe8e8ff1336f343
+import  -/  Drone c691061b3452e023ef1270f499273785
+  exports: ea348bd6775138910f3635e50e102be5
+import  -/  Env 5bec9d9b71d3f3b3e2a754c35fe74203
+  exports: c6786dd068f282b1f5844a3e212cb1f4
+  DetailReq 41fa8ab29b11a7ddbed19315d304d366
+  Patch 61b8cd8a4369899a76572b192b24aaf9
+  Position fda968edc0a3e2bcbd99cecfd362a455
+71af211e62714ebcf32262e094a2103a
+  type EnvironmentInfo =
+    Data.Map.Base.Map Env.Position EnvView.PatchInfo
+2f773094023601b06ac5d032d9d84bcc
+  data PatchInfo
+    = Unseen | Classified Env.DetailReq | FullyObserved Env.Patch
+    Promotable
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: safe
+require own pkg trusted: False
+

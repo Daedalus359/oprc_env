@@ -27,4 +27,6 @@ main = do
   putStrLn (show (Map.lookup (Env.Position 1 1) SV.env))
   putStrLn "Checking what is at position (5,-3): "
   putStrLn (show (Map.lookup (Env.Position 5 (-3)) SV.env))
+  putStrLn "Showing footprint generated from the environment: "
+  putStrLn (show SV.footprint)
 --main = BE.mainWith myCircle

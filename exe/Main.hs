@@ -29,4 +29,4 @@ main = do
   putStrLn (show (Map.lookup (Env.Position 5 (-3)) SV.env))
   putStrLn "Showing footprint generated from the environment: "
   putStrLn (show SV.footprint)
---main = BE.mainWith myCircle
+  BE.mainWith myCircle

@@ -24,6 +24,7 @@ library
                         , SampleVals
                         , EnvView
                         , Drone
+                        , Ensemble
   build-depends:          base >=4.8 && <4.9
                         , containers
   default-language:       Haskell2010

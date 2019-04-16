@@ -10,4 +10,9 @@ data PatchInfo =
   | Classified DetailReq --only the type of the patch is known
   | FullyObserved Env.Patch --this patch has been adequately observed
 
+--the list of all positions which can be seen from a given position and altitude
+viewableFrom :: DronePosition -> [Position]
+viewableFrom (DronePos pos Low) = [pos]
+viewableFrom (DronePos pos High) = pos : (Env.neighborsOf pos)
+
 type EnvironmentInfo = Map.Map Position PatchInfo

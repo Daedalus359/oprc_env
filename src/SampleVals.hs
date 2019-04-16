@@ -2,6 +2,7 @@ module SampleVals where
 
 import Env
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 xc :: Env.XCoord
 xc = 5
@@ -23,3 +24,6 @@ pat2 = Patch Far
 
 env :: Env.Environment
 env  = Map.fromList [(pos, pat), (pos2, pat2)]
+
+footprint :: Env.Footprint
+footprint = Map.keysSet env

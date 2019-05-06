@@ -3,6 +3,7 @@ module SampleVals where
 import Env
 import Drone
 import Ensemble
+import EnvView
 
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -69,6 +70,20 @@ workingUp = Acting moveUp fiveSteps :: Drone.DroneStatus
 
 --Datatypes defined in Ensemble
 drone1 = DroneID 1 :: Ensemble.Drone
+drone2 = DroneID 2 :: Ensemble.Drone
+
+drones = [drone1, drone2] :: Ensemble.DroneList
+
+ensembleStatus = [(drone1, workingUp), (drone2, (Acting (MoveVertical Descend) 4))] :: Ensemble.EnsembleStatus 
+
+--Datatypes defined in EnvView
+
+knownClose = Classified Close :: EnvView.PatchInfo
+
+envInfo = Map.fromList [(pos, knownClose), (pos2, FullyObserved pat2)]
+
+--Datatypes defined in WorldState
+
 
 --make an example world
 --make an example policy

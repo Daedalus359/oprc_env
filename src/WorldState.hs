@@ -8,13 +8,16 @@ import Ensemble
 
 import Data.Maybe
 
+--everything, including a description of the partial infomation available to an agent
 data WorldState =
   WorldState {
-    env :: Env.Environment
-  , view :: EnvView.EnvironmentInfo
-  , droneList :: DroneList
-  , ensembleStatus :: EnsembleStatus
+    getEnv :: Env.Environment
+  , getView :: EnvView.EnvironmentInfo
+  , getDroneList :: Ensemble.DroneList
+  , getEnsembleStatus :: Ensemble.EnsembleStatus
     }
+
+--TODO: make a smart constructor for WorldState that checks everything for consistency (e.g. between droneList and ensembleStatus)
 
 type NextActions = [(Drone, Action)]
 

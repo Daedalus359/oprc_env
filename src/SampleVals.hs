@@ -4,6 +4,7 @@ import Env
 import Drone
 import Ensemble
 import EnvView
+import WorldState
 
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -80,10 +81,10 @@ ensembleStatus = [(drone1, workingUp), (drone2, (Acting (MoveVertical Descend) 4
 
 knownClose = Classified Close :: EnvView.PatchInfo
 
-envInfo = Map.fromList [(pos, knownClose), (pos2, FullyObserved pat2)]
+envInfo = Map.fromList [(pos, knownClose), (pos2, FullyObserved pat2)] :: EnvView.EnvironmentInfo
 
 --Datatypes defined in WorldState
 
-
+worldState = WorldState env envInfo drones ensembleStatus :: WorldState.WorldState
 --make an example world
 --make an example policy

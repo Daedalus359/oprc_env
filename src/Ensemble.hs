@@ -3,9 +3,9 @@ module Ensemble where
 import Drone
 import Data.Map as Map
 
-data DroneID = Drone Integer
-  deriving Eq
+data Drone = DroneID Integer
+  deriving (Eq, Show)
 
-type DroneList = [DroneID]
+type DroneList = [Drone]
 
-type EnsembleStatus = [(DroneID, DroneStatus)]
+type EnsembleStatus = [(Drone, DroneStatus)]

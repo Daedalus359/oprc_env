@@ -2,6 +2,7 @@ module SampleVals where
 
 import Env
 import Drone
+import Ensemble
 
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -57,5 +58,17 @@ footprint = Map.keysSet env
 
 dronePos :: Drone.DronePosition
 dronePos = DronePos pos high
+
+ascend = Ascend :: Drone.VerticalDirection
+
+moveUp = MoveVertical ascend :: Drone.Action
+
+fiveSteps = 5 :: Drone.StepsRemaining
+
+workingUp = Acting moveUp fiveSteps :: Drone.DroneStatus
+
+--Datatypes defined in Ensemble
+drone1 = DroneID 1 :: Ensemble.Drone
+
 --make an example world
 --make an example policy

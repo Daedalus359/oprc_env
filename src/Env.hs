@@ -20,10 +20,11 @@ instance Ord Position where
 
 --Levels of Scrutiny that may be required
 data DetailReq = Close | Far
-  deriving Show
+  deriving (Eq, Show)
 
 --a patch is a single spot in the map
 data Patch = Patch DetailReq
+  deriving Eq
 
 --pretty printing for patches
 instance Show Patch where

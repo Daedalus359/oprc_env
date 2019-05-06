@@ -16,6 +16,7 @@ data WorldState =
   , getDroneList :: Ensemble.DroneList
   , getEnsembleStatus :: Ensemble.EnsembleStatus
     }
+  deriving Eq
 
 --TODO: make a smart constructor for WorldState that checks everything for consistency (e.g. between droneList and ensembleStatus)
 

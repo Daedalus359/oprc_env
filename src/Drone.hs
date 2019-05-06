@@ -7,12 +7,14 @@ data DronePosition = DronePos Env.Position Env.Altitude
   deriving (Eq, Show)
 
 data VerticalDirection = Ascend | Descend
+  deriving (Eq, Show)
 
 data Action =
     MoveCardinal Env.CardinalDir
   | MoveIntercardinal Env.IntercardinalDir
   | MoveVertical VerticalDirection
   | Hover
+  deriving (Eq, Show)
 
 class Timed t where
   duration :: t -> Integer
@@ -33,3 +35,4 @@ data DroneStatus =
     Unassigned
   | Assigned Action
   | Acting Action StepsRemaining
+  deriving (Eq, Show)

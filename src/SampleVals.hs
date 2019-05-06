@@ -13,9 +13,25 @@ yc = (-3)
 pos :: Env.Position
 pos = Position xc yc
 
-pat :: Env.Patch
-pat = Patch Close
+close :: Env.DetailReq
+close = Close
 
+pat :: Env.Patch
+pat = Patch close
+
+high :: Env.Altitude
+high = High
+
+hopNW :: Env.Hop
+hopNW = (-1, 1)
+
+north :: Env.CardinalDir
+north = North
+
+sw :: Env.IntercardinalDir
+sw = SW
+
+--setup extra patch for environment
 pos2 :: Env.Position
 pos2 = Position (xc + 1) yc
 
@@ -25,6 +41,7 @@ pat2 = Patch Far
 env :: Env.Environment
 env  = Map.fromList [(pos, pat), (pos2, pat2)]
 
+--just the shape of the environment
 footprint :: Env.Footprint
 footprint = Map.keysSet env
 

@@ -5,4 +5,3 @@ import Ensemble
 
 class Policy p where
   nextMove :: p -> WorldState -> EnsembleStatus
-

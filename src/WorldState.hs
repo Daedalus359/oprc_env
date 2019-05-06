@@ -12,7 +12,6 @@ import Data.Maybe
 data WorldState =
   WorldState {
     getEnv :: Env.Environment
-  , getView :: EnvironmentInfo
   , getDroneList :: Ensemble.DroneList
   , getEnsembleStatus :: Ensemble.EnsembleStatus
   }
@@ -25,7 +24,7 @@ type NextActions = [(Drone, Action)]
 --update ensemble status based next actions
 --make observations, update view based on that
 updateWorld :: WorldState -> NextActions -> WorldState
-updateWorld (WorldState env view droneList ensembleStatus) nextActions = (WorldState env view droneList (updateEnStatus ensembleStatus nextActions))
+updateWorld (WorldState env droneList ensembleStatus) nextActions = (WorldState env droneList (updateEnStatus ensembleStatus nextActions))
 
 --should I give WorldState a functor instance so I can update EnStatus using fmap?
 

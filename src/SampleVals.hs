@@ -85,7 +85,7 @@ envInfo = Map.fromList [(pos, knownClose), (pos2, FullyObserved pat2)] :: EnvVie
 
 --Datatypes defined in WorldState
 
-worldState = WorldState env envInfo drones ensembleStatus :: WorldState.WorldState
+worldState = WorldState env drones ensembleStatus :: WorldState.WorldState
 
 
 --make an example policy

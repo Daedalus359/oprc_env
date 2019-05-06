@@ -1,8 +1,13 @@
 module SampleVals where
 
 import Env
+import Drone
+
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+
+
+--Datatypes defined in Env
 
 xc :: Env.XCoord
 xc = 5
@@ -45,5 +50,12 @@ env  = Map.fromList [(pos, pat), (pos2, pat2)]
 footprint :: Env.Footprint
 footprint = Map.keysSet env
 
+
+--Currently no datatypes defined in MoveCosts
+
+--Datatypes defined in Drone
+
+dronePos :: Drone.DronePosition
+dronePos = DronePos pos high
 --make an example world
 --make an example policy

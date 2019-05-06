@@ -2,6 +2,7 @@ module EnvView where --a representation of (possibly incomplete) knowledge about
 
 import Env
 import Drone
+import Ensemble
 import qualified Data.Map as Map
 
 --given a patch of land, what do we know about it?
@@ -17,3 +18,11 @@ viewableFrom (DronePos pos Low) = [pos]
 viewableFrom (DronePos pos High) = pos : (Env.neighborsOf pos)
 
 type EnvironmentInfo = Map.Map Position PatchInfo
+
+data WorldView = 
+  WorldView {
+    getView :: EnvironmentInfo
+  , getDroneList :: Ensemble.DroneList
+  , getEnsembleStatus :: Ensemble.EnsembleStatus
+  }
+  deriving Eq

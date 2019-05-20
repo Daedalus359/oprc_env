@@ -71,6 +71,5 @@ occupiedPositions ((_, (droneStat)) : ensStat) = position : (occupiedPositions e
                                      (Acting _ _ pos) -> pos
                                      (Assigned _ pos) -> pos
 
-
 --lookup drone nextActions to get a Maybe Action
 --turn this into a Maybe DroneStatus with fmap Assigned

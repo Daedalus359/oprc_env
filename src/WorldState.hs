@@ -16,7 +16,15 @@ data WorldState =
   -- , getDroneList :: Ensemble.DroneList
   , getEnsembleStatus :: Ensemble.EnsembleStatus
   }
-  deriving (Eq, Show)
+  deriving Eq
+
+instance Show WorldState where
+  show (WorldState env view status) = concat 
+    ["WorldState: \n",
+      "\t", show env,
+      "\t", show view,
+      "\t", show status
+    ]
 
 --TODO: make a smart constructor for WorldState that checks everything for consistency (e.g. between droneList and ensembleStatus)
 

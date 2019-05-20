@@ -7,6 +7,8 @@ import MoveCosts
 import Ensemble
 
 import Data.Maybe
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 --everything, including a description of the partial infomation available to an agent
 data WorldState =
@@ -57,6 +59,18 @@ stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action 
 
 observe :: EnsembleStatus -> EnvironmentInfo -> EnvironmentInfo
 observe = undefined
+
+--returns a map from positions to the altitude of the lowest drone that can view it
+viewableMap :: EnsembleStatus -> Map.Map Position Altitude
+viewableMap = undefined
+
+occupiedPositions :: EnsembleStatus -> [DronePosition]
+occupiedPositions [] = []
+occupiedPositions ((_, (droneStat)) : ensStat) = position : (occupiedPositions ensStat)
+  where position = case droneStat of (Unassigned pos) -> pos
+                                     (Acting _ _ pos) -> pos
+                                     (Assigned _ pos) -> pos
+
 
 --lookup drone nextActions to get a Maybe Action
 --turn this into a Maybe DroneStatus with fmap Assigned

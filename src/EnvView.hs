@@ -12,11 +12,6 @@ data PatchInfo =
   | FullyObserved Env.Patch --this patch has been adequately observed
   deriving (Eq, Show)
 
---the list of all positions which can be seen from a given position and altitude
-viewableFrom :: DronePosition -> [Position]
-viewableFrom (DronePos pos Low) = [pos]
-viewableFrom (DronePos pos High) = pos : (Env.neighborsOf pos)
-
 type EnvironmentInfo = Map.Map Position PatchInfo
 
 data WorldView = 

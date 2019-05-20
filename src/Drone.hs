@@ -16,6 +16,11 @@ data Action =
   | Hover
   deriving (Eq, Show)
 
+--the list of all positions which can be seen from a given position and altitude
+viewableFrom :: DronePosition -> [Position]
+viewableFrom (DronePos pos Low) = [pos]
+viewableFrom (DronePos pos High) = pos : (Env.neighborsOf pos)
+
 --add a function like hopFrom for vertical positions if I eventually have more than two
 
 movedBy :: Action -> DronePosition -> DronePosition
@@ -34,10 +39,6 @@ instance Timed Action where
   duration (MoveCardinal _) = 10
   duration (MoveIntercardinal _ ) = 14
   duration (MoveVertical _ ) = 10
-
-viewableFrom :: DronePosition -> [Position]
-viewableFrom (DronePos pos Low) = [pos]
-viewableFrom (DronePos pos High) = pos : (Env.neighborsOf pos)
 
 type StepsRemaining = Integer
 

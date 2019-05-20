@@ -28,7 +28,7 @@ data Patch = Patch DetailReq
 
 --pretty printing for patches
 instance Show Patch where
-  show (Patch detailReq) = concat ["Patch:\n", "\tScrutiny Needed: ", show detailReq]
+  show (Patch detailReq) = concat ["Patch: ", "Scrutiny Needed: ", show detailReq]
 
 --function to tell if a coordinate is inside the boundary of the map
 inBounds :: Footprint -> Position -> Bool
@@ -40,6 +40,9 @@ data Altitude = High | Low
 
 --type synonym representing a change in position
 type Hop = (Integer, Integer)
+
+hopFrom :: Position -> Hop -> Position
+hopFrom (Position x y) (dX, dY) = (Position (x + dX) (y + dY))
 
 --compass directions
 class Direction d where
@@ -73,7 +76,14 @@ neighborsOf pos = nl <*> [pos]
   where nl = (fmap neighborTo [North, South, East, West]) ++ (fmap neighborTo [NE, SE, NW, SW])
 
 --The "environment" is a colection of patches at different positions
-type Environment = Map.Map Position Patch
+newtype Environment = Environment (Map.Map Position Patch)
+  deriving Eq
+
+instance Show Environment where
+  show (Environment map) = "Environment: " ++ (show map)
+
+toMap :: Environment -> Map.Map Position Patch
+toMap (Environment map) = map
 
 --The "Footprint" is a description of all points which are in bounds
 type Footprint = Set.Set Position

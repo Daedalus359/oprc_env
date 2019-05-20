@@ -16,6 +16,16 @@ data Action =
   | Hover
   deriving (Eq, Show)
 
+--add a function like hopFrom for vertical positions if I eventually have more than two
+
+movedBy :: Action -> DronePosition -> DronePosition
+movedBy Hover dPos = dPos
+movedBy (MoveCardinal dir) (DronePos pos alt)  = DronePos (hopFrom pos (deltas dir)) alt
+movedBy (MoveIntercardinal dir) (DronePos pos alt) = DronePos (hopFrom pos (deltas dir)) alt
+movedBy (MoveVertical vDir) (DronePos pos alt)
+  | vDir == Ascend = (DronePos pos High)
+  | otherwise = (DronePos pos Low)
+
 class Timed t where
   duration :: t -> Integer
 
@@ -36,5 +46,3 @@ data DroneStatus =
   | Assigned Action DronePosition
   | Acting Action StepsRemaining DronePosition
   deriving (Eq, Show)
-
---need to include the drone positions!

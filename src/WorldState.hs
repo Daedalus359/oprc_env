@@ -33,11 +33,12 @@ type NextActions = [(Drone, Action)]
 --update ensemble status based next actions
 --make observations, update view based on that
 --make it return type (WorldState, WorldView) eventually
-updateState :: WorldState -> NextActions -> WorldState
-updateState (WorldState env view ensembleStatus) nextActions = (WorldState env view (assignEnsemble nextActions ensembleStatus))
+updateState :: NextActions -> WorldState -> WorldState
+updateState nextActions (WorldState env view ensembleStatus) = (WorldState env view (assignEnsemble nextActions ensembleStatus))
 
---change this to not update a DroneStatus of Acting action
+--replace futile actions (e.g. Ascending when already high) with hover
 assignEnsemble :: NextActions -> EnsembleStatus -> EnsembleStatus
+assignEnsemble _ [] = []
 assignEnsemble nextActions ((drone, droneStat@(Unassigned pos)) : ensStat) =
   (drone, newStatus) : (assignEnsemble nextActions ensStat)
     where newStatus = (fromMaybe droneStat $ fmap toAssigned (lookup drone nextActions))
@@ -45,7 +46,14 @@ assignEnsemble nextActions ((drone, droneStat@(Unassigned pos)) : ensStat) =
 assignEnsemble nextActions (ds : ensStat) = ds : (assignEnsemble nextActions ensStat)--ignore new commands for drones alreacy acting or assigned
 
 stepEnsemble :: EnsembleStatus -> EnsembleStatus
-stepEnsemble = undefined
+stepEnsemble [] = []
+stepEnsemble ((drone, stat@(Unassigned _)) : enStat) = (drone, stat) : (stepEnsemble enStat)
+stepEnsemble ((drone, (Acting action steps pos)) : enStat)
+  | steps > 1 = (drone, (Acting action (steps - 1) pos)) : (stepEnsemble enStat)
+  | steps <= 1 = (drone, (Unassigned newPos)) : (stepEnsemble enStat)
+    where newPos = movedBy action pos
+stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action steps pos)) : (stepEnsemble enStat)
+  where steps = duration action
 
 observe :: EnsembleStatus -> EnvironmentInfo -> EnvironmentInfo
 observe = undefined

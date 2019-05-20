@@ -47,11 +47,11 @@ pat2 :: Env.Patch
 pat2 = Patch Far
 
 env :: Env.Environment
-env  = Map.fromList [(pos, pat), (pos2, pat2)]
+env  = Environment $ Map.fromList [(pos, pat), (pos2, pat2)]
 
 --just the shape of the environment
 footprint :: Env.Footprint
-footprint = Map.keysSet env
+footprint = Map.keysSet $ toMap env
 
 
 --Currently no datatypes defined in MoveCosts

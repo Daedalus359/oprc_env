@@ -23,18 +23,26 @@ myCircle = D.circle 1
 main :: IO ()
 main = foldr (>>) (return ())
   (fmap putStrLn
-    [ "Starting Environment",
+    [ "Demonstrating oprc_env on sample data values, see SampleVals.hs for details",
+      "\nPretty printing a patch",
       show SV.pat,
-      "Checking what is at position (1,1): ",
+      "\nChecking what is at position (1,1): ",
       (show (Map.lookup (Env.Position 1 1) SV.env)),
-      "Checking what is at position (5,-3): ",
+      "\nChecking what is at position (5,-3): ",
       (show (Map.lookup (Env.Position 5 (-3)) SV.env)),
-      "Showing footprint generated from the environment: ",
+      "\nShowing footprint generated from the environment: ",
       (show SV.footprint),
-      "printing neighbors of (3,6): ",
+      "\nprinting neighbors of (3,6): ",
       show $ Env.neighborsOf (Env.Position 3 6),
-      "list of points viewable from (2, 5) at low altitude: ",
-      show $ viewableFrom (DronePos (Env.Position 2 5) Env.Low)    
+      "\nlist of locations viewable from (2, 5) at low altitude: ",
+      show $ viewableFrom (DronePos (Env.Position 2 5) Env.Low),
+      "\nlist of locations viewable from (2, 5) at high altitude: ",
+      show $ viewableFrom (DronePos (Env.Position 2 5) Env.High),
+      "\nshowing a drone's status",
+      show SV.workingUp,
+      "\n showing an ensemble's status",
+      show SV.ensembleStatus,
+      ""
     ]
   ) >>
   BE.mainWith myCircle

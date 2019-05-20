@@ -32,7 +32,9 @@ viewableFrom (DronePos pos High) = pos : (Env.neighborsOf pos)
 type StepsRemaining = Integer
 
 data DroneStatus =
-    Unassigned
-  | Assigned Action
-  | Acting Action StepsRemaining
+  Unassigned DronePosition
+  | Assigned Action DronePosition
+  | Acting Action StepsRemaining DronePosition
   deriving (Eq, Show)
+
+--need to include the drone positions!

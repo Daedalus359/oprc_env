@@ -40,8 +40,12 @@ main = foldr (>>) (return ())
       show $ viewableFrom (DronePos (Env.Position 2 5) Env.High),
       "\nshowing a drone's status",
       show SV.workingUp,
-      "\n showing an ensemble's status",
+      "\nshowing an ensemble's status",
       show SV.ensembleStatus,
+      "\nshowing partial information about an environment",
+      show SV.envInfo,
+      "\nshowing a WorldState",
+      show SV.worldState,
       ""
     ]
   ) >>

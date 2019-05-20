@@ -10,7 +10,7 @@ data PatchInfo =
     Unseen --nothing is known about the patch
   | Classified DetailReq --only the type of the patch is known
   | FullyObserved Env.Patch --this patch has been adequately observed
-  deriving Eq
+  deriving (Eq, Show)
 
 --the list of all positions which can be seen from a given position and altitude
 viewableFrom :: DronePosition -> [Position]
@@ -22,7 +22,7 @@ type EnvironmentInfo = Map.Map Position PatchInfo
 data WorldView = 
   WorldView {
     getView :: EnvironmentInfo
-  , getDroneList :: Ensemble.DroneList
+  -- , getDroneList :: Ensemble.DroneList
   , getEnsembleStatus :: Ensemble.EnsembleStatus
   }
   deriving Eq

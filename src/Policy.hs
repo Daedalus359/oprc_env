@@ -16,4 +16,4 @@ newtype PolicyMap = PolicyMap [(WorldView, NextActions)]
 
 instance Policy PolicyMap where
   nextMove (PolicyMap policyMap) worldView =  fromMaybe defaultActions $ lookup worldView policyMap
-    where defaultActions = [(drone, Hover) | drone <- (EnvView.getDroneList worldView)]
+    where defaultActions = [(drone, Hover) | (drone, _) <- (EnvView.getEnsembleStatus worldView)]

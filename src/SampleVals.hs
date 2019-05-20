@@ -67,7 +67,7 @@ moveUp = MoveVertical ascend :: Drone.Action
 
 fiveSteps = 5 :: Drone.StepsRemaining
 
-workingUp = Acting moveUp fiveSteps :: Drone.DroneStatus
+workingUp = Acting moveUp fiveSteps dronePos :: Drone.DroneStatus
 
 --Datatypes defined in Ensemble
 drone1 = DroneID 1 :: Ensemble.Drone
@@ -75,7 +75,7 @@ drone2 = DroneID 2 :: Ensemble.Drone
 
 drones = [drone1, drone2] :: Ensemble.DroneList
 
-ensembleStatus = [(drone1, workingUp), (drone2, (Acting (MoveVertical Descend) 4))] :: Ensemble.EnsembleStatus 
+ensembleStatus = [(drone1, workingUp), (drone2, (Acting (MoveVertical Descend) 4 dronePos))] :: Ensemble.EnsembleStatus 
 
 --Datatypes defined in EnvView
 
@@ -85,7 +85,7 @@ envInfo = Map.fromList [(pos, knownClose), (pos2, FullyObserved pat2)] :: EnvVie
 
 --Datatypes defined in WorldState
 
-worldState = WorldState env envInfo drones ensembleStatus :: WorldState.WorldState
+worldState = WorldState env envInfo ensembleStatus :: WorldState.WorldState
 
 --make an example policy
 --put example of NextActions in under Ensemble

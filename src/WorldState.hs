@@ -57,13 +57,15 @@ stepEnsemble ((drone, (Acting action steps pos)) : enStat)
 stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action steps pos)) : (stepEnsemble enStat)
   where steps = duration action
 
-observe :: EnsembleStatus -> EnvironmentInfo -> EnvironmentInfo
+observe :: EnsembleStatus -> WorldState -> WorldState
 observe = undefined
 
 --function from minimalEnView to [(Position, PatchInfo)]
 --fromList to make that an EnvironmentInfo (Map.Map Position PatchInfo)
 --create a preference function f :: PatchInfo -> PatchInfo -> PatchInfo
 --use UnionWith to combine the existing and new EnvironmentInfos together
+
+
 
 --returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant

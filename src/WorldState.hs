@@ -8,6 +8,7 @@ import Ensemble
 
 import Data.Maybe
 import Control.Monad --join
+import qualified Data.Map as Map --unionWith
 
 --everything, including a description of the partial infomation available to an agent
 data WorldState =
@@ -58,6 +59,11 @@ stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action 
 
 observe :: EnsembleStatus -> EnvironmentInfo -> EnvironmentInfo
 observe = undefined
+
+--function from minimalEnView to [(Position, PatchInfo)]
+--fromList to make that an EnvironmentInfo (Map.Map Position PatchInfo)
+--create a preference function f :: PatchInfo -> PatchInfo -> PatchInfo
+--use UnionWith to combine the existing and new EnvironmentInfos together
 
 --returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant

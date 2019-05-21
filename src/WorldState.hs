@@ -59,8 +59,16 @@ observe :: EnsembleStatus -> EnvironmentInfo -> EnvironmentInfo
 observe = undefined
 
 --returns a map from positions to the altitude of the lowest drone that can view it
-viewableMap :: EnsembleStatus -> [(Position, Altitude)]
-viewableMap = undefined
+viewableMap :: [DronePosition] -> [(Position, Altitude)]
+viewableMap [] = []
+viewableMap ((DronePos pos alt) : dPList)
+  | newView = (pos, alt) : tailMap
+  | otherwise = tailMap
+    where tailMap = viewableMap dPList
+          newView =
+            case lookup pos tailMap of Nothing -> True
+                                       Just Low -> False
+                                       Just High -> (alt == Low)
 
 occupiedPositions :: EnsembleStatus -> [DronePosition]
 occupiedPositions [] = []

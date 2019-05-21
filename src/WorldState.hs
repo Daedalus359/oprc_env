@@ -73,6 +73,19 @@ viewableMap ((DronePos pos alt) : dPList)
                                        Just Low -> False --it can't get any better
                                        Just High -> (alt == Low) --add a low view if a high view exists
 
+--ni . reverse . ni
+
+--build a list from the back to front, adding new elements only when it improves upon the views in what comes later
+nonImprovingViews :: [(Position, Altitude)] -> [(Position, Altitude)]
+nonImprovingViews [] = []
+nonImprovingViews ((pos, alt) : views)
+  | newInfo = (pos, alt) : tailMap
+  | otherwise = tailMap
+    where tailMap = nonImprovingViews views
+          newInfo = 
+            case lookup pos tailMap of Nothing -> True --a view from any altitude is better than no information
+                                       Just Low -> False --it can't get any better
+                                       Just High -> (alt == Low) --add a low view if a high view exists
 
 ensembleView :: EnsembleStatus -> [(Position, Altitude)]
 ensembleView = join . (fmap viewList) . occupiedPositions

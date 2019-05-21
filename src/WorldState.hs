@@ -14,9 +14,9 @@ import qualified Data.Map as Map --unionWith
 data WorldState =
   WorldState {
     getEnv :: Env.Environment
-  , getView :: EnvironmentInfo
+  , getInfo :: EnvironmentInfo
   -- , getDroneList :: Ensemble.DroneList
-  , getEnsembleStatus :: Ensemble.EnsembleStatus
+  , getEnsemble :: Ensemble.EnsembleStatus
   }
   deriving Eq
 
@@ -59,10 +59,9 @@ stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action 
 
 --get new observations based on current ensembleStatus, then create a new WorlState from this information
 --only need to run this when EnsembleStatus is such that one drone just completed a motion
-observe :: EnsembleStatus -> WorldState -> WorldState
-observe = undefined
-
-
+observe :: WorldState -> EnvironmentInfo
+observe wS = mergeEnvInfo (getInfo wS) newInfo
+  where newInfo = envSnap (getEnv wS) (getEnsemble wS) :: EnvironmentInfo
 
 mergeEnvInfo :: EnvironmentInfo -> EnvironmentInfo -> EnvironmentInfo
 mergeEnvInfo = Map.unionWith takeBest

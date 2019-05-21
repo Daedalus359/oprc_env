@@ -69,6 +69,10 @@ patchMap :: [(Position, Altitude)] -> Environment -> [(Position, Altitude, Maybe
 patchMap [] _ = []
 patchMap ((pos, alt) : posAlts) e@(Environment envMap) = (pos, alt, (Map.lookup pos envMap)) : (patchMap posAlts e)
 
+swapMaybe :: (a, b, Maybe c) -> Maybe (a, b, c)
+swapMaybe (_, _, Nothing) = Nothing
+swapMaybe (a, b, Just c) = Just (a, b, c)
+
 --returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant
 minimalEnView :: EnsembleStatus -> [(Position, Altitude)]

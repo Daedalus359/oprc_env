@@ -73,9 +73,15 @@ viewableMap ((DronePos pos alt) : dPList)
                                        Just Low -> False --it can't get any better
                                        Just High -> (alt == Low) --add a low view if a high view exists
 
+
+ensembleView :: EnsembleStatus -> [(Position, Altitude)]
+ensembleView enStat = join $ fmap viewList $ occupiedPositions enStat
+
+--list of the views available from one DronePosition
 viewList :: DronePosition -> [(Position, Altitude)]
 viewList dPos@(DronePos pos alt) = fmap (\p -> (p, alt)) $ viewableFrom dPos
 
+--grabs the drone positions from an EnsembleStatus
 occupiedPositions :: EnsembleStatus -> [DronePosition]
 occupiedPositions [] = []
 occupiedPositions ((_, (droneStat)) : ensStat) = position : (occupiedPositions ensStat)

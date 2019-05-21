@@ -7,6 +7,7 @@ import MoveCosts
 import Ensemble
 
 import Data.Maybe
+import Control.Monad --join
 
 --everything, including a description of the partial infomation available to an agent
 data WorldState =
@@ -59,6 +60,8 @@ observe :: EnsembleStatus -> EnvironmentInfo -> EnvironmentInfo
 observe = undefined
 
 --returns a map from positions to the altitude of the lowest drone that can view it
+--BUG: does not remove high views if a low view improves on them. Fix this with sorting?
+--BUG: does not view all possible points from a high altitude
 viewableMap :: [DronePosition] -> [(Position, Altitude)]
 viewableMap [] = []
 viewableMap ((DronePos pos alt) : dPList)
@@ -66,9 +69,12 @@ viewableMap ((DronePos pos alt) : dPList)
   | otherwise = tailMap
     where tailMap = viewableMap dPList
           newView =
-            case lookup pos tailMap of Nothing -> True
-                                       Just Low -> False
-                                       Just High -> (alt == Low)
+            case lookup pos tailMap of Nothing -> True --a view from any altitude is better than no information
+                                       Just Low -> False --it can't get any better
+                                       Just High -> (alt == Low) --add a low view if a high view exists
+
+viewList :: DronePosition -> [(Position, Altitude)]
+viewList dPos@(DronePos pos alt) = fmap (\p -> (p, alt)) $ viewableFrom dPos
 
 occupiedPositions :: EnsembleStatus -> [DronePosition]
 occupiedPositions [] = []

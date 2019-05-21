@@ -59,21 +59,7 @@ stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action 
 observe :: EnsembleStatus -> EnvironmentInfo -> EnvironmentInfo
 observe = undefined
 
---returns a map from positions to the altitude of the lowest drone that can view it
---BUG: does not remove high views if a low view improves on them. Fix this with sorting?
---BUG: does not view all possible points from a high altitude
-viewableMap :: [DronePosition] -> [(Position, Altitude)]
-viewableMap [] = []
-viewableMap ((DronePos pos alt) : dPList)
-  | newView = (pos, alt) : tailMap
-  | otherwise = tailMap
-    where tailMap = viewableMap dPList
-          newView =
-            case lookup pos tailMap of Nothing -> True --a view from any altitude is better than no information
-                                       Just Low -> False --it can't get any better
-                                       Just High -> (alt == Low) --add a low view if a high view exists
-
---ni . reverse . ni
+--returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant
 minimalEnView :: EnsembleStatus -> [(Position, Altitude)]
 minimalEnView = nonImprovingViews . reverse . nonImprovingViews . ensembleView

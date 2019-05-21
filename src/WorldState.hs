@@ -57,11 +57,12 @@ stepEnsemble ((drone, (Acting action steps pos)) : enStat)
 stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action steps pos)) : (stepEnsemble enStat)
   where steps = duration action
 
+--get new observations based on current ensembleStatus, then create a new WorlState from this information
+--only need to run this when EnsembleStatus is such that one drone just completed a motion
 observe :: EnsembleStatus -> WorldState -> WorldState
 observe = undefined
 
---create a preference function f :: PatchInfo -> PatchInfo -> PatchInfo
---use UnionWith to combine the existing and new EnvironmentInfos together
+
 
 mergeEnvInfo :: EnvironmentInfo -> EnvironmentInfo -> EnvironmentInfo
 mergeEnvInfo = Map.unionWith takeBest
@@ -79,9 +80,9 @@ observePatch :: Altitude -> Patch -> PatchInfo
 observePatch High (Patch detailReq) = Classified detailReq
 observePatch Low patch = FullyObserved patch
 
-addPatch :: [(Position, Altitude)] -> Environment -> [(Position, Altitude, Maybe Patch)]
-addPatch [] _ = []
-addPatch ((pos, alt) : posAlts) e@(Environment envMap) = (pos, alt, (Map.lookup pos envMap)) : (addPatch posAlts e)
+addPatch :: Environment -> [(Position, Altitude)] -> [(Position, Altitude, Maybe Patch)]
+addPatch _ [] = []
+addPatch e@(Environment envMap) ((pos, alt) : posAlts) = (pos, alt, (Map.lookup pos envMap)) : (addPatch e posAlts)
 
 swapMaybe :: (a, b, Maybe c) -> Maybe (a, b, c)
 swapMaybe (_, _, Nothing) = Nothing
@@ -90,8 +91,8 @@ swapMaybe (a, b, Just c) = Just (a, b, c)
 observeForChain :: (Position, Altitude, Patch) -> (Position, PatchInfo)
 observeForChain (pos, alt, pat) = (pos, observePatch alt pat)
 
-envSnap :: [(Position, Altitude)] -> Environment -> Map.Map Position PatchInfo
-envSnap views env = Map.fromList $ (fmap observeForChain) $ catMaybes $ (fmap swapMaybe) $ addPatch views env
+envSnap :: [(Position, Altitude)] -> Environment -> EnvironmentInfo
+envSnap views env = Map.fromList $ (fmap observeForChain) $ catMaybes $ (fmap swapMaybe) $ addPatch env views
 
 --returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant

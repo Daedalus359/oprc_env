@@ -69,9 +69,9 @@ observePatch :: Altitude -> Patch -> PatchInfo
 observePatch High (Patch detailReq) = Classified detailReq
 observePatch Low patch = FullyObserved patch
 
-patchMap :: [(Position, Altitude)] -> Environment -> [(Position, Altitude, Maybe Patch)]
-patchMap [] _ = []
-patchMap ((pos, alt) : posAlts) e@(Environment envMap) = (pos, alt, (Map.lookup pos envMap)) : (patchMap posAlts e)
+addPatch :: [(Position, Altitude)] -> Environment -> [(Position, Altitude, Maybe Patch)]
+addPatch [] _ = []
+addPatch ((pos, alt) : posAlts) e@(Environment envMap) = (pos, alt, (Map.lookup pos envMap)) : (addPatch posAlts e)
 
 swapMaybe :: (a, b, Maybe c) -> Maybe (a, b, c)
 swapMaybe (_, _, Nothing) = Nothing
@@ -79,6 +79,9 @@ swapMaybe (a, b, Just c) = Just (a, b, c)
 
 observeForChain :: (Position, Altitude, Patch) -> (Position, PatchInfo)
 observeForChain (pos, alt, pat) = (pos, observePatch alt pat)
+
+envSnap :: [(Position, Altitude)] -> Environment -> Map.Map Position PatchInfo
+envSnap views env = Map.fromList $ (fmap observeForChain) $ catMaybes $ (fmap swapMaybe) $ addPatch views env
 
 --returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant

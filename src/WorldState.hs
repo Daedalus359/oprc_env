@@ -60,10 +60,20 @@ stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action 
 observe :: EnsembleStatus -> WorldState -> WorldState
 observe = undefined
 
---function from minimalEnView's [(Position, Altitude)] to [(Position, PatchInfo)]
---fromList to make that an EnvironmentInfo (Map.Map Position PatchInfo)
 --create a preference function f :: PatchInfo -> PatchInfo -> PatchInfo
 --use UnionWith to combine the existing and new EnvironmentInfos together
+
+mergeEnvInfo :: EnvironmentInfo -> EnvironmentInfo -> EnvironmentInfo
+mergeEnvInfo = Map.unionWith takeBest
+
+--make an ord instance instead? or maybe a Monoid type wapper like Sum?
+takeBest :: PatchInfo -> PatchInfo -> PatchInfo
+takeBest pi@(FullyObserved pat) _ = pi
+takeBest _ pi@(FullyObserved pat) = pi
+takeBest pi@(Classified detailReq) (Classified _) = pi
+takeBest pi@(Classified detailReq) (Unseen) = pi
+takeBest Unseen pi@(Classified detailReq) = pi
+takeBest Unseen Unseen = Unseen
 
 observePatch :: Altitude -> Patch -> PatchInfo
 observePatch High (Patch detailReq) = Classified detailReq

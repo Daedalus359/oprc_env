@@ -65,9 +65,9 @@ observe = undefined
 --create a preference function f :: PatchInfo -> PatchInfo -> PatchInfo
 --use UnionWith to combine the existing and new EnvironmentInfos together
 
-patchMap :: [Position] -> Environment -> [(Position, Maybe Patch)]
+patchMap :: [(Position, Altitude)] -> Environment -> [(Position, Altitude, Maybe Patch)]
 patchMap [] _ = []
-patchMap (pos : positions) e@(Environment envMap) = (pos, (Map.lookup pos envMap)) : (patchMap positions e)
+patchMap ((pos, alt) : posAlts) e@(Environment envMap) = (pos, alt, (Map.lookup pos envMap)) : (patchMap posAlts e)
 
 --returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant

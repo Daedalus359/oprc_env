@@ -76,7 +76,7 @@ viewableMap ((DronePos pos alt) : dPList)
 --ni . reverse . ni
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant
 minimalEnView :: EnsembleStatus -> [(Position, Altitude)]
-minimalEnView = undefined
+minimalEnView = nonImprovingViews . reverse . nonImprovingViews . ensembleView
 
 --build a list from the back to front, adding new elements only when it improves upon the views in what comes later
 nonImprovingViews :: [(Position, Altitude)] -> [(Position, Altitude)]

@@ -91,8 +91,8 @@ swapMaybe (a, b, Just c) = Just (a, b, c)
 observeForChain :: (Position, Altitude, Patch) -> (Position, PatchInfo)
 observeForChain (pos, alt, pat) = (pos, observePatch alt pat)
 
-envSnap :: [(Position, Altitude)] -> Environment -> EnvironmentInfo
-envSnap views env = Map.fromList $ (fmap observeForChain) $ catMaybes $ (fmap swapMaybe) $ addPatch env views
+envSnap :: Environment -> EnsembleStatus -> EnvironmentInfo
+envSnap env = Map.fromList . (fmap observeForChain) . catMaybes . (fmap swapMaybe) . (addPatch env) . minimalEnView
 
 --returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant

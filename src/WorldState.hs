@@ -75,7 +75,7 @@ viewableMap ((DronePos pos alt) : dPList)
 
 
 ensembleView :: EnsembleStatus -> [(Position, Altitude)]
-ensembleView enStat = join $ fmap viewList $ occupiedPositions enStat
+ensembleView = join . (fmap viewList) . occupiedPositions
 
 --list of the views available from one DronePosition
 viewList :: DronePosition -> [(Position, Altitude)]

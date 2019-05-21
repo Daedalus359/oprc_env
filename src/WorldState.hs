@@ -7,8 +7,6 @@ import MoveCosts
 import Ensemble
 
 import Data.Maybe
-import qualified Data.Map as Map
-import qualified Data.Set as Set
 
 --everything, including a description of the partial infomation available to an agent
 data WorldState =
@@ -23,9 +21,9 @@ data WorldState =
 instance Show WorldState where
   show (WorldState env view status) = concat 
     ["WorldState: \n",
-      "\t", show env,
-      "\t", show view,
-      "\t", show status
+      show env, "\n",
+      show view, "\n",
+      show status, "\n"
     ]
 
 --TODO: make a smart constructor for WorldState that checks everything for consistency (e.g. between droneList and ensembleStatus)
@@ -61,7 +59,7 @@ observe :: EnsembleStatus -> EnvironmentInfo -> EnvironmentInfo
 observe = undefined
 
 --returns a map from positions to the altitude of the lowest drone that can view it
-viewableMap :: EnsembleStatus -> Map.Map Position Altitude
+viewableMap :: EnsembleStatus -> [(Position, Altitude)]
 viewableMap = undefined
 
 occupiedPositions :: EnsembleStatus -> [DronePosition]

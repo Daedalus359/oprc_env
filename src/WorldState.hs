@@ -60,10 +60,14 @@ stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action 
 observe :: EnsembleStatus -> WorldState -> WorldState
 observe = undefined
 
---function from minimalEnView to [(Position, PatchInfo)]
+--function from minimalEnView's [(Position, Altitude)] to [(Position, PatchInfo)]
 --fromList to make that an EnvironmentInfo (Map.Map Position PatchInfo)
 --create a preference function f :: PatchInfo -> PatchInfo -> PatchInfo
 --use UnionWith to combine the existing and new EnvironmentInfos together
+
+observePatch :: Altitude -> Patch -> PatchInfo
+observePatch High (Patch detailReq) = Classified detailReq
+observePatch Low patch = FullyObserved patch
 
 patchMap :: [(Position, Altitude)] -> Environment -> [(Position, Altitude, Maybe Patch)]
 patchMap [] _ = []

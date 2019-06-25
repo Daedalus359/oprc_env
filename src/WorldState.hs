@@ -75,7 +75,7 @@ takeBest pi@(FullyObserved pat) _ = pi
 takeBest _ pi@(FullyObserved pat) = pi
 takeBest pi@(Classified detailReq) (Classified _) = pi
 takeBest pi@(Classified detailReq) (Unseen) = pi
-takeBest Unseen pi@(Classified detailReq) = PatchInfo
+takeBest Unseen pi@(Classified detailReq) = pi
 takeBest Unseen Unseen = Unseen
 
 observePatch :: Altitude -> Patch -> PatchInfo

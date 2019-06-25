@@ -36,9 +36,11 @@ type NextActions = [(Drone, Action)]
 --make observations, update view based on that
 --make it return type (WorldState, WorldView) eventually
 updateState :: NextActions -> WorldState -> WorldState
-updateState nextActions (WorldState env view ensembleStatus) = (WorldState env view (assignEnsemble nextActions ensembleStatus))
+updateState nextActions (WorldState env view ensembleStatus) = (WorldState env view (updateEnsemble nextActions ensembleStatus))
+  where updateEnsemble nextActions = stepEnsemble . (assignEnsemble nextActions)
 
---replace futile actions (e.g. Ascending when already high) with hover
+--Apply the newly commanded actions to the ensembleStatus
+--TODO: replace futile actions (e.g. Ascending when already high) with hover
 assignEnsemble :: NextActions -> EnsembleStatus -> EnsembleStatus
 assignEnsemble _ [] = []
 assignEnsemble nextActions ((drone, droneStat@(Unassigned pos)) : ensStat) =
@@ -46,6 +48,7 @@ assignEnsemble nextActions ((drone, droneStat@(Unassigned pos)) : ensStat) =
     where newStatus = (fromMaybe droneStat $ fmap toAssigned (lookup drone nextActions))
           toAssigned = (\a -> Assigned a pos)
 assignEnsemble nextActions (ds : ensStat) = ds : (assignEnsemble nextActions ensStat)--ignore new commands for drones alreacy acting or assigned
+
 
 stepEnsemble :: EnsembleStatus -> EnsembleStatus
 stepEnsemble [] = []
@@ -72,7 +75,7 @@ takeBest pi@(FullyObserved pat) _ = pi
 takeBest _ pi@(FullyObserved pat) = pi
 takeBest pi@(Classified detailReq) (Classified _) = pi
 takeBest pi@(Classified detailReq) (Unseen) = pi
-takeBest Unseen pi@(Classified detailReq) = pi
+takeBest Unseen pi@(Classified detailReq) = PatchInfo
 takeBest Unseen Unseen = Unseen
 
 observePatch :: Altitude -> Patch -> PatchInfo

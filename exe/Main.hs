@@ -8,6 +8,7 @@ module Main where
 import qualified Env
 import MoveCosts
 import qualified SampleVals as SV
+import WorldState
 import Drone
 
 --other oprc dependencies
@@ -16,6 +17,8 @@ import qualified Data.Map as Map
 --diagrams imports
 import qualified Diagrams.Prelude as D
 import qualified Diagrams.Backend.SVG.CmdLine as BE
+
+import Util --nTimes
 
 myCircle :: D.Diagram BE.B
 myCircle = D.circle 1
@@ -46,6 +49,8 @@ main = foldr (>>) (return ())
       show SV.envInfo,
       "\nshowing a WorldState",
       show SV.worldState,
+      "\nshowing the same WorldState after 4 updates (no new actions commanded)",
+      show $ nTimes 4 (updateState []) SV.worldState,
       ""
     ]
   ) >>

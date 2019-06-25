@@ -47,6 +47,7 @@ executable oprc-env
                         , diagrams-core
                         , diagrams-contrib
                         , diagrams-svg
+                        , ghc
   
   hs-source-dirs:         exe
   default-language:       Haskell2010

@@ -81,7 +81,7 @@ ensembleStatus = [(drone1, workingUp), (drone2, (Acting (MoveVertical Descend) 4
 
 knownClose = Classified Close :: EnvView.PatchInfo
 
-envInfo = Map.fromList [(pos, knownClose), (pos2, FullyObserved pat2)] :: EnvView.EnvironmentInfo
+envInfo = Map.fromList [(pos, knownClose), (pos2, Unseen)] :: EnvView.EnvironmentInfo
 
 --Datatypes defined in WorldState
 

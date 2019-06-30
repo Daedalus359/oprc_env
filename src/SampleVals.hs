@@ -9,6 +9,8 @@ import WorldState
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
+import Control.Monad (forever)
+
 
 --Datatypes defined in Env
 
@@ -70,8 +72,8 @@ fiveSteps = 5 :: Drone.StepsRemaining
 workingUp = Acting moveUp fiveSteps dronePos :: Drone.DroneStatus
 
 --Datatypes defined in Ensemble
-drone1 = DroneID 1 :: Ensemble.Drone
-drone2 = DroneID 2 :: Ensemble.Drone
+drone1 = DroneID 1 :: Drone.Drone
+drone2 = DroneID 2 :: Drone.Drone
 
 drones = [drone1, drone2] :: Ensemble.DroneList
 
@@ -89,3 +91,19 @@ worldState = WorldState env envInfo ensembleStatus :: WorldState.WorldState
 
 --make an example policy
 --put example of NextActions in under Ensemble
+
+--only works for up to 2 drones!
+--a proper version of this likely involves parsing a digit
+terminalNextActions :: NextActions -> IO NextActions
+terminalNextActions na = do
+  putStrLn "Enter number of drone you wish to command (0: none)"
+  cmd <- getLine --getLine :: IO String
+  case cmd of
+    "0" -> return []
+    _ -> return []
+
+manualControl :: WorldState -> IO ()
+manualControl ws = forever $ do
+  --check if the scenario has ended
+  na <- terminalNextActions [] --get what we want the drone to do next
+  return ()--

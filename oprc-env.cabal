@@ -27,8 +27,10 @@ library
                         , Ensemble
                         , WorldState
                         , Policy
+                        , ParseOPRC
   build-depends:          base >=4.8 && <4.9
                         , containers
+                        , trifecta
   default-language:       Haskell2010
 
 Test-Suite oprc-env-test

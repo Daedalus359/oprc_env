@@ -15,7 +15,6 @@ data WorldState =
   WorldState {
     getEnv :: Env.Environment
   , getInfo :: EnvironmentInfo
-  -- , getDroneList :: Ensemble.DroneList
   , getEnsemble :: Ensemble.EnsembleStatus
   }
   deriving Eq

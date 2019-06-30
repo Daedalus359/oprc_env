@@ -18,7 +18,8 @@ import qualified Data.Map as Map
 import qualified Diagrams.Prelude as D
 import qualified Diagrams.Backend.SVG.CmdLine as BE
 
-import Util --nTimes
+--testing utilities
+import Util (nTimes)
 
 myCircle :: D.Diagram BE.B
 myCircle = D.circle 1
@@ -54,4 +55,5 @@ main = foldr (>>) (return ())
       ""
     ]
   ) >>
-  BE.mainWith myCircle
+  BE.mainWith myCircle >>
+  putStrLn "manual control goes here"

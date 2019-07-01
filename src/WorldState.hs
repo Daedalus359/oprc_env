@@ -35,40 +35,48 @@ type NextActions = [(Drone, Action)]
 --make observations, update view based on that
 --make it return type (WorldState, WorldView) eventually
 updateState :: NextActions -> WorldState -> WorldState
-updateState nextActions (WorldState env view ensembleStatus) = (WorldState env view (updateEnsemble nextActions ensembleStatus))
+updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState env (observe ws) (updateEnsemble nextActions ensembleStatus))
   where updateEnsemble nextActions = stepEnsemble . (assignEnsemble nextActions)
 
---Apply the newly commanded actions to the ensembleStatus
+--Applies the newly commanded actions to the ensembleStatus
 --TODO: replace futile actions (e.g. Ascending when already high) with hover
 assignEnsemble :: NextActions -> EnsembleStatus -> EnsembleStatus
 assignEnsemble _ [] = []
+--when a drone is unassigned, check to see if we can 
 assignEnsemble nextActions ((drone, droneStat@(Unassigned pos)) : ensStat) =
   (drone, newStatus) : (assignEnsemble nextActions ensStat)
     where newStatus = (fromMaybe droneStat $ fmap toAssigned (lookup drone nextActions))
           toAssigned = (\a -> Assigned a pos)
-assignEnsemble nextActions (ds : ensStat) = ds : (assignEnsemble nextActions ensStat)--ignore new commands for drones alreacy acting or assigned
+--when a drone has a status other than Unassigned, it just continues on its commanded action
+assignEnsemble nextActions (ds : ensStat) = ds : (assignEnsemble nextActions ensStat)
 
-
+--Advances each drone 1 time step according to its current status. Should run right after assignEnsemble.
 stepEnsemble :: EnsembleStatus -> EnsembleStatus
-stepEnsemble [] = []
+stepEnsemble [] = []--recursive base case
+--unassigned drones contine to be unassigned in the next time step
 stepEnsemble ((drone, stat@(Unassigned _)) : enStat) = (drone, stat) : (stepEnsemble enStat)
+--acting drones take a step towards completing their actions
 stepEnsemble ((drone, (Acting action steps pos)) : enStat)
   | steps > 1 = (drone, (Acting action (steps - 1) pos)) : (stepEnsemble enStat)
-  | steps <= 1 = (drone, (Unassigned newPos)) : (stepEnsemble enStat)
+  | steps <= 1 = (drone, (Unassigned newPos)) : (stepEnsemble enStat)--complete the action, causing the drone to be unassigned and possibly in a new position
     where newPos = movedBy action pos
+--drones which have just received a new assignment are set in motion
 stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action steps pos)) : (stepEnsemble enStat)
   where steps = duration action
 
---get new observations based on current ensembleStatus, then create a new WorlState from this information
+--Combines EnvironmentInfo contained in current WorldState with new EnvironmentInfo collected from envSnap
 --only need to run this when EnsembleStatus is such that one drone just completed a motion
 observe :: WorldState -> EnvironmentInfo
 observe wS = mergeEnvInfo (getInfo wS) newInfo
   where newInfo = envSnap (getEnv wS) (getEnsemble wS) :: EnvironmentInfo
 
+--Combines two EnvironmentInfos according to which one contains more complete info about each location
+--meant to be run with two accurate EnvironmentInfos that describe the same Environment
 mergeEnvInfo :: EnvironmentInfo -> EnvironmentInfo -> EnvironmentInfo
 mergeEnvInfo = Map.unionWith takeBest
 
---make an ord instance instead? or maybe a Monoid type wapper like Sum?
+--Compares two PatchInfos and returns the one with more complete info.
+--Prefers the first PatchInfo supplied in case they contain equal observation levels
 takeBest :: PatchInfo -> PatchInfo -> PatchInfo
 takeBest pi@(FullyObserved pat) _ = pi
 takeBest _ pi@(FullyObserved pat) = pi
@@ -77,10 +85,12 @@ takeBest pi@(Classified detailReq) (Unseen) = pi
 takeBest Unseen pi@(Classified detailReq) = pi
 takeBest Unseen Unseen = Unseen
 
+--function that gives the info that results from viewing the supplied patch from the supplied altitude
 observePatch :: Altitude -> Patch -> PatchInfo
 observePatch High (Patch detailReq) = Classified detailReq
 observePatch Low patch = FullyObserved patch
 
+--augments a list of positions and altitude with the Just a Patch that is below that position, if one exists in the provided Environment
 addPatch :: Environment -> [(Position, Altitude)] -> [(Position, Altitude, Maybe Patch)]
 addPatch _ [] = []
 addPatch e@(Environment envMap) ((pos, alt) : posAlts) = (pos, alt, (Map.lookup pos envMap)) : (addPatch e posAlts)
@@ -89,11 +99,13 @@ swapMaybe :: (a, b, Maybe c) -> Maybe (a, b, c)
 swapMaybe (_, _, Nothing) = Nothing
 swapMaybe (a, b, Just c) = Just (a, b, c)
 
+--goes from the information required to specify an observation to the observation itself
 observeForChain :: (Position, Altitude, Patch) -> (Position, PatchInfo)
 observeForChain (pos, alt, pat) = (pos, observePatch alt pat)
 
+--
 envSnap :: Environment -> EnsembleStatus -> EnvironmentInfo
-envSnap env = Map.fromList . (fmap observeForChain) . catMaybes . (fmap swapMaybe) . (addPatch env) . minimalEnView
+envSnap env = Map.fromList . (fmap observeForChain) . catMaybes . (fmap swapMaybe) . (addPatch env) . minimalEnView--catMaybes :: [Maybe a] -> [a]
 
 --returns a non-redundant 'map' of the best available views achievable given an ensemble status
 --if each element in the list adds information compared to the rest of the list in either direction, then no elements are redundant

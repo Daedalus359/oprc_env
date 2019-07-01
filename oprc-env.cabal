@@ -51,6 +51,7 @@ executable oprc-env
                         , diagrams-svg
                         , ghc
                         , prettyprinter
+                        , trifecta
   
   hs-source-dirs:         exe
   default-language:       Haskell2010

@@ -55,5 +55,6 @@ main = foldr (>>) (return ())
       ""
     ]
   ) >>
+  SV.manualControl SV.worldState >>
   BE.mainWith myCircle >>
   putStrLn "manual control goes here"

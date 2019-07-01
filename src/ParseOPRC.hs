@@ -98,3 +98,4 @@ parseDemo = do
   p (parseParens letter) "(a)"
   p singleNA "(2, MoveVertical Ascend)"
   p parseNextActions "[(1, Hover), (2, MoveVertical Ascend)]"
+  p parseNextActions "[]"

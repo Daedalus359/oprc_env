@@ -6,6 +6,9 @@ import Ensemble
 import EnvView
 import WorldState
 
+import ParseOPRC
+import Text.Trifecta
+
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
@@ -92,18 +95,13 @@ worldState = WorldState env envInfo ensembleStatus :: WorldState.WorldState
 --make an example policy
 --put example of NextActions in under Ensemble
 
---only works for up to 2 drones!
---a proper version of this likely involves parsing a digit
-terminalNextActions :: NextActions -> IO NextActions
-terminalNextActions na = do
-  putStrLn "Enter number of drone you wish to command (0: none)"
-  cmd <- getLine --getLine :: IO String
-  case cmd of
-    "0" -> return []
-    _ -> return []
-
+--lets the user control the ensemble interactively by specifying nextactions at each time step
 manualControl :: WorldState -> IO ()
 manualControl ws = forever $ do
+  print ws
   --check if the scenario has ended
-  na <- terminalNextActions [] --get what we want the drone to do next
-  return ()--
+  putStrLn "Enter the NextActions to command, e.g. [(1, Hover), (2, MoveIntercardinal NE)] :"
+  naResult <- fmap (parseString parseNextActions mempty) getLine --get a string representing the user's next commands to the ensemble
+  case naResult of
+    Failure _ -> manualControl ws
+    Success na -> manualControl (updateState na ws)

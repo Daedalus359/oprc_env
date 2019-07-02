@@ -1,5 +1,4 @@
 To-Do List:
-* add terminal state checks to manualControl - refer to Hangman game to handle loop termination
 * use prettyprinter-ansi-terminal to do my prettyprinting properly
 * add IO and parser functionality to load in a plain text environment file
 * create a policy that commands a random valid move whenever a drone is Unassigned
@@ -15,3 +14,4 @@ Completed Items:
 * augment manualControl by listing which drones are worth commanding at the current time step based on "needsCommand" function (7/1/2019)
 * make a pretty printer for WorldState and its subordinate datatypes (7/2/2019)
 * make function to determine if a WorldState is terminal based on checking observations (7/2/2019)
+* add terminal state checks to manualControl (7/2/2019)

@@ -100,6 +100,8 @@ manualControl :: WorldState -> IO ()
 manualControl ws = forever $ do
   print ws
   --check if the scenario has ended
+  putStrLn "The following drones are Unassigned and will respond to a NextActions instruction"
+  print $ needsCommand (getEnsemble ws)
   putStrLn "Enter the NextActions to command, e.g. [(1, Hover), (2, MoveIntercardinal NE)] :"
   naResult <- fmap (parseString parseNextActions mempty) getLine --get a string representing the user's next commands to the ensemble
   case naResult of

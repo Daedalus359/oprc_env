@@ -33,7 +33,6 @@ type NextActions = [(Drone, Action)]
 
 --update ensemble status based next actions
 --make observations, update view based on that
---make it return type (WorldState, WorldView) eventually
 updateState :: NextActions -> WorldState -> WorldState
 updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState env (observe ws) (updateEnsemble nextActions ensembleStatus))
   where updateEnsemble nextActions = stepEnsemble . (assignEnsemble nextActions)

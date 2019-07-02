@@ -9,6 +9,10 @@ import WorldState
 import ParseOPRC
 import Text.Trifecta
 
+import PrettyOPRC
+import Data.Text.Prettyprint.Doc
+import Data.Text.Prettyprint.Doc.Util
+
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
@@ -98,7 +102,7 @@ worldState = WorldState env envInfo ensembleStatus :: WorldState.WorldState
 --lets the user control the ensemble interactively by specifying nextactions at each time step
 manualControl :: WorldState -> IO ()
 manualControl ws = forever $ do
-  print ws
+  putDocW 80 (pretty ws)
   --check if the scenario has ended
   putStrLn "The following drones are Unassigned and will respond to a NextActions instruction"
   print $ needsCommand (getEnsemble ws)

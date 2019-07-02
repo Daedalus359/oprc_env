@@ -35,7 +35,7 @@ instance Pretty Action where
 instance Pretty DroneStatus where
   pretty (Unassigned dpos) = pretty "Unassigned, " <> (pretty dpos)
   pretty (Assigned action dpos) = pretty dpos <> pretty ", assigned to " <> pretty action
-  pretty (Acting action stepsRem dpos) = nest 2 $ vsep [pretty dpos,
+  pretty (Acting action stepsRem dpos) = vsep [pretty dpos,
                                               pretty action <> pretty " in progress with " <> (pretty $ show stepsRem) <> pretty " steps remaining"]
 
 instance Pretty Environment where
@@ -45,7 +45,7 @@ prettyEnvInfo :: EnvironmentInfo -> Doc ann --not sure what the "ann" means in t
 prettyEnvInfo ei = nest 2 $ vsep $ (:) (pretty "EnvInfo") $ fmap (pretty . show) (M.toList ei)--Nest not working as expected!
 
 prettyDroneAndStat :: (Drone, DroneStatus) -> Doc ann
-prettyDroneAndStat (drone, status) = pretty drone <+> pretty status
+prettyDroneAndStat (drone, status) = nest 2 $ vsep [pretty drone, pretty status]
 
 instance Pretty WorldState where
   pretty ws = nest 2 $ vsep [pretty "WorldState: ", (pretty $ getEnv ws), prettyInfo, prettyEnsemble]

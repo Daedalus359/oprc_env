@@ -17,6 +17,7 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 import Control.Monad (forever)
+import System.Exit
 
 --Datatypes defined in Env
 
@@ -98,11 +99,19 @@ worldState = WorldState env envInfo ensembleStatus :: WorldState.WorldState
 --make an example policy
 --put example of NextActions in under Ensemble
 
+quitIfTerminal :: WorldState -> IO ()
+quitIfTerminal ws =
+  if (isTerminal ws) then
+    do putStrLn "The scenario has ended. All patches have been observed."
+       exitSuccess
+  else return ()
+
+
 --lets the user control the ensemble interactively by specifying nextactions at each time step
 manualControl :: WorldState -> IO ()
 manualControl ws = forever $ do
   putDocW 80 (pretty ws)
-  --check if the scenario has ended
+  quitIfTerminal ws
   putStrLn "The following drones are Unassigned and will respond to a NextActions instruction"
   print $ needsCommand (getEnsemble ws)
   putStrLn "Enter the NextActions to command, e.g. [(1, Hover), (2, MoveIntercardinal NE)] :"

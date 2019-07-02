@@ -93,8 +93,9 @@ takeBest Unseen Unseen = Unseen
 
 --function that gives the info that results from viewing the supplied patch from the supplied altitude
 observePatch :: Altitude -> Patch -> PatchInfo
-observePatch High (Patch detailReq) = Classified detailReq
 observePatch Low patch = FullyObserved patch
+observePatch High p@(Patch Far) = FullyObserved p
+observePatch High (Patch Close) = Classified Close
 
 --augments a list of positions and altitude with the Just a Patch that is below that position, if one exists in the provided Environment
 addPatch :: Environment -> [(Position, Altitude)] -> [(Position, Altitude, Maybe Patch)]

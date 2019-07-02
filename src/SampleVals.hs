@@ -18,7 +18,6 @@ import qualified Data.Set as Set
 
 import Control.Monad (forever)
 
-
 --Datatypes defined in Env
 
 xc :: Env.XCoord

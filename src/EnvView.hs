@@ -12,6 +12,10 @@ data PatchInfo =
   | FullyObserved Env.Patch --this patch has been adequately observed
   deriving (Eq, Show)
 
+isFullyObserved :: PatchInfo -> Bool
+isFullyObserved (FullyObserved _) = True
+isFullyObserved _ = False
+
 type EnvironmentInfo = Map.Map Position PatchInfo
 
 data WorldView = 

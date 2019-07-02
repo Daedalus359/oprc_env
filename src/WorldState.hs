@@ -9,6 +9,7 @@ import Ensemble
 import Data.Maybe
 import Control.Monad --join
 import qualified Data.Map as Map --unionWith
+import Data.Monoid
 
 --everything, including a description of the partial infomation available to an agent
 data WorldState =
@@ -28,6 +29,12 @@ instance Show WorldState where
     ]
 
 --TODO: make a smart constructor for WorldState that checks everything for consistency (e.g. between droneList and ensembleStatus)
+
+isTerminal :: WorldState -> Bool
+isTerminal ws = isCompleteInfo (getInfo ws)
+
+isCompleteInfo :: EnvironmentInfo -> Bool
+isCompleteInfo envInfo = getAll $ foldMap (All . EnvView.isFullyObserved) $ Map.elems envInfo
 
 type NextActions = [(Drone, Action)]
 

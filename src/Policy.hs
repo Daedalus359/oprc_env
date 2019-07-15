@@ -13,8 +13,7 @@ class Policy p where
     --the above is not necessary for an implementation of Policy, but is probably required to learn an effective policy in complex environments
 
 
---how to expose a policy in the process of being learned? IO Policy? State?
-
+--one example of a policy. TODO: move this to its own file eventually
 newtype PolicyMap = PolicyMap [(WorldView, NextActions)]
 
 instance Policy PolicyMap where

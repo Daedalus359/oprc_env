@@ -9,11 +9,6 @@ import Drone
 
 import qualified Data.Map as M
 
-testDecl = "."
-
---instance Pretty WorldState where
-  --pretty ws =
-
 instance Pretty Drone where
   pretty (DroneID n) = pretty "Drone #" <> pretty n
 

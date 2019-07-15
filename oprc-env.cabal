@@ -29,10 +29,13 @@ library
                         , Policy
                         , ParseOPRC
                         , PrettyOPRC
+                        , RandomAgent
   build-depends:          base >=4.8 && <4.9
                         , containers
                         , trifecta
                         , prettyprinter
+                        , random
+                        , QuickCheck
   default-language:       Haskell2010
 
 Test-Suite oprc-env-test

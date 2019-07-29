@@ -1,7 +1,6 @@
 To-Do List:
-* parse a text file into a list of lines with their line numbers in the form [(2, "HLL  HL")]
-* add IO and parser functionality to load in a plain text environment file
-*
+* make a function that can initialize a worldState from an Environment and an EnvironmentInfo and drone coordinates, start the drones hovering
+* demo exploring a small environment interactively
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * create a policy that commands low flying moves toward the nearest unobserved patch
 * create a policy that maintains a PGM data structure of the environment, and **uses RL to tune the parameters of the PGM from session to session**
@@ -18,3 +17,6 @@ Completed Items:
 * make a pretty printer for WorldState and its subordinate datatypes (7/2/2019)
 * make function to determine if a WorldState is terminal based on checking observations (7/2/2019)
 * add terminal state checks to manualControl (7/2/2019)
+* parse a text file into a list of lines with their line numbers in the form \[(2, "HLL  HL")\] (7/29/2019)
+* add IO and parser functionality to load in a plain text environment file (7/29/2019)
+* make a function that initializes an EnvironmentInfo from an Environment, marking everything unseen (7/29/2019)

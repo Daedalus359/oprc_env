@@ -22,10 +22,10 @@ import System.Exit
 --Datatypes defined in Env
 
 xc :: Env.XCoord
-xc = 5
+xc = 0
 
 yc :: Env.YCoord
-yc = (-3)
+yc = 0
 
 pos :: Env.Position
 pos = Position xc yc
@@ -57,6 +57,9 @@ pat2 = Patch Far
 
 env :: Env.Environment
 env  = Environment $ Map.fromList [(pos, pat), (pos2, pat2)]
+
+parseEnv3 :: IO (Result Env.Environment)
+parseEnv3 = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/3.env"
 
 --just the shape of the environment
 footprint :: Env.Footprint

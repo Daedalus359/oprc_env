@@ -76,7 +76,7 @@ neighborsOf pos = nl <*> [pos]
   where nl = (fmap neighborTo [North, South, East, West]) ++ (fmap neighborTo [NE, SE, NW, SW])
 
 --The "environment" is a colection of patches at different positions
-newtype Environment = Environment (Map.Map Position Patch)
+newtype Environment = Environment {getMap :: (Map.Map Position Patch)}
   deriving Eq
 
 instance Show Environment where

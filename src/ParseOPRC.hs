@@ -14,6 +14,10 @@ import Control.Applicative
 import qualified Data.Map as M
 import Data.Maybe
 
+resultToMaybe :: Result a -> Maybe a
+resultToMaybe (Failure _) = Nothing
+resultToMaybe (Success a) = Just a
+
 --parses an integer, packs that int into a Drone
 parseDrone :: Parser Drone
 parseDrone = do
@@ -132,4 +136,4 @@ parseDemo = do
   p parseNextActions "[]"
 
 parseEnvDemo :: IO (Result Environment)
-parseEnvDemo = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/1.env"
+parseEnvDemo = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/2.env"

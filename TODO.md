@@ -1,9 +1,12 @@
 To-Do List:
-* use prettyprinter-ansi-terminal to do my prettyprinting properly
+* parse a text file into a list of lines with their line numbers in the form [(2, "HLL  HL")]
 * add IO and parser functionality to load in a plain text environment file
+*
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * create a policy that commands low flying moves toward the nearest unobserved patch
+* create a policy that maintains a PGM data structure of the environment, and **uses RL to tune the parameters of the PGM from session to session**
 * [expand] add a reward signal and other requirements for a proper RL agent to learn from this environment
+* use prettyprinter-ansi-terminal to do my prettyprinting properly
 
 Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)

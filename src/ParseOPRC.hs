@@ -8,6 +8,9 @@ import WorldState
 --parser tools
 import Text.Trifecta
 
+--subservient to some of the data structures being parsed
+import qualified Data.Map as M
+
 --parses an integer, packs that int into a Drone
 parseDrone :: Parser Drone
 parseDrone = do
@@ -73,6 +76,25 @@ parseBrackets = parseBetween '[' ']'
 parseNextActions :: Parser NextActions
 parseNextActions = parseBrackets $ (spaces *> singleNA) `sepBy` (symbol ",")
 
+parseEnvironment :: Parser Environment
+parseEnvironment = undefined
+
+numberedLines :: String -> [(Integer, String)]
+numberedLines = zip [0..] . lines
+
+toDetailReqs :: Parser (Maybe DetailReq)
+toDetailReqs =  do
+  c <- anyChar
+  case c of 
+    'H' -> return $ Just Far
+    'L' -> return $ Just Close
+    ' ' -> return Nothing
+    _ -> fail "Environment file must only contain the character 'H', 'L', and ' ' (space)."
+
+lineToEntries :: (Integer, String) -> [(Position, Patch)]
+lineToEntries (colNum, s) = undefined
+
+
 --parses one element of a NextActions list, e.g. "(2, MoveVertical Ascend)"
 singleNA :: Parser (Drone, Action)
 singleNA = parseParens $ do
@@ -99,3 +121,6 @@ parseDemo = do
   p singleNA "(2, MoveVertical Ascend)"
   p parseNextActions "[(1, Hover), (2, MoveVertical Ascend)]"
   p parseNextActions "[]"
+
+parseEnvDemo :: IO (Result Environment)
+parseEnvDemo = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/1.env"

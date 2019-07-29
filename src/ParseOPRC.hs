@@ -8,8 +8,11 @@ import WorldState
 --parser tools
 import Text.Trifecta
 
+import Control.Applicative
+
 --subservient to some of the data structures being parsed
 import qualified Data.Map as M
+import Data.Maybe
 
 --parses an integer, packs that int into a Drone
 parseDrone :: Parser Drone
@@ -77,13 +80,13 @@ parseNextActions :: Parser NextActions
 parseNextActions = parseBrackets $ (spaces *> singleNA) `sepBy` (symbol ",")
 
 parseEnvironment :: Parser Environment
-parseEnvironment = undefined
+parseEnvironment = fmap (Environment . M.fromList) $ recursiveParseEnv 0
 
-numberedLines :: String -> [(Integer, String)]
-numberedLines = zip [0..] . lines
+recursiveParseEnv :: Integer -> Parser [(Position, Patch)]
+recursiveParseEnv i = (eof *> (return [])) <|> (liftA2 (++) (recursiveParseEnv (i + 1)) ((lineToEntries i) <* newline)) -- (try eof) <|>
 
-toDetailReqs :: Parser (Maybe DetailReq)
-toDetailReqs =  do
+toDetailReq :: Parser (Maybe DetailReq)
+toDetailReq =  do
   c <- anyChar
   case c of 
     'H' -> return $ Just Far
@@ -91,9 +94,15 @@ toDetailReqs =  do
     ' ' -> return Nothing
     _ -> fail "Environment file must only contain the character 'H', 'L', and ' ' (space)."
 
-lineToEntries :: (Integer, String) -> [(Position, Patch)]
-lineToEntries (colNum, s) = undefined
+toDetailReqs :: Parser [Maybe DetailReq]
+toDetailReqs = many toDetailReq <* eof--test this!
 
+vertBundle :: Integer -> Integer -> (Maybe DetailReq) -> (Position, Maybe Patch)
+vertBundle yc xc mdr = (Position xc yc, fmap Patch mdr)
+
+lineToEntries :: Integer -> Parser [(Position, Patch)]
+--Integer is the YCoord for all of the values in this string, index in string is XCoord
+lineToEntries i = fmap catMaybes $ (fmap . fmap) sequence $ fmap (zipWith (vertBundle i) [0..]) toDetailReqs
 
 --parses one element of a NextActions list, e.g. "(2, MoveVertical Ascend)"
 singleNA :: Parser (Drone, Action)
@@ -123,4 +132,4 @@ parseDemo = do
   p parseNextActions "[]"
 
 parseEnvDemo :: IO (Result Environment)
-parseEnvDemo = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/1.env"
+parseEnvDemo = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/2.env"

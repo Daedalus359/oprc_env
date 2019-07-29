@@ -83,7 +83,7 @@ parseEnvironment :: Parser Environment
 parseEnvironment = fmap (Environment . M.fromList) $ recursiveParseEnv 0
 
 recursiveParseEnv :: Integer -> Parser [(Position, Patch)]
-recursiveParseEnv i = (eof *> (return [])) <|> (liftA2 (++) (recursiveParseEnv (i + 1)) ((lineToEntries i) <* newline)) -- (try eof) <|>
+recursiveParseEnv i = (eof *> (return [])) <|> (liftA2 (++)  ((lineToEntries i) <* (optional newline)) (recursiveParseEnv (i + 1))) -- (try eof) <|>
 
 toDetailReq :: Parser (Maybe DetailReq)
 toDetailReq =  do
@@ -95,7 +95,7 @@ toDetailReq =  do
     _ -> fail "Environment file must only contain the character 'H', 'L', and ' ' (space)."
 
 toDetailReqs :: Parser [Maybe DetailReq]
-toDetailReqs = many toDetailReq <* eof--test this!
+toDetailReqs = many $ try toDetailReq
 
 vertBundle :: Integer -> Integer -> (Maybe DetailReq) -> (Position, Maybe Patch)
 vertBundle yc xc mdr = (Position xc yc, fmap Patch mdr)
@@ -132,4 +132,4 @@ parseDemo = do
   p parseNextActions "[]"
 
 parseEnvDemo :: IO (Result Environment)
-parseEnvDemo = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/2.env"
+parseEnvDemo = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/1.env"

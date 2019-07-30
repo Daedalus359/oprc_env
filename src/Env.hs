@@ -1,6 +1,6 @@
 module Env where --The simulated world
 
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 
 --location for a patch (horizontal information only)

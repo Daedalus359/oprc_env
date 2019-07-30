@@ -5,6 +5,7 @@ import Drone
 import Ensemble
 import EnvView
 import WorldState
+import Scenario
 
 import ParseOPRC
 import Text.Trifecta
@@ -13,7 +14,7 @@ import PrettyOPRC
 import Data.Text.Prettyprint.Doc
 import Data.Text.Prettyprint.Doc.Util
 
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 
 import Control.Monad (forever)

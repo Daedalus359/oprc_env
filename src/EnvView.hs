@@ -3,7 +3,7 @@ module EnvView where --a representation of (possibly incomplete) knowledge about
 import Env
 import Drone
 import Ensemble
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 
 --given a patch of land, what do we know about it?
 data PatchInfo =

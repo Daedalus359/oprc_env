@@ -7,7 +7,7 @@ import EnvView
 import Ensemble
 import Drone
 
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
 
 instance Pretty Drone where
   pretty (DroneID n) = pretty "Drone #" <> pretty n

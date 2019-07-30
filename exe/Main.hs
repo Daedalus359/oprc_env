@@ -12,7 +12,7 @@ import WorldState
 import Drone
 
 --other oprc dependencies
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 
 --diagrams imports
 import qualified Diagrams.Prelude as D

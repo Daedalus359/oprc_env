@@ -11,7 +11,7 @@ import Text.Trifecta
 import Control.Applicative
 
 --subservient to some of the data structures being parsed
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
 import Data.Maybe
 
 resultToMaybe :: Result a -> Maybe a

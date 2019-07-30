@@ -14,6 +14,7 @@ To-Do List:
 * create a policy that maintains a PGM data structure of the environment, and **uses RL to tune the parameters of the PGM from session to session** - make the PGM be a kind of spatial policy that works much like a convolutional neural network, except that it spits out a belief map ("image") of the same size that it took in, where each patch in this belief map represents the probability that the patch requires high scrutiny
 * [expand] add a reward signal and other requirements for a proper RL agent to learn from this environment
 * use prettyprinter-ansi-terminal to do my prettyprinting properly
+* consider adding functionality such as needing to track bettery level and periodically return for a swap if the environment isn't rich enough
 
 Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)

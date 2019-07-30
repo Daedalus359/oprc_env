@@ -8,7 +8,7 @@ import Ensemble
 
 import Data.Maybe
 import Control.Monad --join
-import qualified Data.Map as Map --unionWith
+import qualified Data.Map.Strict as Map --unionWith
 import qualified Data.Set as Set
 import Data.Monoid
 
@@ -30,21 +30,6 @@ instance Show WorldState where
     ]
 
 --TODO: make a smart constructor for WorldState that checks everything for consistency (e.g. between droneList and ensembleStatus)
-
---takes an environment, a number of drones to spawn, and creates a WorldState representing a completely unexplored scenario
-initializeWorldState :: Integer -> Environment -> WorldState
-initializeWorldState i env = WorldState env info enStat
-  where
-    info = EnvView.initializeInfo env
-    minPosition = Set.findMin . Map.keysSet . getMap $ env--this might fail for empty environments? --type of this is Position
-    enStat = fmap numberDrone [1 .. i]
-    numberDrone n = (DroneID n, Assigned Hover (DronePos minPosition Low))
-
-isTerminal :: WorldState -> Bool
-isTerminal ws = isCompleteInfo (getInfo ws)
-
-isCompleteInfo :: EnvironmentInfo -> Bool
-isCompleteInfo envInfo = getAll $ foldMap (All . EnvView.isFullyObserved) $ Map.elems envInfo
 
 type NextActions = [(Drone, Action)]
 

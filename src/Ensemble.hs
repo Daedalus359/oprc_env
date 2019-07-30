@@ -1,7 +1,7 @@
 module Ensemble where
 
 import Drone
-import Data.Map as Map
+import Data.Map.Strict as Map
 
 type DroneList = [Drone]
 

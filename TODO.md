@@ -1,5 +1,9 @@
 To-Do List:
 * create a policy that commands a random valid move whenever a drone is Unassigned
+* get low sweep snake pattern policy working for large rectangular environments
+* get high sweep first policy working for large rectangular environments
+* generalize low sweep policy to arbitrary environment shapes
+* generalize high sweep policy to arbitrary environment shapes
 * create a policy that commands low flying moves toward the nearest unobserved patch
 * create a policy that maintains a PGM data structure of the environment, and **uses RL to tune the parameters of the PGM from session to session**
 * [expand] add a reward signal and other requirements for a proper RL agent to learn from this environment

@@ -1,6 +1,4 @@
 To-Do List:
-* make a function that can initialize a worldState from an Environment and an EnvironmentInfo and drone coordinates, start the drones hovering at the minimal location in the environment footprint (using lookupMin :: Set a -> Maybe a)	
-* demo exploring a small environment interactively
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * create a policy that commands low flying moves toward the nearest unobserved patch
 * create a policy that maintains a PGM data structure of the environment, and **uses RL to tune the parameters of the PGM from session to session**
@@ -20,3 +18,5 @@ Completed Items:
 * parse a text file into a list of lines with their line numbers in the form \[(2, "HLL  HL")\] (7/29/2019)
 * add IO and parser functionality to load in a plain text environment file (7/29/2019)
 * make a function that initializes an EnvironmentInfo from an Environment, marking everything unseen (7/29/2019)
+* make a function that can initialize a worldState from an Environment (7/29/2019)
+* demo exploring a small environment interactively (7/29/2019)

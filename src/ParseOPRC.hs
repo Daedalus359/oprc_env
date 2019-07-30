@@ -93,8 +93,8 @@ toDetailReq :: Parser (Maybe DetailReq)
 toDetailReq =  do
   c <- anyChar
   case c of 
-    'H' -> return $ Just Far
-    'L' -> return $ Just Close
+    'H' -> return $ Just Close
+    'L' -> return $ Just Far
     ' ' -> return Nothing
     _ -> fail "Environment file must only contain the character 'H', 'L', and ' ' (space)."
 

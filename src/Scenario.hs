@@ -9,6 +9,7 @@ import EnvView
 import WorldState
 import Drone
 import Policy
+import Ensemble
 
 --p should be an instance of the policy typeclass, see mkScenatio
 data Scenario p = 
@@ -16,10 +17,20 @@ data Scenario p =
     getPolicy :: p
   , getWorldState :: WorldState
   , getTime :: Integer
+  , getHist :: MoveHistory
   }
 
-mkScenario :: (Policy p) => p -> WorldState -> Scenario p
-mkScenario p ws = Scenario p ws 0
+mkScenario :: (Policy p) => p -> Integer -> Environment -> Scenario p
+mkScenario policy numDrones env = Scenario policy (initializeWorldState numDrones env) 0 []
+
+data Snapshot = 
+  Snapshot {
+    getCommands :: NextActions
+  , getTimeStamp :: Integer
+  }
+
+--ideally, a History will contain minimal information required to recreate the entire sequence of events, given the Environment and other info in the Scenario
+type MoveHistory = [Snapshot]
 
 -- below are some utlilty functions to help start and end a scenario --------------------------------------------------------------------
 

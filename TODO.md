@@ -1,5 +1,4 @@
 To-Do List:
-* fix updates so that observations and drones becoming commandable happen at the same time
 * create a "Scenario" type that has a worldstate, a policy, and some time tracking information
 * add functionality to advance a scenario one time step, or run it to completion (with a backup max number of time steps to execute)
 * create a policy that commands a random valid move whenever a drone is Unassigned
@@ -31,3 +30,4 @@ Completed Items:
 * make a function that can initialize a worldState from an Environment (7/29/2019)
 * demo exploring a small environment interactively (7/29/2019)
 * swap all my imports so that I am using the strict version of Map (7/30/2019)
+* fix updates so that observations and drones becoming commandable happen at the same time (7/30/2019)

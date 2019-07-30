@@ -1,5 +1,5 @@
 To-Do List:
-* create a "Scenario" type that has a worldstate, a policy, and some time tracking information
+* add a history to the Scenario type that contains an efficient representation of everything that has happened so far
 * add functionality to advance a scenario one time step, or run it to completion (with a backup max number of time steps to execute)
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * get low sweep snake pattern policy working for large rectangular environments
@@ -31,3 +31,4 @@ Completed Items:
 * demo exploring a small environment interactively (7/29/2019)
 * swap all my imports so that I am using the strict version of Map (7/30/2019)
 * fix updates so that observations and drones becoming commandable happen at the same time (7/30/2019)
+* create a "Scenario" type that has a worldstate, a policy, and some time tracking information (7/30/2019)

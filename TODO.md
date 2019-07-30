@@ -1,5 +1,5 @@
 To-Do List:
-* make a function that can initialize a worldState from an Environment and an EnvironmentInfo and drone coordinates, start the drones hovering
+* make a function that can initialize a worldState from an Environment and an EnvironmentInfo and drone coordinates, start the drones hovering at the minimal location in the environment footprint (using lookupMin :: Set a -> Maybe a)	
 * demo exploring a small environment interactively
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * create a policy that commands low flying moves toward the nearest unobserved patch

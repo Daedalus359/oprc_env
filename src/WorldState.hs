@@ -32,8 +32,8 @@ instance Show WorldState where
 --TODO: make a smart constructor for WorldState that checks everything for consistency (e.g. between droneList and ensembleStatus)
 
 --takes an environment, a number of drones to spawn, and creates a WorldState representing a completely unexplored scenario
-initializeWorldState :: Environment -> Integer -> WorldState
-initializeWorldState env i = WorldState env info enStat
+initializeWorldState :: Integer -> Environment -> WorldState
+initializeWorldState i env = WorldState env info enStat
   where
     info = EnvView.initializeInfo env
     minPosition = Set.findMin . Map.keysSet . getMap $ env--this might fail for empty environments? --type of this is Position

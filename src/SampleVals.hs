@@ -61,6 +61,24 @@ env  = Environment $ Map.fromList [(pos, pat), (pos2, pat2)]
 parseEnv3 :: IO (Result Env.Environment)
 parseEnv3 = fmap (parseString parseEnvironment mempty) $ readFile "./test/environments/3.env"
 
+parsedWs :: IO (Result WorldState)
+parsedWs = (fmap . fmap) (initializeWorldState 2) parseEnv3
+
+parseEnvNum :: Integer -> IO (Result Env.Environment)
+parseEnvNum i = fmap (parseString parseEnvironment mempty) $ readFile fileStr
+  where fileStr = "./test/environments/" ++ (show i) ++ ".env"
+
+liftToWS :: Integer -> IO (Result Env.Environment) -> IO (Result WorldState)
+liftToWS i envIO = (fmap . fmap) (initializeWorldState i) envIO
+
+dumpFailure :: (WorldState -> IO ()) -> IO (Result WorldState) -> IO ()
+dumpFailure f possibleWS = do
+  pWS <- possibleWS --Result WorldState
+  case pWS of
+    Success ws -> f ws
+    Failure _ -> do --consider passing through the error message from the Failure itself
+      putStrLn "Parsing failed before worldstate was created"
+
 --just the shape of the environment
 footprint :: Env.Footprint
 footprint = Map.keysSet $ toMap env

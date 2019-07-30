@@ -147,11 +147,3 @@ manualControl ws = forever $ do
   print $ needsCommand (getEnsemble ws)
   na <- getNewCommandTerm
   manualControl (updateState na ws)
-
-  --putStrLn "Enter the NextActions to command, e.g. [(1, Hover), (2, MoveIntercardinal NE)] :"
-  --naResult <- fmap (parseString parseNextActions mempty) getLine --get a string representing the user's next commands to the ensemble
-  --case naResult of
-    --Failure _ -> do
-      --putStrLn "Unable to parse previous input, try again."
-      --manualControl ws
-    --Success na -> manualControl (updateState na ws)

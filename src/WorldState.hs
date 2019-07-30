@@ -36,8 +36,10 @@ type NextActions = [(Drone, Action)]
 --update ensemble status based next actions
 --make observations, update view based on that
 updateState :: NextActions -> WorldState -> WorldState
-updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState env (observe ws) (updateEnsemble nextActions ensembleStatus))
-  where updateEnsemble nextActions = stepEnsemble . (assignEnsemble nextActions)
+updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState env (observe $ WorldState env view newStatus)) newStatus
+  where
+    updateEnsemble nextActions = stepEnsemble . (assignEnsemble nextActions)
+    newStatus = (updateEnsemble nextActions ensembleStatus)
 
 --Applies the newly commanded actions to the ensembleStatus
 --TODO: replace futile actions (e.g. Ascending when already high) with hover

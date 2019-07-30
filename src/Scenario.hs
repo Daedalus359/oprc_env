@@ -8,6 +8,20 @@ import Env
 import EnvView
 import WorldState
 import Drone
+import Policy
+
+--p should be an instance of the policy typeclass, see mkScenatio
+data Scenario p = 
+  Scenario {
+    getPolicy :: p
+  , getWorldState :: WorldState
+  , getTime :: Integer
+  }
+
+mkScenario :: (Policy p) => p -> WorldState -> Scenario p
+mkScenario p ws = Scenario p ws 0
+
+-- below are some utlilty functions to help start and end a scenario --------------------------------------------------------------------
 
 --takes an environment, a number of drones to spawn, and creates a WorldState representing a completely unexplored scenario
 initializeWorldState :: Integer -> Environment -> WorldState

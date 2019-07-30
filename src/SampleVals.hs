@@ -128,6 +128,15 @@ quitIfTerminal ws =
        exitSuccess
   else return ()
 
+getNewCommandTerm :: IO NextActions
+getNewCommandTerm = do
+  putStrLn "Enter the NextActions to command, e.g. [(1, Hover), (2, MoveIntercardinal NE)] :"
+  naResult <- fmap (parseString parseNextActions mempty) getLine --get a string representing the user's next commands to the ensemble
+  case naResult of
+    Failure _ -> do
+      putStrLn "Unable to parse previous input, try again."
+      getNewCommandTerm
+    Success na -> return na
 
 --lets the user control the ensemble interactively by specifying nextactions at each time step
 manualControl :: WorldState -> IO ()
@@ -136,8 +145,13 @@ manualControl ws = forever $ do
   quitIfTerminal ws
   putStrLn "The following drones are Unassigned and will respond to a NextActions instruction"
   print $ needsCommand (getEnsemble ws)
-  putStrLn "Enter the NextActions to command, e.g. [(1, Hover), (2, MoveIntercardinal NE)] :"
-  naResult <- fmap (parseString parseNextActions mempty) getLine --get a string representing the user's next commands to the ensemble
-  case naResult of
-    Failure _ -> manualControl ws
-    Success na -> manualControl (updateState na ws)
+  na <- getNewCommandTerm
+  manualControl (updateState na ws)
+
+  --putStrLn "Enter the NextActions to command, e.g. [(1, Hover), (2, MoveIntercardinal NE)] :"
+  --naResult <- fmap (parseString parseNextActions mempty) getLine --get a string representing the user's next commands to the ensemble
+  --case naResult of
+    --Failure _ -> do
+      --putStrLn "Unable to parse previous input, try again."
+      --manualControl ws
+    --Success na -> manualControl (updateState na ws)

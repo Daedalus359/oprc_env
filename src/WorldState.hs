@@ -41,6 +41,9 @@ updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState en
     updateEnsemble nextActions = stepEnsemble . (assignEnsemble nextActions)
     newStatus = (updateEnsemble nextActions ensembleStatus)
 
+toView :: WorldState -> WorldView
+toView (WorldState env info status) = WorldView info status
+
 --Applies the newly commanded actions to the ensembleStatus
 --TODO: replace futile actions (e.g. Ascending when already high) with hover
 assignEnsemble :: NextActions -> EnsembleStatus -> EnsembleStatus

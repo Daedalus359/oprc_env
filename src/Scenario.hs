@@ -31,6 +31,8 @@ data Snapshot =
 
 stepScenario :: Scenario p -> Scenario p
 stepScenario (Scenario policy ws time hist) = Scenario $ undefined
+  where
+    currentWV = toView ws
   --generate a worldview from the current worldState (make a new function in WS to do that)
   --call nextMove to get the set of next commanded actions and the new policy (add to result)
   --if the nextActions is non-empty, add it and the current timestamp to the History (add the possibly updated history to the result)

@@ -29,6 +29,14 @@ data Snapshot =
   , getTimeStamp :: Integer
   }
 
+stepScenario :: Scenario p -> Scenario p
+stepScenario (Scenario policy ws time hist) = Scenario $ undefined
+  --generate a worldview from the current worldState (make a new function in WS to do that)
+  --call nextMove to get the set of next commanded actions and the new policy (add to result)
+  --if the nextActions is non-empty, add it and the current timestamp to the History (add the possibly updated history to the result)
+  --call updateState (from WorldState) on the nextActions and the current WorldState, add the resulting worldstate to the new scenario
+  --increment time by 1 and add to new Scenario
+
 --ideally, a History will contain minimal information required to recreate the entire sequence of events, given the Environment and other info in the Scenario
 type MoveHistory = [Snapshot]
 

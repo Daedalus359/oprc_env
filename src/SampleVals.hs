@@ -6,6 +6,8 @@ import Ensemble
 import EnvView
 import WorldState
 import Scenario
+import RandomAgent
+import Policy
 
 import ParseOPRC
 import Text.Trifecta
@@ -19,6 +21,7 @@ import qualified Data.Set as Set
 
 import Control.Monad (forever)
 import System.Exit
+import System.Random
 
 --Datatypes defined in Env
 
@@ -72,13 +75,13 @@ parseEnvNum i = fmap (parseString parseEnvironment mempty) $ readFile fileStr
 liftToWS :: Integer -> IO (Result Env.Environment) -> IO (Result WorldState)
 liftToWS i envIO = (fmap . fmap) (initializeWorldState i) envIO
 
-dumpFailure :: (WorldState -> IO ()) -> IO (Result WorldState) -> IO ()
-dumpFailure f possibleWS = do
-  pWS <- possibleWS --Result WorldState
-  case pWS of
-    Success ws -> f ws
+dumpParseFailure :: (a -> IO ()) -> IO (Result a) -> IO ()
+dumpParseFailure f possibleVal = do
+  pVal <- possibleVal --Result val, comes out of IO shell
+  case pVal of
+    Success v -> f v
     Failure _ -> do --consider passing through the error message from the Failure itself
-      putStrLn "Parsing failed before worldstate was created"
+      putStrLn "Parsing failed to load value"
 
 --just the shape of the environment
 footprint :: Env.Footprint
@@ -148,3 +151,8 @@ manualControl ws = forever $ do
   na <- getNewCommandTerm
   manualControl (updateState na ws)
 
+randPolicy :: IO (RandomPolicy)
+randPolicy = fmap RandomPolicy newStdGen
+
+fullScenarioLoad :: (Policy p) => Integer -> Integer -> Integer -> p -> IO ()
+fullScenarioLoad environmentNumber numDrones timeLimit policy = undefined

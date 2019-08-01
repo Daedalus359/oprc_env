@@ -56,6 +56,6 @@ main = foldr (>>) (return ())
     ]
   ) >>
   --SV.manualControl SV.worldState >>
-  SV.dumpFailure SV.manualControl (SV.liftToWS 1 $ SV.parseEnvNum 4) >> 
+  SV.dumpParseFailure SV.manualControl (SV.liftToWS 1 $ SV.parseEnvNum 4) >> 
   BE.mainWith myCircle >>
   putStrLn "manual control goes here"

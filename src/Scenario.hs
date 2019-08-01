@@ -31,6 +31,10 @@ data Snapshot =
   }
   deriving (Eq, Show)
 
+--ideally, a History will contain minimal information required to recreate the entire sequence of events, given the Environment and other info in the Scenario
+type MoveHistory = [Snapshot]
+
+--advance the current scenario one time step
 stepScenario :: (Policy p) => Scenario p -> Scenario p
 stepScenario (Scenario policy ws time hist) = Scenario nextPolicy newWs (time + 1) newHist
   where
@@ -42,8 +46,17 @@ stepScenario (Scenario policy ws time hist) = Scenario nextPolicy newWs (time + 
                     na@(move : moves) -> (Snapshot na time) : hist
   --if the nextActions is non-empty, add it and the current timestamp to the History (add the possibly updated history to the result)
 
---ideally, a History will contain minimal information required to recreate the entire sequence of events, given the Environment and other info in the Scenario
-type MoveHistory = [Snapshot]
+--should I add a time limit to this?
+--take 
+runScenario :: (Policy p) => Integer -> Scenario p -> Scenario p
+runScenario timeLimit s = case (overTime || finished) of
+                      False -> runScenario timeLimit $ stepScenario s
+                      True -> s
+  where
+    overTime = getTime s >= timeLimit
+    finished = isTerminal $ getWorldState s
+
+--fullRun initializes a scenario from an environment and number of drones and sets it to run to completion with a time limit
 
 -- below are some utlilty functions to help start and end a scenario --------------------------------------------------------------------
 

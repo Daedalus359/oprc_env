@@ -19,6 +19,7 @@ data Scenario p =
   , getTime :: Integer
   , getHist :: MoveHistory
   }
+  deriving (Eq, Show)
 
 mkScenario :: (Policy p) => p -> Integer -> Environment -> Scenario p
 mkScenario policy numDrones env = Scenario policy (initializeWorldState numDrones env) 0 []
@@ -28,16 +29,18 @@ data Snapshot =
     getCommands :: NextActions
   , getTimeStamp :: Integer
   }
+  deriving (Eq, Show)
 
-stepScenario :: Scenario p -> Scenario p
-stepScenario (Scenario policy ws time hist) = Scenario $ undefined
+stepScenario :: (Policy p) => Scenario p -> Scenario p
+stepScenario (Scenario policy ws time hist) = Scenario nextPolicy newWs (time + 1) newHist
   where
     currentWV = toView ws
-  --generate a worldview from the current worldState (make a new function in WS to do that)
-  --call nextMove to get the set of next commanded actions and the new policy (add to result)
+    (nextMoves, nextPolicy) = nextMove policy currentWV
+    newWs = updateState nextMoves ws
+    newHist = case nextMoves of
+                    [] -> hist
+                    na@(move : moves) -> (Snapshot na time) : hist
   --if the nextActions is non-empty, add it and the current timestamp to the History (add the possibly updated history to the result)
-  --call updateState (from WorldState) on the nextActions and the current WorldState, add the resulting worldstate to the new scenario
-  --increment time by 1 and add to new Scenario
 
 --ideally, a History will contain minimal information required to recreate the entire sequence of events, given the Environment and other info in the Scenario
 type MoveHistory = [Snapshot]

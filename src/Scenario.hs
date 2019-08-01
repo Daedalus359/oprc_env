@@ -47,16 +47,20 @@ stepScenario (Scenario policy ws time hist) = Scenario nextPolicy newWs (time + 
   --if the nextActions is non-empty, add it and the current timestamp to the History (add the possibly updated history to the result)
 
 --should I add a time limit to this?
---take 
-runScenario :: (Policy p) => Integer -> Scenario p -> Scenario p
+--run the scenario until its time hits the time limit, or until it finishes, whichever comes first
+runScenario :: (Policy p) => Integer -> Scenario p -> (Bool, Scenario p)
 runScenario timeLimit s = case (overTime || finished) of
                       False -> runScenario timeLimit $ stepScenario s
-                      True -> s
+                      True -> (finished, s)
   where
     overTime = getTime s >= timeLimit
     finished = isTerminal $ getWorldState s
 
 --fullRun initializes a scenario from an environment and number of drones and sets it to run to completion with a time limit
+fullRun :: (Policy p) => Environment -> Integer -> p -> Integer -> Scenario p 
+fullRun environment numDrones policy timeLimit = runScenario timeLimit scenario
+  where
+    scenario = mkScenario policy numDrones environment
 
 -- below are some utlilty functions to help start and end a scenario --------------------------------------------------------------------
 

@@ -147,3 +147,4 @@ manualControl ws = forever $ do
   print $ needsCommand (getEnsemble ws)
   na <- getNewCommandTerm
   manualControl (updateState na ws)
+

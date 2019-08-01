@@ -13,6 +13,7 @@ To-Do List:
 * [expand] add a reward signal and other requirements for a proper RL agent to learn from this environment
 * use prettyprinter-ansi-terminal to do my prettyprinting properly
 * consider adding functionality such as needing to track bettery level and periodically return for a swap if the environment isn't rich enough
+* add some kind of 2d visual representation of the environment / belief / activity data structures
 
 Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)

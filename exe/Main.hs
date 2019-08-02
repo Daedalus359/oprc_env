@@ -58,4 +58,5 @@ main = foldr (>>) (return ())
   --SV.manualControl SV.worldState >>
   SV.dumpParseFailure SV.manualControl (SV.liftToWS 1 $ SV.parseEnvNum 4) >> 
   BE.mainWith myCircle >>
+  --fullRun 10 1 <$> randPolicy -- IO (Environment -> (Bool, Scenario RandomPolicy))
   putStrLn "manual control goes here"

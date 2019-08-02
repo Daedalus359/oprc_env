@@ -153,6 +153,3 @@ manualControl ws = forever $ do
 
 randPolicy :: IO (RandomPolicy)
 randPolicy = fmap RandomPolicy newStdGen
-
-fullScenarioLoad :: (Policy p) => Integer -> Integer -> Integer -> p -> IO ()
-fullScenarioLoad environmentNumber numDrones timeLimit policy = undefined

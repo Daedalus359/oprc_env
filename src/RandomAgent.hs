@@ -4,6 +4,7 @@ import Policy
 import Drone
 import Env
 import EnvView
+import Ensemble
 
 --import Test.QuickCheck
 import System.Random as Random
@@ -68,12 +69,14 @@ randomActions i stdGen
 
 instance Policy RandomPolicy where
   nextMove (RandomPolicy stdGen) worldView =
-    undefined --(nextActions, RandomPolicy newGen)
+    (nextActions, RandomPolicy newGen)
     where
-      currentStatus = getEnsembleStatus worldView 
-      numDrones = length $ currentStatus
+      currentStatus = getEnsembleStatus worldView
+      dronesNeedingActions = needsCommand currentStatus
+
+      numDrones = length dronesNeedingActions
       (maybeAL, newGen) = randomActions numDrones stdGen
       allHover = take numDrones $ repeat Hover
       actionsList = fromMaybe allHover maybeAL
-      replaceAction newAction (drone, oldAction) = (drone, newAction)--note that actual environment will discard commands to drones already performing an action
-      nextActions = zipWith replaceAction actionsList currentStatus
+
+      nextActions = zip dronesNeedingActions actionsList

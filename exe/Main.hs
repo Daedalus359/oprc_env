@@ -10,6 +10,12 @@ import MoveCosts
 import qualified SampleVals as SV
 import WorldState
 import Drone
+import qualified Scenario
+
+--prettyprinting
+import PrettyOPRC
+import Data.Text.Prettyprint.Doc
+import Data.Text.Prettyprint.Doc.Util
 
 --other oprc dependencies
 import qualified Data.Map.Strict as Map
@@ -18,8 +24,9 @@ import qualified Data.Map.Strict as Map
 import qualified Diagrams.Prelude as D
 import qualified Diagrams.Backend.SVG.CmdLine as BE
 
---testing utilities
+--general utilities
 import Util (nTimes)
+import Control.Applicative
 
 myCircle :: D.Diagram BE.B
 myCircle = D.circle 1
@@ -56,7 +63,19 @@ main = foldr (>>) (return ())
     ]
   ) >>
   --SV.manualControl SV.worldState >>
-  SV.dumpParseFailure SV.manualControl (SV.liftToWS 1 $ SV.parseEnvNum 4) >> 
+  --SV.dumpParseFailure2 SV.manualControl (SV.liftToWS 1 $ SV.parseEnvNum 4) >> 
   BE.mainWith myCircle >>
-  --fullRun 10 1 <$> randPolicy -- IO (Environment -> (Bool, Scenario RandomPolicy))
+  putStrLn "running full Scenario" >>
+  do
+    putStrLn "Line before scenario"
+    (finished, scenario) <- liftA2 (Scenario.fullRun 100 1) SV.randPolicy (SV.dumpParseFailure $ SV.parseEnvNum 4)-- IO (Bool, Scenario RandomPolicy)
+    putStrLn "Environment explored? - "
+    print finished
+    putStrLn "Final worldState: "
+    putDocW 80 (pretty $ Scenario.getWorldState scenario)
+    putStrLn "Final time: "
+    print (Scenario.getTime scenario)
+    putStrLn "Move History: "
+    print (Scenario.getHist scenario)
+  >>
   putStrLn "manual control goes here"

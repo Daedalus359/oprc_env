@@ -1,4 +1,6 @@
 To-Do List:
+* figure out why every action is taking one time step too many during a scenario run
+* make a function in Ensemble that returns both the drones that require an action and the occupied drone as a ([Drone], [Drone]) instead of doing the work twice 
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * add functionality to advance a scenario one time step, or run it to completion (with a backup max number of time steps to execute), adding the latest moves to History whenever any new move is made:
 	* check to see if nextActions is empty when you get the nextActions from the policy, and use that to add to the history if needed

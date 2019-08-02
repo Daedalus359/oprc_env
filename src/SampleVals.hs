@@ -75,8 +75,17 @@ parseEnvNum i = fmap (parseString parseEnvironment mempty) $ readFile fileStr
 liftToWS :: Integer -> IO (Result Env.Environment) -> IO (Result WorldState)
 liftToWS i envIO = (fmap . fmap) (initializeWorldState i) envIO
 
-dumpParseFailure :: (a -> IO ()) -> IO (Result a) -> IO ()
-dumpParseFailure f possibleVal = do
+dumpParseFailure :: IO (Result a) -> IO a
+dumpParseFailure ioRa = do
+  resA <- ioRa
+  case resA of
+    Success v -> return v
+    Failure _ -> do
+      putStrLn "Parsing failed to load value"
+      exitSuccess
+
+dumpParseFailure2 :: (a -> IO ()) -> IO (Result a) -> IO ()
+dumpParseFailure2 f possibleVal = do
   pVal <- possibleVal --Result val, comes out of IO shell
   case pVal of
     Success v -> f v
@@ -147,7 +156,7 @@ manualControl ws = forever $ do
   putDocW 80 (pretty ws)
   quitIfTerminal ws
   putStrLn "The following drones are Unassigned and will respond to a NextActions instruction"
-  print $ needsCommand (getEnsemble ws)
+  print $ Ensemble.needsCommand (getEnsemble ws)
   na <- getNewCommandTerm
   manualControl (updateState na ws)
 

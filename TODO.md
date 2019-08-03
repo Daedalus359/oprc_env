@@ -1,4 +1,5 @@
 To-Do List:
+* make a new function in SampleVals for debugging that runs Scenarios with printing one time step at a time
 * figure out why every action is taking one time step too many during a scenario run
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
 * create a policy that commands a random valid move whenever a drone is Unassigned

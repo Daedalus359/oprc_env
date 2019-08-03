@@ -6,7 +6,11 @@ import MoveCosts
 data Drone = DroneID Integer
   deriving (Eq, Show)
 
-data DronePosition = DronePos Env.Position Env.Altitude
+data DronePosition = DronePos 
+  {
+    getEnvPos :: Env.Position
+  , getEnvAlt :: Env.Altitude
+  }
   deriving (Eq, Show)
 
 data VerticalDirection = Ascend | Descend

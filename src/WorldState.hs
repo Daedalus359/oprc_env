@@ -38,7 +38,7 @@ type NextActions = [(Drone, Action)]
 updateState :: NextActions -> WorldState -> WorldState
 updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState env (observe $ WorldState env view newStatus)) newStatus
   where
-    updateEnsemble nextActions = stepEnsemble . (assignEnsemble nextActions)
+    updateEnsemble nextActions = (stepEnsemble $ Map.keysSet $ toMap env). (assignEnsemble nextActions)
     newStatus = (updateEnsemble nextActions ensembleStatus)
 
 toView :: WorldState -> WorldView
@@ -57,17 +57,21 @@ assignEnsemble nextActions ((drone, droneStat@(Unassigned pos)) : ensStat) =
 assignEnsemble nextActions (ds : ensStat) = ds : (assignEnsemble nextActions ensStat)
 
 --Advances each drone 1 time step according to its current status. Should run right after assignEnsemble.
-stepEnsemble :: EnsembleStatus -> EnsembleStatus
-stepEnsemble [] = []--recursive base case
+stepEnsemble :: Footprint -> EnsembleStatus -> EnsembleStatus
+stepEnsemble fp [] = []--recursive base case
 --unassigned drones contine to be unassigned in the next time step
-stepEnsemble ((drone, stat@(Unassigned _)) : enStat) = (drone, stat) : (stepEnsemble enStat)
+stepEnsemble fp ((drone, stat@(Unassigned _)) : enStat) = (drone, stat) : (stepEnsemble fp enStat)
 --acting drones take a step towards completing their actions
-stepEnsemble ((drone, (Acting action steps pos)) : enStat)
-  | steps > 1 = (drone, (Acting action (steps - 1) pos)) : (stepEnsemble enStat)
-  | steps <= 1 = (drone, (Unassigned newPos)) : (stepEnsemble enStat)--complete the action, causing the drone to be unassigned and possibly in a new position
+stepEnsemble fp ((drone, (Acting action steps pos)) : enStat)
+  | steps > 1 = (drone, (Acting action (steps - 1) pos)) : (stepEnsemble fp enStat)
+  | steps <= 1 = (drone, (Unassigned newPos)) : (stepEnsemble fp enStat)--complete the action, causing the drone to be unassigned and possibly in a new position
     where newPos = movedBy action pos
 --drones which have just received a new assignment are set in motion
-stepEnsemble ((drone, (Assigned action pos)) : enStat) = (drone, (Acting action steps pos)) : (stepEnsemble enStat)
+stepEnsemble fp ((drone, (Assigned action pos)) : enStat) =
+  case (Env.inBounds fp $ Drone.getEnvPos $ movedBy action pos) of
+    True -> (drone, (Acting action steps pos)) : (stepEnsemble fp enStat)
+    False -> (drone, (Unassigned pos)) : (stepEnsemble fp enStat)
+
   where steps = duration action
 
 --Combines EnvironmentInfo contained in current WorldState with new EnvironmentInfo collected from envSnap

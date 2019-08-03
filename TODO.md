@@ -1,6 +1,6 @@
 To-Do List:
 * figure out why every action is taking one time step too many during a scenario run
-* make a function in Ensemble that returns both the drones that require an action and the occupied drone as a ([Drone], [Drone]) instead of doing the work twice 
+* find a good configuration format and parses for my use case, make one that holds all info for a scenario
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * add functionality to advance a scenario one time step, or run it to completion (with a backup max number of time steps to execute), adding the latest moves to History whenever any new move is made:
 	* check to see if nextActions is empty when you get the nextActions from the policy, and use that to add to the history if needed
@@ -36,3 +36,4 @@ Completed Items:
 * fix updates so that observations and drones becoming commandable happen at the same time (7/30/2019)
 * create a "Scenario" type that has a worldstate, a policy, and some time tracking information (7/30/2019)
 * add a history to the Scenario type to contain an efficient representation of everything that has happened so far (7/30/2019)
+* modify stepEnsemble to immediately discard commands that would put a drone out of bounds (8/2/2019)

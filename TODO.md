@@ -1,5 +1,6 @@
 To-Do List:
 * modify stepEnsemble to discard pointless moveVertical commands
+* create a variant of RandomAgent with a move filter, make one that won't command out of bounds / pointless moves (incl hover)
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * add functionality to advance a scenario one time step, or run it to completion (with a backup max number of time steps to execute), adding the latest moves to History whenever any new move is made:

@@ -54,3 +54,14 @@ data DroneStatus =
   | Assigned Action DronePosition
   | Acting Action StepsRemaining DronePosition
   deriving (Eq, Show)
+
+validMove :: Footprint -> DronePosition -> Action -> Bool
+validMove _ _ Hover = True
+validMove fp (DronePos _ envAlt) (MoveVertical vDir) = isProductive vDir envAlt
+  where
+    isProductive Ascend Low = True
+    isProductive Descend High = True
+    isProductive _ _ = False
+--last case should only catch horizontal motions
+--check if completing the motion would result in an in-bounds position
+validMove fp dronePos action = inBounds fp (getEnvPos $ movedBy action dronePos)

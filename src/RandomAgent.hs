@@ -11,7 +11,8 @@ import System.Random as Random
 import Data.Maybe
 
 --RandomPolicy has no state other than the current RandomGen, which 
-newtype RandomPolicy = RandomPolicy StdGen
+newtype RandomPolicy = RandomPolicy
+  { getGen :: StdGen }
 
 --lets you make an random blind policy out of a (random seed) Int value
 mkRBP :: Int -> RandomPolicy
@@ -80,3 +81,27 @@ instance Policy RandomPolicy where
       actionsList = fromMaybe allHover maybeAL
 
       nextActions = zip dronesNeedingActions actionsList
+
+choice :: RandomGen g => g -> [a] -> (a, g)
+choice gen list =
+  (list !! randomIndex, newGen)
+  where
+    (randomIndex, newGen) = randomR (0, length list - 1) gen
+
+weightedChoice :: RandomGen g => g -> [(a, Double)] -> (a, g)
+weightedChoice gen weightedList = (fromMaybe defaultVal $ firstGT randomIndex accumulatedList, newGen)
+  where
+    accumulatedList = scanl1 weightAccum weightedList
+    maxIndex = snd $ last $ accumulatedList
+    defaultVal = fst $ last $ accumulatedList
+    (randomIndex, newGen) = randomR (0, maxIndex) gen
+
+weightAccum :: Num b => (a, b) -> (a, b) -> (a, b)
+weightAccum (a1, b1) (a2, b2) = (a2, b1 + b2)
+
+firstGT :: Ord b => b -> [(a, b)] -> Maybe a
+firstGT _ [] = Nothing
+firstGT index ((a, b) : list) = 
+  case (b >= index) of
+    True -> Just a
+    False -> firstGT index list

@@ -65,17 +65,6 @@ main = foldr (>>) (return ())
   --SV.manualControl SV.worldState >>
   --SV.dumpParseFailure2 SV.manualControl (SV.liftToWS 1 $ SV.parseEnvNum 4) >> 
   BE.mainWith myCircle >>
-  putStrLn "running full Scenario" >>
-  do
-    putStrLn "Line before scenario"
-    (finished, scenario) <- liftA2 (Scenario.fullRun 100 1) SV.randPolicy (SV.dumpParseFailure $ SV.parseEnvNum 4)-- IO (Bool, Scenario RandomPolicy)
-    putStrLn "Environment explored? - "
-    print finished
-    putStrLn "Final worldState: "
-    putDocW 80 (pretty $ Scenario.getWorldState scenario)
-    putStrLn "Final time: "
-    print (Scenario.getTime scenario)
-    putStrLn "Move History: "
-    print (Scenario.getHist scenario)
-  >>
-  putStrLn "manual control goes here"
+  SV.fullScenarioWithOutput 1 4 100 >>
+  -- SV.firstStepsWithOutput >> 
+  return ()

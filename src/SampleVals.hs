@@ -22,6 +22,7 @@ import qualified Data.Set as Set
 import Control.Monad (forever)
 import System.Exit
 import System.Random
+import Control.Applicative
 
 --Datatypes defined in Env
 
@@ -162,3 +163,37 @@ manualControl ws = forever $ do
 
 randPolicy :: IO (RandomPolicy)
 randPolicy = fmap RandomPolicy newStdGen
+
+fullScenarioWithOutput :: Integer -> Integer -> Integer -> IO ()
+fullScenarioWithOutput nDrones envNum timeLimit = do
+    putStrLn "Running scenario..."
+    (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) randPolicy (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
+    putStrLn "Environment explored? - "
+    print finished
+    putStrLn "Final worldState: "
+    putDocW 80 (pretty $ Scenario.getWorldState scenario)
+    putStrLn "Final time: "
+    print (Scenario.getTime scenario)
+    putStrLn "Move History: "
+    putDocW 80 (vsep $ fmap pretty $ Scenario.getHist scenario)
+
+firstStepsWithOutput :: IO ()
+firstStepsWithOutput = do
+  scenario <- liftA3 (Scenario.mkScenario) randPolicy (return 1) (dumpParseFailure $ parseEnvNum 4)
+  putStrLn "Unstepped time: "
+  print (Scenario.getTime scenario)
+  putStrLn "Unstepped move hist"
+  print (vsep $ fmap pretty $ Scenario.getHist scenario)
+  putStrLn "One step time"
+  print (Scenario.getTime $ stepScenario scenario)
+  putStrLn "One step hist"
+  print (vsep $ fmap pretty $ Scenario.getHist $ stepScenario scenario)
+  putStrLn "Two step time"
+  print (Scenario.getTime $ stepScenario $ stepScenario scenario)
+  putStrLn "Two step hist"
+  putDocW 80 (vsep $ fmap pretty $ Scenario.getHist $ stepScenario $ stepScenario scenario)
+  --putStrLn "Three step time"
+  --print (Scenario.getTime $ stepScenario $ stepScenario $ stepScenario scenario)
+  --putStrLn "Three step hist"
+  --print (Scenario.getHist $ stepScenario $ stepScenario $ stepScenario scenario)
+  return ()

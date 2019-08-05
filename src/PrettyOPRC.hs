@@ -6,6 +6,7 @@ import Env
 import EnvView
 import Ensemble
 import Drone
+import Scenario
 
 import qualified Data.Map.Strict as M
 
@@ -46,3 +47,6 @@ instance Pretty WorldState where
   pretty ws = nest 2 $ vsep [pretty "WorldState: ", (pretty $ getEnv ws), prettyInfo, prettyEnsemble]
     where prettyInfo = prettyEnvInfo (getInfo ws)
           prettyEnsemble = nest 2 $ vsep $ (:) (pretty "Ensemble Status: ") $ fmap prettyDroneAndStat (getEnsemble ws)
+
+instance Pretty Snapshot where
+  pretty (Snapshot commands time) = pretty "Snapshot: " <+> (pretty commands) <+> (pretty "Time: ") <+> (pretty time)

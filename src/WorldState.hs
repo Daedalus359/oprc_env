@@ -69,10 +69,11 @@ stepEnsemble fp ((drone, (Acting action steps pos)) : enStat)
 --drones which have just received a new assignment are set in motion
 stepEnsemble fp ((drone, (Assigned action pos)) : enStat) =
   case (Env.inBounds fp $ Drone.getEnvPos $ movedBy action pos) of
-    True -> (drone, (Acting action steps pos)) : (stepEnsemble fp enStat)
+    True -> (drone, (Acting action stepsRemaining pos)) : (stepEnsemble fp enStat)
     False -> (drone, (Unassigned pos)) : (stepEnsemble fp enStat)
-
-  where steps = duration action
+  
+  -- (- 1) because you have just completed the first step, since this is the step function
+  where stepsRemaining = duration action - 1
 
 --Combines EnvironmentInfo contained in current WorldState with new EnvironmentInfo collected from envSnap
 --only need to run this when EnsembleStatus is such that one drone just completed a motion

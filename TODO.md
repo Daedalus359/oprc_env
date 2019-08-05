@@ -1,6 +1,5 @@
 To-Do List:
-* make a new function in SampleVals for debugging that runs Scenarios with printing one time step at a time
-* figure out why every action is taking one time step too many during a scenario run
+* modify stepEnsemble to discard pointless moveVertical commands
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
 * create a policy that commands a random valid move whenever a drone is Unassigned
 * add functionality to advance a scenario one time step, or run it to completion (with a backup max number of time steps to execute), adding the latest moves to History whenever any new move is made:
@@ -38,3 +37,5 @@ Completed Items:
 * create a "Scenario" type that has a worldstate, a policy, and some time tracking information (7/30/2019)
 * add a history to the Scenario type to contain an efficient representation of everything that has happened so far (7/30/2019)
 * modify stepEnsemble to immediately discard commands that would put a drone out of bounds (8/2/2019)
+* make a new function in SampleVals for debugging that runs Scenarios with printing one time step at a time (8/5/2019)
+* figure out why every action is taking one time step too many during a scenario run (8/5/2019)

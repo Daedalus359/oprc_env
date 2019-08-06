@@ -17,6 +17,7 @@ To-Do List:
 * use prettyprinter-ansi-terminal to do my prettyprinting properly
 * consider adding functionality such as needing to track bettery level and periodically return for a swap if the environment isn't rich enough
 * add some kind of 2d visual representation of the environment / belief / activity data structures
+* create an alternate Doc ann (as in prettyprinter) generating function for Scenario history that shows where a drone was at the moment it get each command
 
 Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)
@@ -41,3 +42,4 @@ Completed Items:
 * make a new function in SampleVals for debugging that runs Scenarios with printing one time step at a time (8/5/2019)
 * figure out why every action is taking one time step too many during a scenario run (8/5/2019)
 * modify stepEnsemble to discard pointless moveVertical commands (8/5/2019)
+* figure out and fix why hover takes an extra time step (possibly because step function initializes stepsremaining to zero for it) (8/6/2019)

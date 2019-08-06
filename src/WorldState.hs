@@ -68,7 +68,7 @@ stepEnsemble fp ((drone, (Acting action steps pos)) : enStat)
     where newPos = movedBy action pos
 --drones which have just received a new assignment are set in motion
 stepEnsemble fp ((drone, (Assigned action pos)) : enStat) =
-  case (Drone.validMove fp pos action) of
+  case (Drone.validMove fp pos action && stepsRemaining >= 1) of
     True -> (drone, (Acting action stepsRemaining pos)) : (stepEnsemble fp enStat)
     False -> (drone, (Unassigned pos)) : (stepEnsemble fp enStat)
   

@@ -1,4 +1,5 @@
 To-Do List:
+* add a test for Hover to randomValidAction
 * create a variant of RandomAgent with a move filter, make one that won't command out of bounds / pointless moves (incl hover)
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
 * create a policy that commands a random valid move whenever a drone is Unassigned

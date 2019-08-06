@@ -66,6 +66,6 @@ main = foldr (>>) (return ())
   --SV.dumpParseFailure2 SV.manualControl (SV.liftToWS 1 $ SV.parseEnvNum 4) >> 
   BE.mainWith myCircle >>
   -- SV.fullScenarioWithOutput SV.randPolicy 1 4 100 >>
-  SV.fullScenarioWithOutput SV.randFiltPolicy 1 4 100 >>
+  SV.fullScenarioWithOutput SV.randFiltPolicy 2 4 100 >>
   -- SV.firstStepsWithOutput >> 
   return ()

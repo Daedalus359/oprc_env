@@ -26,6 +26,7 @@ library
                         , Drone
                         , Ensemble
                         , WorldState
+                        , GraphOPRC
                         , Policy
                         , ParseOPRC
                         , PrettyOPRC

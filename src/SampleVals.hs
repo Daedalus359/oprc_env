@@ -164,10 +164,13 @@ manualControl ws = forever $ do
 randPolicy :: IO (RandomPolicy)
 randPolicy = fmap RandomPolicy newStdGen
 
-fullScenarioWithOutput :: Integer -> Integer -> Integer -> IO ()
-fullScenarioWithOutput nDrones envNum timeLimit = do
+randFiltPolicy :: IO (RandomFilteredPolicy)
+randFiltPolicy = fmap RandomFilteredPolicy newStdGen
+
+fullScenarioWithOutput :: Policy p => IO (p) -> Integer -> Integer -> Integer -> IO ()
+fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     putStrLn "Running scenario..."
-    (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) randPolicy (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
+    (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) ioPol (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
     putStrLn "Environment explored? - "
     print finished
     putStrLn "Final worldState: "

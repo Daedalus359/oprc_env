@@ -33,11 +33,10 @@ newtype RandomFilteredPolicy = RandomFilteredPolicy
   { getStdGen :: StdGen }
 
 instance Policy RandomFilteredPolicy where
-  nextMove (RandomFilteredPolicy stdGen) worldView = undefined 
-    --(nextActions, RandomPolicy newGen)
+  nextMove (RandomFilteredPolicy stdGen) worldView = fmap RandomFilteredPolicy $ applyValidActions stdGen fp enStat
     where
-      currentStatus = getEnsembleStatus worldView
-      dronesNeedingActions = needsCommand currentStatus
+      fp = (toFootprint $ getView worldView)
+      enStat = (getEnsembleStatus worldView)
 
 randomValidAction :: StdGen -> Footprint -> DronePosition -> (Action, StdGen)
 randomValidAction gen fp dronePos = 
@@ -60,13 +59,18 @@ randomMap gen rFunc (a : as) = addTo bVal $ randomMap newGen rFunc as
     addTo b (bs, g) = (b : bs, g)
     (bVal, newGen) = rFunc gen a
 
-applyValidActions :: StdGen -> Footprint -> EnsembleStatus -> NextActions
-applyValidActions gen fp = undefined . (randomMap gen (\g -> \ds -> randomValidWhenUnassigned g fp ds)) . (fmap snd)
+zipByMaybe :: [a] -> [Maybe b] -> [(a, b)]
+zipByMaybe [] _ = []
+zipByMaybe _ [] = []
+zipByMaybe (a : as) (Just b : bs) = (a, b) : zipByMaybe as bs
+zipByMaybe (a : as) (Nothing : bs) = zipByMaybe as bs
+
+applyValidActions :: StdGen -> Footprint -> EnsembleStatus -> (NextActions, StdGen)
+applyValidActions gen fp enStat = (liftFst $ zipByMaybe $ fmap fst enStat) . (randomMap gen (\g -> \ds -> randomValidWhenUnassigned g fp ds)) . (fmap snd) $ enStat
   --fmap snd takes ensemblestatus to [DroneStatus]
   --randomMap ... makes it a ([Maybe Action], StdGen)
-
   where
-
+    liftFst fab (a, c) = (fab a, c)
 
 
 

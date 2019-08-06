@@ -18,6 +18,9 @@ isFullyObserved _ = False
 
 type EnvironmentInfo = Map.Map Position PatchInfo
 
+toFootprint :: EnvironmentInfo -> Footprint
+toFootprint = Map.keysSet
+
 --ideally find a way to quickly swap in the Unseen value as the value to every key
 initializeInfo :: Environment -> EnvironmentInfo
 initializeInfo env = fmap (const Unseen) $ getMap env

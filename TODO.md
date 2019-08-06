@@ -1,5 +1,4 @@
 To-Do List:
-* add a test for Hover to randomValidAction
 * create a variant of RandomAgent with a move filter, make one that won't command out of bounds / pointless moves (incl hover)
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
 * create a policy that commands a random valid move whenever a drone is Unassigned
@@ -44,3 +43,4 @@ Completed Items:
 * modify stepEnsemble to discard pointless moveVertical commands (8/5/2019)
 * figure out and fix why hover takes an extra time step (possibly because step function initializes stepsremaining to zero for it) (8/6/2019)
 * complete applyValidActions and the Policy instance for RandomFilteredPolicy (8/6/2019)
+* add a test for Hover to randomValidAction (8/6/2019)

@@ -23,6 +23,10 @@ data Action =
   | Hover
   deriving (Eq, Show)
 
+notHover :: Action -> Bool
+notHover Hover = False
+notHover _ = True
+
 --the list of all positions which can be seen from a given position and altitude
 viewableFrom :: DronePosition -> [Position]
 viewableFrom (DronePos pos Low) = [pos]

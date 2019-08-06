@@ -40,7 +40,7 @@ instance Policy RandomFilteredPolicy where
 
 randomValidAction :: StdGen -> Footprint -> DronePosition -> (Action, StdGen)
 randomValidAction gen fp dronePos = 
-  case (validMove fp dronePos action) of
+  case (validMove fp dronePos action && notHover action) of
     True -> (action, nextGen)
     False -> randomValidAction nextGen fp dronePos
   where

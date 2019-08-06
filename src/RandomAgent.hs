@@ -61,7 +61,12 @@ randomMap gen rFunc (a : as) = addTo bVal $ randomMap newGen rFunc as
     (bVal, newGen) = rFunc gen a
 
 applyValidActions :: StdGen -> Footprint -> EnsembleStatus -> NextActions
-applyValidActions gen fp = undefined -- catMaybes . (randomMap gen )
+applyValidActions gen fp = undefined . (randomMap gen (\g -> \ds -> randomValidWhenUnassigned g fp ds)) . (fmap snd)
+  --fmap snd takes ensemblestatus to [DroneStatus]
+  --randomMap ... makes it a ([Maybe Action], StdGen)
+
+  where
+
 
 
 

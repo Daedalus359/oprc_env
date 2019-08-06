@@ -5,6 +5,7 @@ import Drone
 import Env
 import EnvView
 import Ensemble
+import WorldState
 
 --import Test.QuickCheck
 import System.Random as Random
@@ -14,9 +15,59 @@ import Data.Maybe
 newtype RandomPolicy = RandomPolicy
   { getGen :: StdGen }
 
+instance Policy RandomPolicy where
+  nextMove (RandomPolicy stdGen) worldView =
+    (nextActions, RandomPolicy newGen)
+    where
+      currentStatus = getEnsembleStatus worldView
+      dronesNeedingActions = needsCommand currentStatus
+
+      numDrones = length dronesNeedingActions
+      (maybeAL, newGen) = randomActions numDrones stdGen
+      allHover = take numDrones $ repeat Hover
+      actionsList = fromMaybe allHover maybeAL
+
+      nextActions = zip dronesNeedingActions actionsList
+
+newtype RandomFilteredPolicy = RandomFilteredPolicy 
+  { getStdGen :: StdGen }
+
+instance Policy RandomFilteredPolicy where
+  nextMove (RandomFilteredPolicy stdGen) worldView = undefined 
+    --(nextActions, RandomPolicy newGen)
+    where
+      currentStatus = getEnsembleStatus worldView
+      dronesNeedingActions = needsCommand currentStatus
+
+randomValidAction :: StdGen -> Footprint -> DronePosition -> (Action, StdGen)
+randomValidAction gen fp dronePos = 
+  case (validMove fp dronePos action) of
+    True -> (action, nextGen)
+    False -> randomValidAction nextGen fp dronePos
+  where
+    (action, nextGen) = randomAction gen
+
+randomValidWhenUnassigned :: StdGen -> Footprint -> DroneStatus -> (Maybe Action, StdGen)
+randomValidWhenUnassigned gen fp (Unassigned dronePos) = fstJust $ randomValidAction gen fp dronePos
+  where
+    fstJust (a, b) = (Just a, b)
+randomValidWhenUnassigned gen _ _ = (Nothing, gen)
+
+randomMap :: RandomGen g => g -> (g -> a -> (b, g)) -> [a] -> ([b], g)
+randomMap gen _ [] = ([], gen)
+randomMap gen rFunc (a : as) = addTo bVal $ randomMap newGen rFunc as
+  where
+    addTo b (bs, g) = (b : bs, g)
+    (bVal, newGen) = rFunc gen a
+
+applyValidActions :: StdGen -> Footprint -> EnsembleStatus -> NextActions
+applyValidActions gen fp = undefined -- catMaybes . (randomMap gen )
+
+
+
 --lets you make an random blind policy out of a (random seed) Int value
-mkRBP :: Int -> RandomPolicy
-mkRBP = RandomPolicy . mkStdGen
+mkRP :: Int -> RandomPolicy
+mkRP = RandomPolicy . mkStdGen
 
 randomCardinal :: StdGen -> (CardinalDir, StdGen)
 randomCardinal stdGen = (dir, gen2)
@@ -67,20 +118,6 @@ randomActions i stdGen
     addToResult :: Action -> (Maybe [Action], StdGen) -> (Maybe [Action], StdGen)
     addToResult action (Nothing, aGen) = (Nothing, aGen)
     addToResult action (Just actionList, aGen) = (Just (action : actionList), aGen)
-
-instance Policy RandomPolicy where
-  nextMove (RandomPolicy stdGen) worldView =
-    (nextActions, RandomPolicy newGen)
-    where
-      currentStatus = getEnsembleStatus worldView
-      dronesNeedingActions = needsCommand currentStatus
-
-      numDrones = length dronesNeedingActions
-      (maybeAL, newGen) = randomActions numDrones stdGen
-      allHover = take numDrones $ repeat Hover
-      actionsList = fromMaybe allHover maybeAL
-
-      nextActions = zip dronesNeedingActions actionsList
 
 choice :: RandomGen g => g -> [a] -> (a, g)
 choice gen list =

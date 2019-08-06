@@ -55,6 +55,10 @@ data DroneStatus =
   | Acting Action StepsRemaining DronePosition
   deriving (Eq, Show)
 
+isUnassigned :: DroneStatus -> Bool
+isUnassigned (Unassigned _) = True
+isUnassigned _ = False
+
 validMove :: Footprint -> DronePosition -> Action -> Bool
 validMove _ _ Hover = True
 validMove fp (DronePos _ envAlt) (MoveVertical vDir) = isProductive vDir envAlt

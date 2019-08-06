@@ -38,6 +38,7 @@ instance Policy RandomFilteredPolicy where
       fp = (toFootprint $ getView worldView)
       enStat = (getEnsembleStatus worldView)
 
+--repeatedly generating and discarding random actions is reasonably effcient if we keep most of the generated actions after 1 try
 randomValidAction :: StdGen -> Footprint -> DronePosition -> (Action, StdGen)
 randomValidAction gen fp dronePos = 
   case (validMove fp dronePos action && notHover action) of
@@ -71,8 +72,6 @@ applyValidActions gen fp enStat = (liftFst $ zipByMaybe $ fmap fst enStat) . (ra
   --randomMap ... makes it a ([Maybe Action], StdGen)
   where
     liftFst fab (a, c) = (fab a, c)
-
-
 
 --lets you make an random blind policy out of a (random seed) Int value
 mkRP :: Int -> RandomPolicy

@@ -1,9 +1,4 @@
 To-Do List:
-* create a variant of RandomAgent with a move filter, make one that won't command out of bounds / pointless moves (incl hover)
-* find a good configuration format and parses for my use case, make one that holds all info for a scenario
-* create a policy that commands a random valid move whenever a drone is Unassigned
-* add functionality to advance a scenario one time step, or run it to completion (with a backup max number of time steps to execute), adding the latest moves to History whenever any new move is made:
-	* check to see if nextActions is empty when you get the nextActions from the policy, and use that to add to the history if needed
 * get low sweep snake pattern policy working for large rectangular environments
 * get high sweep first policy working for large rectangular environments
 * generalize low sweep policy to arbitrary environment shapes
@@ -17,6 +12,7 @@ To-Do List:
 * consider adding functionality such as needing to track bettery level and periodically return for a swap if the environment isn't rich enough
 * add some kind of 2d visual representation of the environment / belief / activity data structures
 * create an alternate Doc ann (as in prettyprinter) generating function for Scenario history that shows where a drone was at the moment it get each command
+* find a good configuration format and parses for my use case, make one that holds all info for a scenario
 
 Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)
@@ -44,3 +40,4 @@ Completed Items:
 * figure out and fix why hover takes an extra time step (possibly because step function initializes stepsremaining to zero for it) (8/6/2019)
 * complete applyValidActions and the Policy instance for RandomFilteredPolicy (8/6/2019)
 * add a test for Hover to randomValidAction (8/6/2019)
+* create a variant of RandomAgent with a move filter, make one that won't command out of bounds / pointless moves (incl hover) (8/6/2019)

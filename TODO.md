@@ -13,6 +13,7 @@ To-Do List:
 * add some kind of 2d visual representation of the environment / belief / activity data structures
 * create an alternate Doc ann (as in prettyprinter) generating function for Scenario history that shows where a drone was at the moment it get each command
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
+* implement a random environment parser that accepts a third kind of character, ?, and assigns it high or low with some probability
 
 Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)

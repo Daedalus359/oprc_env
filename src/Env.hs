@@ -75,6 +75,9 @@ neighborsOf :: Position -> [Position]
 neighborsOf pos = nl <*> [pos]
   where nl = (fmap neighborTo [North, South, East, West]) ++ (fmap neighborTo [NE, SE, NW, SW])
 
+inBoundsNeighborsOf :: Footprint -> Position -> [Position]
+inBoundsNeighborsOf fp pos = filter (inBounds fp) $ neighborsOf pos
+
 --The "environment" is a colection of patches at different positions
 newtype Environment = Environment {getMap :: (Map.Map Position Patch)}
   deriving Eq

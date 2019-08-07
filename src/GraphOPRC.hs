@@ -1,11 +1,40 @@
 module GraphOPRC where
 
+import qualified Data.Map as MapL
+import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
+import qualified Data.PSQueue as Q
+
 import Env
+import EnvView
 
 --allows for efficiently building a Path as a list from back to front
 data PathStep = PathStep Position (Maybe ParentPos)
 
 type ParentPos = Position
+type Path = [Position]
+
+type EstTotalCost = MapL.Map Position Integer
+
+initializeETC :: Footprint -> EstTotalCost
+--number of patches in footprint is a good upper bound for the initial f values
+initializeETC fp = MapL.fromSet (const numPatches) fp
+  where numPatches = toInteger $ Set.size fp
+
+--CostFromStart x represents the cost of the cheapest *known* path from start to x
+type CostFromStart = Map.Map Position Integer
+
+--not exactly the same as initializeETC because of strictness differences
+initializeCFS :: Footprint -> CostFromStart
+initializeCFS fp = Map.fromSet (const numPatches) fp
+  where numPatches = toInteger $ Set.size fp
+
+type Heuristic = Position -> Integer
+
+aStar :: EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Path
+aStar envInfo hFunc startPos endPos = undefined -- aStarInternal envInfo (hFunc endPos) startPos endPos ... -- initialize additional data structures and pass them to aStarInternal
+
+--aStarInternal :: EnvironmentInfo -> Heuristic -> Position -> Position ->
 
 --need memoization for efficiency, not an immediate priority
 --should probably use Manhattan distance as a heuristic
@@ -20,4 +49,12 @@ type ParentPos = Position
 
 --f(x) values should also be implemented as a map with initialized upper bound values for all nodes
 
-testCompilation = "!"
+--useful heuristic functions go here
+mkManhattanHeuristic :: Position -> Heuristic
+mkManhattanHeuristic endPos = manhattanDistance endPos
+
+manhattanDistance :: Position -> Position -> Integer
+manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = deltaX + deltaY
+  where
+    deltaX = abs $ x1 - x2
+    deltaY = abs $ y1 - y2

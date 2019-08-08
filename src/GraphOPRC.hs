@@ -44,18 +44,19 @@ recreatePathInternal start end pMap partialPath@(front : positions) =
     (Just parent) -> recreatePathInternal start end pMap (parent : partialPath)
     Nothing -> if (front == start) then (Just partialPath) else Nothing
 
-
 aStar :: EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
-aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal envInfo (hFunc endPos) startPos endPos openSet fMax cMax (Map.empty :: ParentMap)
+aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal fp (hFunc endPos) startPos endPos openSet fMax cMax (Map.empty :: ParentMap)
  where
-   openSet = (Q.singleton startPos 0 :: Q.PSQ Position Integer) 
+   openSet = (Q.singleton startPos 0 :: Q.PSQ Position Integer)
    fMax = initializeETC fp
    cMax = initializeCFS fp
    fp = toFootprint envInfo
 
 --continue making recursive calls until endPos can be entered into the ParentMap
-aStarInternal :: EnvironmentInfo -> Heuristic -> Position -> Position -> Q.PSQ Position Integer -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
+aStarInternal :: Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Integer -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
 aStarInternal envInfo h startPos endPos openSet f c parentMap = undefined
+  where
+    mostPromising = fmap Q.key $ Q.findMin openSet --this has type Maybe Position
 
 --need memoization for efficiency, not an immediate priority
 --should probably use Manhattan distance as a heuristic

@@ -1,5 +1,7 @@
 To-Do List:
 * write A* in GraphOPRC (use PSQueue or similar to generate the prioritized frontier)
+	NEXT: finish aStarInternal
+* find out if PSQueue uses last in first out for tie breaking, find another implementation if not
 * get low sweep snake pattern policy working for large rectangular environments
 * get high sweep first policy working for large rectangular environments
 * generalize low sweep policy to arbitrary environment shapes

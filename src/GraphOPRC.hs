@@ -54,7 +54,15 @@ aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarIntern
 
 --continue making recursive calls until endPos can be entered into the ParentMap
 aStarInternal :: Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Integer -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
-aStarInternal envInfo h startPos endPos openSet f c parentMap = undefined
+aStarInternal fp h startPos endPos openSet f c parentMap =
+  case mostPromising of
+    Nothing -> parentMap --if the open set is empty, A* should have either found an answer or failed (more likely)
+    (Just position) ->
+      if (position == endPos)
+        then parentMap --A* has succeeded
+        else undefined
+          -- use inBoundsNeighborsOf fp position
+          -- next recursive call should have the binding with key equal to position removed
   where
     mostPromising = fmap Q.key $ Q.findMin openSet --this has type Maybe Position
 

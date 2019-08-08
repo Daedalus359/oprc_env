@@ -31,10 +31,31 @@ initializeCFS fp = Map.fromSet (const numPatches) fp
 
 type Heuristic = Position -> Integer
 
-aStar :: EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Path
-aStar envInfo hFunc startPos endPos = undefined -- aStarInternal envInfo (hFunc endPos) startPos endPos ... -- initialize additional data structures and pass them to aStarInternal
+type ParentMap = Map.Map Position Position
+-- empty :: ParentMap
 
---aStarInternal :: EnvironmentInfo -> Heuristic -> Position -> Position ->
+recreatePath :: Position -> Position -> ParentMap -> Maybe Path
+recreatePath start end pMap = recreatePathInternal start end pMap []
+
+recreatePathInternal :: Position -> Position -> ParentMap -> Path -> Maybe Path
+recreatePathInternal start end pMap [] = recreatePathInternal start end pMap [end]
+recreatePathInternal start end pMap partialPath@(front : positions) = 
+  case Map.lookup front pMap of
+    (Just parent) -> recreatePathInternal start end pMap (parent : partialPath)
+    Nothing -> if (front == start) then (Just partialPath) else Nothing
+
+
+aStar :: EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
+aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal envInfo (hFunc endPos) startPos endPos openSet fMax cMax (Map.empty :: ParentMap)
+ where
+   openSet = (Q.singleton startPos 0 :: Q.PSQ Position Integer) 
+   fMax = initializeETC fp
+   cMax = initializeCFS fp
+   fp = toFootprint envInfo
+
+--continue making recursive calls until endPos can be entered into the ParentMap
+aStarInternal :: EnvironmentInfo -> Heuristic -> Position -> Position -> Q.PSQ Position Integer -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
+aStarInternal envInfo h startPos endPos openSet f c parentMap = undefined
 
 --need memoization for efficiency, not an immediate priority
 --should probably use Manhattan distance as a heuristic
@@ -42,7 +63,7 @@ aStar envInfo hFunc startPos endPos = undefined -- aStarInternal envInfo (hFunc 
 --open set represents the search frontier
 --ties should be broken by searching the most recently discovered node first, so that multiple equally viable paths aren't drawn out in parallel
 
---f(x) = c(x) + h(x)
+-- f(x) = c(x) + h(x)
 ----c(x) : the lowest cost path from start to x currently known
 ------implement as a map with all initial values equal to the number of nodes in the Footprint, as this is an upper bound on path cost
 ----h(x) : the heuristic estimated cost from x to end

@@ -1,9 +1,7 @@
 To-Do List:
+* get low sweep snake pattern policy working for large environments
+* get high sweep first policy working for large environments
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not
-* get low sweep snake pattern policy working for large rectangular environments
-* get high sweep first policy working for large rectangular environments
-* generalize low sweep policy to arbitrary environment shapes
-* generalize high sweep policy to arbitrary environment shapes
 * create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators
 * create functionality to test policies on a random assortment of environments
 * create a policy that commands low flying moves toward the nearest unobserved patch

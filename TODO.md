@@ -1,6 +1,4 @@
 To-Do List:
-* write A* in GraphOPRC (use PSQueue or similar to generate the prioritized frontier)
-	NEXT: finish aStarInternal
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not
 * get low sweep snake pattern policy working for large rectangular environments
 * get high sweep first policy working for large rectangular environments
@@ -45,3 +43,4 @@ Completed Items:
 * complete applyValidActions and the Policy instance for RandomFilteredPolicy (8/6/2019)
 * add a test for Hover to randomValidAction (8/6/2019)
 * create a variant of RandomAgent with a move filter, make one that won't command out of bounds / pointless moves (incl hover) (8/6/2019)
+* write A* in GraphOPRC (8/12/2019)

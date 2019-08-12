@@ -4,6 +4,8 @@ import qualified Data.Map as MapL
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.PSQueue as Q
+import Data.List
+import Data.Maybe
 
 import Env
 import EnvView
@@ -45,7 +47,7 @@ recreatePathInternal start end pMap partialPath@(front : positions) =
     Nothing -> if (front == start) then (Just partialPath) else Nothing
 
 aStar :: EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
-aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal fp (hFunc endPos) startPos endPos openSet fMax cMax (Map.empty :: ParentMap)
+aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
  where
    openSet = (Q.singleton startPos 0 :: Q.PSQ Position Integer)
    fMax = initializeETC fp
@@ -53,18 +55,71 @@ aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarIntern
    fp = toFootprint envInfo
 
 --continue making recursive calls until endPos can be entered into the ParentMap
-aStarInternal :: Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Integer -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
-aStarInternal fp h startPos endPos openSet f c parentMap =
+aStarInternal :: Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Integer -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
+aStarInternal fp h startPos endPos openSet closedSet f c parentMap =
   case mostPromising of
     Nothing -> parentMap --if the open set is empty, A* should have either found an answer or failed (more likely)
     (Just position) ->
       if (position == endPos)
         then parentMap --A* has succeeded
-        else undefined
-          -- use inBoundsNeighborsOf fp position
-          -- next recursive call should have the binding with key equal to position removed
+        else aStarInternal fp h startPos endPos newOpenSet newClosedSet newF newC newParentMap
+          where
+            --updates related to the improvedNeighbors
+            newF = foldr (\neighbor -> Map.insert neighbor $ h neighbor + posCost + 1) fWithNewNeighbors improvedNeighbors
+            newC = foldr (\neighbor -> Map.insert neighbor (posCost + 1)) cWithNewNeighbors improvedNeighbors
+            newParentMap = foldr (\child -> Map.insert child position) parentMapWithNewNeighbors improvedNeighbors
+            newOpenSet = updateFromLists improvedNeighbors improvedNeighborCosts openSetWithNewNeighbors
+            improvedNeighborCosts = fmap (costFrom h posCost) improvedNeighbors --new f values
+
+            --those oldNeighbors for which a lower cost from start has just been found
+            improvedNeighbors = filter (\n -> (<) (posCost + 1) $ fromMaybe fpSize $ Map.lookup n c) oldNeighbors
+
+            --updates related to neighbors that haven't been seen at all so far
+            fWithNewNeighbors = foldr (\neighbor -> Map.insert neighbor $ h neighbor + posCost + 1) f newNeighbors
+            cWithNewNeighbors = foldr (\neighbor -> Map.insert neighbor (posCost + 1)) c newNeighbors
+            parentMapWithNewNeighbors = foldr (\child -> Map.insert child position) parentMap newNeighbors
+            openSetWithNewNeighbors = insertFromLists newNeighbors newNeighborCosts openSetNoCurrent --redo this as a fold
+            newNeighborCosts = fmap (costFrom h posCost) newNeighbors
+
+            --get the neighbors that have not already been visited
+            (oldNeighbors, newNeighbors) = partition (memberOfPSQ openSetNoCurrent) neighborsToExplore
+            neighborsToExplore = filter (\a -> not $ Set.member a newClosedSet) $ inBoundsNeighborsOf fp position
+
+            --move current position from open set to closed set
+            openSetNoCurrent = Q.delete position openSet
+            newClosedSet = Set.insert position closedSet
+
+            --useful numbers
+            fpSize = toInteger $ Set.size fp
+            posCost = fromMaybe fpSize $ Map.lookup position c
+
   where
     mostPromising = fmap Q.key $ Q.findMin openSet --this has type Maybe Position
+
+--returns f value (c + h)
+costFrom :: Heuristic -> Integer -> Position -> Integer
+costFrom h parentCost child = h child + costFromStart
+  where costFromStart = parentCost + 1
+
+memberOfPSQ :: (Ord k, Ord p) => Q.PSQ k p -> k -> Bool
+memberOfPSQ psq k =
+  case (Q.lookup k psq) of
+    (Just _) -> True
+    Nothing -> False
+
+insertFromLists :: (Ord k, Ord p) => [k] -> [p] -> Q.PSQ k p -> Q.PSQ k p
+insertFromLists [] _ psq = psq
+insertFromLists _ [] psq = psq
+insertFromLists (k : ks) (p : ps) psq = insertFromLists ks ps (Q.insert k p psq)
+
+updateFromLists :: (Ord k, Ord p) => [k] -> [p] -> Q.PSQ k p -> Q.PSQ k p
+updateFromLists [] _ psq = psq
+updateFromLists _ [] psq = psq
+updateFromLists (k : ks) (p : ps) psq = updateFromLists ks ps (Q.adjust (const p) k psq)
+
+insertFromList :: (Ord k, Ord p) => (k -> p) -> [k] -> Q.PSQ k p -> Q.PSQ k p
+insertFromList f [] psq = psq
+insertFromList f (k : kList) psq = insertFromList f kList (Q.insert k (f k) psq)
 
 --need memoization for efficiency, not an immediate priority
 --should probably use Manhattan distance as a heuristic

@@ -177,8 +177,8 @@ fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     putDocW 80 (pretty $ Scenario.getWorldState scenario)
     putStrLn "Final time: "
     print (Scenario.getTime scenario)
-    putStrLn "Move History: "
-    putDocW 80 (vsep $ fmap pretty $ Scenario.getHist scenario)
+    --putStrLn "Move History: "
+    --putDocW 80 (vsep $ fmap pretty $ Scenario.getHist scenario)
 
 firstStepsWithOutput :: IO ()
 firstStepsWithOutput = do

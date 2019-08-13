@@ -8,6 +8,8 @@ import WorldState
 import Scenario
 import RandomAgent
 import Policy
+import ShapeSweepAgent
+import GraphOPRC
 
 import ParseOPRC
 import Text.Trifecta
@@ -167,6 +169,9 @@ randPolicy = fmap RandomPolicy newStdGen
 randFiltPolicy :: IO (RandomFilteredPolicy)
 randFiltPolicy = fmap RandomFilteredPolicy newStdGen
 
+lsPolicy :: LowSweepPolicy
+lsPolicy = LowSweepPolicy []
+
 fullScenarioWithOutput :: Policy p => IO (p) -> Integer -> Integer -> Integer -> IO ()
 fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     putStrLn "Running scenario..."
@@ -200,3 +205,6 @@ firstStepsWithOutput = do
   --putStrLn "Three step hist"
   --print (Scenario.getHist $ stepScenario $ stepScenario $ stepScenario scenario)
   return ()
+
+sampleAStar :: IO (Maybe Path)
+sampleAStar = aStar <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))

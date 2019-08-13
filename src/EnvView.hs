@@ -32,3 +32,6 @@ data WorldView =
   , getEnsembleStatus :: Ensemble.EnsembleStatus
   }
   deriving Eq
+
+numDronesRunning :: WorldView -> Int
+numDronesRunning (WorldView _ enStat) = length enStat 

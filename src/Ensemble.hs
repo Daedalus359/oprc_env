@@ -1,7 +1,7 @@
 module Ensemble where
 
 import Drone
-import Data.Map.Strict as Map
+import qualified Data.Map.Strict as Map
 
 type DroneList = [Drone]
 
@@ -18,3 +18,6 @@ occupiedDrones :: EnsembleStatus -> [Drone]
 occupiedDrones [] = []
 occupiedDrones ((drone, Unassigned _) : ensStat) = occupiedDrones ensStat
 occupiedDrones ((drone, _) : ensStat) = drone : (occupiedDrones ensStat)
+
+allIdle :: EnsembleStatus -> Bool
+allIdle = foldr (\(drone, status) -> (&& isUnassigned status)) True 

@@ -44,6 +44,9 @@ type Hop = (Integer, Integer)
 hopFrom :: Position -> Hop -> Position
 hopFrom (Position x y) (dX, dY) = (Position (x + dX) (y + dY))
 
+getHop :: Position -> Position -> Hop
+getHop (Position x1 y1) (Position x2 y2) = (x2 - x1, y2 - y1)
+
 --compass directions
 class Direction d where
   deltas :: d -> Hop

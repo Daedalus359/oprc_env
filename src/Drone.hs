@@ -42,6 +42,26 @@ movedBy (MoveVertical vDir) (DronePos pos alt)
   | vDir == Ascend = (DronePos pos High)
   | otherwise = (DronePos pos Low)
 
+toAction :: Hop -> Maybe Action
+toAction (dx, dy) =
+  case dx of
+    0 -> case dy of
+      0 -> Just Hover
+      1 -> Just (MoveCardinal North)
+      (-1) -> Just (MoveCardinal South)
+      _ -> Nothing
+    1 -> case dy of
+      0 -> Just (MoveCardinal East)
+      1 -> Just (MoveIntercardinal NE)
+      (-1) -> Just (MoveIntercardinal SE)
+      _ -> Nothing
+    (-1) -> case dy of
+      0 -> Just (MoveCardinal West)
+      1 -> Just (MoveIntercardinal NW)
+      (-1) -> Just (MoveIntercardinal SW)
+    _ -> Nothing
+
+
 class Timed t where
   duration :: t -> Integer
 
@@ -58,6 +78,11 @@ data DroneStatus =
   | Assigned Action DronePosition
   | Acting Action StepsRemaining DronePosition
   deriving (Eq, Show)
+
+groundPos :: DroneStatus -> Position
+groundPos (Unassigned dronePos) = getEnvPos dronePos
+groundPos (Assigned _ dronePos) = getEnvPos dronePos
+groundPos (Acting _ _ dronePos) = getEnvPos dronePos
 
 isUnassigned :: DroneStatus -> Bool
 isUnassigned (Unassigned _) = True

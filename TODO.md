@@ -1,5 +1,5 @@
 To-Do List:
-* get the random scenario time sampler working in RandomOPRC (based on timeScenarioRun in Scenario)
+* make a version of A* that penalizes paths involving visited nodes by making those moves cost 1.5x as much as usual
 * get high sweep first policy working for large environments
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not
 * create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators
@@ -44,3 +44,4 @@ Completed Items:
 * write A* in GraphOPRC (8/12/2019)
 * get low sweep snake pattern policy working for large environments (8/12/2019)
 * add a function in Scenario that outputs the time for a Scenario to run completely (as a Maybe) (8/12/2019)
+* get the random scenario time sampler working in RandomOPRC (8/13/2019)

@@ -20,3 +20,7 @@ randAgentRunTime numDrones timeLimit env gen = timeScenarioRun timeLimit scenari
 randAgentRunTimes :: Int -> Integer -> Integer -> Environment -> IO [Maybe Integer]
 randAgentRunTimes numReps numDrones timeLimit env = (fmap . fmap) timedRun $ replicateM numReps newStdGen
   where timedRun = randAgentRunTime numDrones timeLimit env
+
+averageRunTime :: [Maybe Integer] -> Maybe Integer
+averageRunTime mbis = (fmap $ \x -> div x len) . (fmap $ foldr (+) 0) . sequenceA $ mbis
+  where len = toInteger $ length mbis

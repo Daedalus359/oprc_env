@@ -178,8 +178,8 @@ fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) ioPol (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
     putStrLn "Environment explored? - "
     print finished
-    putStrLn "Final worldState: "
-    putDocW 80 (pretty $ Scenario.getWorldState scenario)
+    --putStrLn "Final worldState: "
+    --putDocW 80 (pretty $ Scenario.getWorldState scenario)
     putStrLn "Final time: "
     print (Scenario.getTime scenario)
     --putStrLn "Move History: "
@@ -244,7 +244,7 @@ threeStepsOfOutput p numDrones envNum timeLimit = do
   print (vsep $ fmap pretty $ Scenario.getHist $ stepScenario scenario)
   putStrLn "One step WorldState"
   putDocW 80 (pretty $ Scenario.getWorldState $ stepScenario scenario)
-  
+
   --putStrLn "Two step time"
   --print (Scenario.getTime $ stepScenario $ stepScenario scenario)
   --putStrLn "Two step hist"

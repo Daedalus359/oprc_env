@@ -19,6 +19,7 @@ data LowSweepPolicy = LowSweepPolicy
  {
    getDirections :: Directions
  }
+ deriving Show
 
 instance Policy LowSweepPolicy where
   nextMove p@(LowSweepPolicy actions) wv@(WorldView envInfo enStat) = 
@@ -32,15 +33,27 @@ instance Policy LowSweepPolicy where
                 numDrones = numDronesRunning wv
 
              --use A* to figure out the next path to command, then convert this to directions and start following
-             [] -> nextMove (LowSweepPolicy directions) wv
+             [] -> (nextActions, restOfP)--nextMove (LowSweepPolicy directions) wv
                where
+                --a recursive call makes more sense, but trying this way for debug purposes
+                (nextActions, restOfP) =
+                  if (null directions)
+                    then (zip (fmap DroneID [1 .. ]) (take numDrones $ repeat Hover), LowSweepPolicy [])
+                    else (zip (fmap DroneID [1 .. ]) (take numDrones $ repeat $ head directions), LowSweepPolicy $ tail directions)
+                numDrones = numDronesRunning wv
+
                 directions = fromMaybe [Hover] maybeDirections --eventually do something more interesting?
+
+                maybeDirections :: Maybe Directions
                 maybeDirections = maybePath >>= makeDirections
                 maybePath = aStar envInfo mkManhattanHeuristic startPos nextPosToVisit
+
+                startPos :: Position
                 startPos = groundPos $ snd $ head enStat
                 nextPosToVisit = if (null unobservedMap)
                                    then minPos
                                    else fst $ Map.findMin unobservedMap
+
                 unobservedMap = Map.filter (not . isFullyObserved) envInfo
                 minPos = fst $ Map.findMin envInfo
 

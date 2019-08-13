@@ -208,3 +208,49 @@ firstStepsWithOutput = do
 
 sampleAStar :: IO (Maybe Path)
 sampleAStar = aStar <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))
+
+threeStepsOfOutput :: (Policy p, Show p) => p -> Integer -> Integer -> Integer -> IO ()
+threeStepsOfOutput p numDrones envNum timeLimit = do
+  scenario <- (Scenario.mkScenario p numDrones) <$> (dumpParseFailure $ parseEnvNum envNum)
+
+  putStrLn "Unstepped time: "
+  print (Scenario.getTime scenario)
+  putStrLn "Unstepped policy: "
+  print (Scenario.getPolicy scenario)
+  putStrLn "Unstepped move hist"
+  print (vsep $ fmap pretty $ Scenario.getHist scenario)
+  putStrLn "Unstepped WorldState"
+  putDocW 80 (pretty $ Scenario.getWorldState scenario)
+
+  worldView <- return $ toView $ Scenario.getWorldState scenario
+  envInfo <- return $ getView worldView
+  minPos <- return $ fst $ Map.findMin envInfo
+  unobservedMap <- return $ Map.filter (not . isFullyObserved) envInfo
+  nextPosToVisit <- return $ if (null unobservedMap)
+                                   then minPos
+                                   else fst $ Map.findMin unobservedMap
+
+  putStrLn "Min Patch for environment"
+  print (minPos)
+  putStrLn "Target patch for A*"
+  print nextPosToVisit
+  putStrLn "A* Output"
+
+  putStrLn "One step time"
+  print (Scenario.getTime $ stepScenario scenario)
+  putStrLn "One step policy"
+  print (Scenario.getPolicy $ stepScenario scenario)
+  putStrLn "One step hist"
+  print (vsep $ fmap pretty $ Scenario.getHist $ stepScenario scenario)
+  putStrLn "One step WorldState"
+  putDocW 80 (pretty $ Scenario.getWorldState $ stepScenario scenario)
+  --putStrLn "Two step time"
+  --print (Scenario.getTime $ stepScenario $ stepScenario scenario)
+  --putStrLn "Two step hist"
+  --putDocW 80 (vsep $ fmap pretty $ Scenario.getHist $ stepScenario $ stepScenario scenario)
+
+  --putStrLn "Three step time"
+  --print (Scenario.getTime $ stepScenario $ stepScenario $ stepScenario scenario)
+  --putStrLn "Three step hist"
+  --print (Scenario.getHist $ stepScenario $ stepScenario $ stepScenario scenario)
+  return ()

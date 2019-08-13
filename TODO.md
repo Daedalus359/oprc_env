@@ -1,5 +1,5 @@
 To-Do List:
-* get low sweep snake pattern policy working for large environments
+* add a function in Scenario that outputs the time for a Scenario to run completely (as a Maybe)
 * get high sweep first policy working for large environments
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not
 * create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators
@@ -42,3 +42,4 @@ Completed Items:
 * add a test for Hover to randomValidAction (8/6/2019)
 * create a variant of RandomAgent with a move filter, make one that won't command out of bounds / pointless moves (incl hover) (8/6/2019)
 * write A* in GraphOPRC (8/12/2019)
+* get low sweep snake pattern policy working for large environments (8/12/2019)

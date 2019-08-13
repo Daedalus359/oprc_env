@@ -56,6 +56,16 @@ runScenario timeLimit s = case (overTime || finished) of
     overTime = getTime s >= timeLimit
     finished = isTerminal $ getWorldState s
 
+--time if success, Nothing if failure
+timeScenarioRun :: (Policy p) => Integer -> Scenario p -> Maybe Integer
+timeScenarioRun timeLimit s =
+  if success
+    then Just $ getTime afterRun
+    else Nothing
+
+    where
+     (success, afterRun) = runScenario timeLimit s
+
 --fullRun initializes a scenario from an environment and number of drones and sets it to run to completion with a time limit
 fullRun :: (Policy p) => Integer -> Integer -> p -> Environment -> (Bool, Scenario p)
 fullRun timeLimit numDrones policy environment = runScenario timeLimit scenario

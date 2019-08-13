@@ -244,6 +244,7 @@ threeStepsOfOutput p numDrones envNum timeLimit = do
   print (vsep $ fmap pretty $ Scenario.getHist $ stepScenario scenario)
   putStrLn "One step WorldState"
   putDocW 80 (pretty $ Scenario.getWorldState $ stepScenario scenario)
+  
   --putStrLn "Two step time"
   --print (Scenario.getTime $ stepScenario $ stepScenario scenario)
   --putStrLn "Two step hist"

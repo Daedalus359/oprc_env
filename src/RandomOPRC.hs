@@ -12,3 +12,8 @@ randGen = newStdGen
 
 --randAgentRunTimes :: StdGen -> Integer -> Integer -> Integer -> Environment -> [Integer]
 --randAgentRunTimes gen numReps numDrones timeLimit env = 
+
+data BernoulliMapGen = BMG
+  {
+    mkMap :: 
+  }

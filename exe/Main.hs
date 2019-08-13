@@ -11,6 +11,7 @@ import qualified SampleVals as SV
 import WorldState
 import Drone
 import qualified Scenario
+import RandomOPRC
 
 --prettyprinting
 import PrettyOPRC
@@ -69,5 +70,8 @@ main = foldr (>>) (return ())
   -- SV.firstStepsWithOutput >> 
   --SV.threeStepsOfOutput SV.lsPolicy 1 2 5 >> 
   --SV.fullScenarioWithOutput (return SV.lsPolicy) 1 6 1000 >>
-  SV.fullScenarioWithOutput SV.randPolicy 1 6 50000 >>
+  --SV.fullScenarioWithOutput SV.randPolicy 1 6 50000 >>
+  putStrLn "Random environment times for environment 6:" >>
+  fmap show ((SV.dumpParseFailure $ SV.parseEnvNum 6) >>= (randAgentRunTimes 5 3 50000)) >>= putStrLn >>
+
   return ()

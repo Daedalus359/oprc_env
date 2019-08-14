@@ -1,4 +1,6 @@
 To-Do List:
+* benchmark and improve my code's performance so that I can run 500 random trials of env 7 really fast
+rewrite all list traversing operations in terms of foldr and see if I get performance improvement
 * make a version of A* that penalizes paths involving visited nodes by making those moves cost 1.5x as much as usual
 * get high sweep first policy working for large environments
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not

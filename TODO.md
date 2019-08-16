@@ -1,4 +1,5 @@
 To-Do List:
+* adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
 * benchmark and improve my code's performance so that I can run 500 random trials of env 7 really fast
 rewrite all list traversing operations in terms of foldr and see if I get performance improvement
 * make a version of A* that penalizes paths involving visited nodes by making those moves cost 1.5x as much as usual

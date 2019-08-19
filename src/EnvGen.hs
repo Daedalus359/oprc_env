@@ -9,3 +9,10 @@ class EnvGen e where
 
 --the double should be a valid probability, i.e. between 0 and 1
 data BernoulliGen = BernoulliGen Double
+
+patchBernoulli :: Double -> StdGen -> (Patch, StdGen)
+patchBernoulli threshold gen = 
+  if (val >= threshold)
+    then (Patch Far, gen2)
+    else (Patch Close, gen2)
+  where (val, gen2) = randomR (0, 1) gen

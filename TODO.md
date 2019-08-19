@@ -1,5 +1,9 @@
 To-Do List:
-* come up with a technique for environment generation based on a stochastic process
+* make a function that generates footprints by approximating a convex hull and filling it in
+* make a function that adds holes to a footprint
+* make a function to fill in each patch of the environment with a bernoulli chance of Far / Close
+* make a function that gives the probability of a patch type as a function of its neighbors
+
 * adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
 * benchmark and improve my code's performance so that I can run 500 random trials of env 7 really fast
 rewrite all list traversing operations in terms of foldr and see if I get performance improvement

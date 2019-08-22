@@ -19,13 +19,13 @@ cabal-version:            >=1.10
 
 library
   hs-source-dirs:         src
-  exposed-modules:        Env
-                        , MoveCosts
-                        , SampleVals
+  exposed-modules:        Drone
+                        , Ensemble
+                        , Env
                         , EnvGen
                         , EnvView
-                        , Drone
-                        , Ensemble
+                        , MoveCosts
+                        , SampleVals
                         , WorldState
                         , GraphOPRC
                         , Policy
@@ -42,6 +42,7 @@ library
                         , random
                         , QuickCheck
                         , text
+                        , vector
                         , PSQueue
   default-language:       Haskell2010
 

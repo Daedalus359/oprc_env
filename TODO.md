@@ -1,6 +1,5 @@
 To-Do List:
-* make convexBorderPoints generate a set of positions that acts as the vertices of a convex hull for 
-* make a function to generate footprints by approximating a convex hull and filling it in
+* make a function that randomly generates a footprint based on x and y bounds
 * make a function that adds holes to a footprint
 * make a function to fill in each patch of the environment with a bernoulli chance of Far / Close
 * make a function that gives the probability of a patch type as a function of its neighbors

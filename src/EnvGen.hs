@@ -31,7 +31,6 @@ bridge gen varLimit p1@(Position x1 y1) p2@(Position x2 y2) = tail $ scanl (+) x
     xShifts = take numVals $ randomRs (-varLimit, varLimit) gen
 
     numVals = yDirFact * (y2 - y1) - 1--how many y values exist strictly between the two provided?
-    xDirFact = if (x1 < x2) then 1 else (-1)
     yDirFact = if (y1 < y2) then 1 else (-1)
 
 clamp :: Int -> Int -> Int -> Int

@@ -17,6 +17,8 @@ patchBernoulli threshold gen =
     else (Patch Close, gen2)
   where (val, gen2) = randomR (0, 1) gen
 
+--seededRow :: Int -> 
+
 convexFootprint :: Int -> Int -> Int -> StdGen -> Maybe Footprint
 convexFootprint width height numVertices gen =
   if (numVertices < 3 || (width < 2) || (height  < 2))

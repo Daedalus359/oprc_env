@@ -4,8 +4,8 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 
 --location for a patch (horizontal information only)
-type XCoord = Integer
-type YCoord = Integer
+type XCoord = Int
+type YCoord = Int
 
 data Position = Position XCoord YCoord
   deriving Eq
@@ -39,7 +39,7 @@ data Altitude = High | Low
   deriving (Show, Eq)
 
 --type synonym representing a change in position
-type Hop = (Integer, Integer)
+type Hop = (Int, Int)
 
 hopFrom :: Position -> Hop -> Position
 hopFrom (Position x y) (dX, dY) = (Position (x + dX) (y + dY))

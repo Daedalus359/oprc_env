@@ -16,22 +16,22 @@ data PathStep = PathStep Position (Maybe ParentPos)
 type ParentPos = Position
 type Path = [Position]
 
-type EstTotalCost = MapL.Map Position Integer
+type EstTotalCost = MapL.Map Position Int
 
 initializeETC :: Footprint -> EstTotalCost
 --number of patches in footprint is a good upper bound for the initial f values
 initializeETC fp = MapL.fromSet (const numPatches) fp
-  where numPatches = toInteger $ Set.size fp
+  where numPatches = Set.size fp
 
 --CostFromStart x represents the cost of the cheapest *known* path from start to x
-type CostFromStart = Map.Map Position Integer
+type CostFromStart = Map.Map Position Int
 
 --not exactly the same as initializeETC because of strictness differences
 initializeCFS :: Footprint -> CostFromStart
 initializeCFS fp = Map.fromSet (const numPatches) fp
-  where numPatches = toInteger $ Set.size fp
+  where numPatches = Set.size fp
 
-type Heuristic = Position -> Integer
+type Heuristic = Position -> Int
 
 type ParentMap = Map.Map Position Position
 -- empty :: ParentMap
@@ -49,13 +49,13 @@ recreatePathInternal start end pMap partialPath@(front : positions) =
 aStar :: EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
 aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
  where
-   openSet = (Q.singleton startPos 0 :: Q.PSQ Position Integer)
+   openSet = (Q.singleton startPos 0 :: Q.PSQ Position Int)
    fMax = initializeETC fp
    cMax = initializeCFS fp
    fp = toFootprint envInfo
 
 --continue making recursive calls until endPos can be entered into the ParentMap
-aStarInternal :: Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Integer -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
+aStarInternal :: Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Int -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
 aStarInternal fp h startPos endPos openSet closedSet f c parentMap =
   case mostPromising of
     Nothing -> parentMap --if the open set is empty, A* should have either found an answer or failed (more likely)
@@ -90,16 +90,16 @@ aStarInternal fp h startPos endPos openSet closedSet f c parentMap =
             newClosedSet = Set.insert position closedSet
 
             --useful numbers
-            fpSize = toInteger $ Set.size fp
+            fpSize = Set.size fp
             posCost = fromMaybe fpSize $ Map.lookup position c
 
   where
     mostPromising = fmap Q.key $ Q.findMin openSet --this has type Maybe Position
 
 --returns f value (c + h)
-costFrom :: Heuristic -> Integer -> Position -> Integer
+costFrom :: Heuristic -> Int -> Position -> Int
 costFrom h parentCost child = h child + costFromStart
-  where costFromStart = parentCost + 1
+  where costFromStart = parentCost + 1 :: Int
 
 memberOfPSQ :: (Ord k, Ord p) => Q.PSQ k p -> k -> Bool
 memberOfPSQ psq k =
@@ -138,7 +138,7 @@ insertFromList f (k : kList) psq = insertFromList f kList (Q.insert k (f k) psq)
 mkManhattanHeuristic :: Position -> Heuristic
 mkManhattanHeuristic endPos = manhattanDistance endPos
 
-manhattanDistance :: Position -> Position -> Integer
+manhattanDistance :: Position -> Position -> Int
 manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = deltaX + deltaY
   where
     deltaX = abs $ x1 - x2

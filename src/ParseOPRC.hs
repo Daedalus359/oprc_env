@@ -86,7 +86,7 @@ parseNextActions = parseBrackets $ (spaces *> singleNA) `sepBy` (symbol ",")
 parseEnvironment :: Parser Environment
 parseEnvironment = fmap (Environment . M.fromList) $ recursiveParseEnv 0
 
-recursiveParseEnv :: Integer -> Parser [(Position, Patch)]
+recursiveParseEnv :: Int -> Parser [(Position, Patch)]
 recursiveParseEnv i = (eof *> (return [])) <|> (liftA2 (++)  ((lineToEntries i) <* (optional newline)) (recursiveParseEnv (i + 1))) -- (try eof) <|>
 
 toDetailReq :: Parser (Maybe DetailReq)
@@ -101,10 +101,10 @@ toDetailReq =  do
 toDetailReqs :: Parser [Maybe DetailReq]
 toDetailReqs = many $ try toDetailReq
 
-vertBundle :: Integer -> Integer -> (Maybe DetailReq) -> (Position, Maybe Patch)
+vertBundle :: Int -> Int -> (Maybe DetailReq) -> (Position, Maybe Patch)
 vertBundle yc xc mdr = (Position xc yc, fmap Patch mdr)
 
-lineToEntries :: Integer -> Parser [(Position, Patch)]
+lineToEntries :: Int -> Parser [(Position, Patch)]
 --Integer is the YCoord for all of the values in this string, index in string is XCoord
 lineToEntries i = fmap catMaybes $ (fmap . fmap) sequence $ fmap (zipWith (vertBundle i) [0..]) toDetailReqs
 

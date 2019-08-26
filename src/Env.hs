@@ -10,6 +10,12 @@ type YCoord = Int
 data Position = Position XCoord YCoord
   deriving Eq
 
+findXc :: Position -> XCoord
+findXc (Position x _) = x
+
+findYc :: Position -> YCoord
+findYc (Position _ y) = y
+
 instance Show Position where
   show (Position xc yc) = concat ["Position: (", show xc, ", ", show yc, ")"]
 

@@ -48,10 +48,10 @@ randomFootprint gen varLimit xMin xMax yMin yMax =
     rightFrontier = frontier lowCorner lowRightBridge rightCorner highRightBridge highCorner
     leftFrontier = frontier lowCorner lowLeftBridge leftCorner highLeftBridge highCorner
 
-    highRightBridge = bridge urbGen varLimit rightCorner highCorner
-    lowRightBridge = bridge lrbGen varLimit lowCorner rightCorner
-    highLeftBridge = bridge ulbGen varLimit leftCorner highCorner
-    lowLeftBridge = bridge llbGen varLimit lowCorner leftCorner
+    highRightBridge = bridge urbGen varLimit Lft rightCorner highCorner
+    lowRightBridge = bridge lrbGen varLimit Lft lowCorner rightCorner
+    highLeftBridge = bridge ulbGen varLimit Rt leftCorner highCorner
+    lowLeftBridge = bridge llbGen varLimit Rt lowCorner leftCorner
 
     (lrbGen, urbGen) = split rbGen
     (llbGen, ulbGen) = split lbGen
@@ -81,14 +81,23 @@ frontier atYMin@(Position x0 y0) bridge1 atXBound@(Position x1 y1) bridge2 atYMa
     ys = [y0 + 1 .. ]
   --make zip pairs with the corresponding y values for bridge1 and bridge2
 
+data ProtectDir = Rt | Lft
 
 --need to analyze the behavior more if the y values differ by 0
 --run fmap (clamp lowerBound upperBound) on the result of this if you have bounds to respect
-bridge :: StdGen -> Int -> Position -> Position -> [XCoord]
-bridge gen varLimit p1@(Position x1 y1) p2@(Position x2 y2) = 
-  if (numVals == 0) then [] else tail $ scanl (+) x1 deltas
+bridge :: StdGen -> Int -> ProtectDir -> Position -> Position -> [XCoord]
+bridge gen varLimit pDir p1@(Position x1 y1) p2@(Position x2 y2) = fmap protF unprotected
+
+
 
   where
+
+    protF =
+      case pDir of
+        Rt -> min (max x1 x2)
+        Lft -> max (min x1 x2)
+
+    unprotected = if (numVals == 0) then [] else tail $ scanl (+) x1 deltas
 
     deltas = zipWith (+) differences xShifts
 

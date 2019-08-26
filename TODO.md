@@ -1,7 +1,5 @@
 To-Do List:
-* make a function that randomly generates a footprint based on x and y bounds
 * make a function that adds holes to a footprint
-* make a function to fill in each patch of the environment with a bernoulli chance of Far / Close
 * make a function that will generate a .env file from an environment
 * make a function that gives the probability of a patch type as a function of its neighbors
 * adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
@@ -53,3 +51,5 @@ Completed Items:
 * get low sweep snake pattern policy working for large environments (8/12/2019)
 * add a function in Scenario that outputs the time for a Scenario to run completely (as a Maybe) (8/12/2019)
 * get the random scenario time sampler working in RandomOPRC (8/13/2019)
+* make a function that randomly generates a footprint based on x and y bounds (8/26/2019)
+* make a function to fill in each patch of the environment with a bernoulli chance of Far / Close (8/26/2019)

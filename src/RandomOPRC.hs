@@ -3,9 +3,12 @@ module RandomOPRC where
 import RandomAgent
 import Scenario
 import Env
+import EnvGen
 
 import System.Random as Random
 import Control.Monad
+import Data.Maybe
+import qualified Data.Set as Set
 
 randPolicy :: IO (RandomPolicy)
 randPolicy = fmap RandomPolicy newStdGen
@@ -24,3 +27,10 @@ randAgentRunTimes numReps numDrones timeLimit env = (fmap . fmap) timedRun $ rep
 averageRunTime :: [Maybe Integer] -> Maybe Integer
 averageRunTime mbis = (fmap $ \x -> div x len) . (fmap $ foldr (+) 0) . sequenceA $ mbis
   where len = toInteger $ length mbis
+
+newBernoulliEnv :: StdGen -> Int -> Int -> Int -> Int -> Int -> Double -> Environment
+newBernoulliEnv gen varLimit xMin xMax yMin yMax threshold = bernoulliEnv bg definitelySet
+  where
+    definitelySet = fromMaybe Set.empty $ randomFootprint gen3 varLimit xMin xMax yMin yMax
+    bg = BernoulliGen threshold gen2
+    (gen2, gen3) = split gen

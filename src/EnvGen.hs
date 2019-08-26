@@ -23,11 +23,16 @@ randomFootprint gen xMin xMax yMin yMax = undefined
   --generate 4 boundary Positions by adding random y values to the two x bounds and vice versa
   --compute the left frontier by stitching together
 
+--does not actually preserve all of the provided positions
 frontier :: Position -> [XCoord] -> Position -> [XCoord] -> Position -> [Position]
-frontier atYMin bridge1 atXBound bridge2 atYMax = undefined
+frontier atYMin@(Position x0 y0) bridge1 atXBound@(Position x1 y1) bridge2 atYMax@(Position x2 y2) = zipWith Position xs ys
+  where
+    xs = [x0] ++ bridge1 ++ [x1] ++ bridge2 ++ [x2]
+    ys = [y0 + 1 .. ]
   --make zip pairs with the corresponding y values for bridge1 and bridge2
 
 
+--need to analyze the behavior more if the y values differ by 0 or +/-1
 --run fmap (clamp lowerBound upperBound) on the result of this if you have bounds to respect
 bridge :: StdGen -> Int -> Position -> Position -> [XCoord]
 bridge gen varLimit p1@(Position x1 y1) p2@(Position x2 y2) = tail $ scanl (+) x1 deltas

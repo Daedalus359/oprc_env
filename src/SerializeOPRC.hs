@@ -7,7 +7,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 
 encodeEnv :: Environment -> String
-encodeEnv env = go yRange xRange ""
+encodeEnv env = go xRange yRange ""
   where
     go relativeX relativeY partialStr
       | (relativeX < 0) = go xRange (relativeY - 1) partialStr

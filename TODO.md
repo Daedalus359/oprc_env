@@ -1,6 +1,7 @@
 To-Do List:
-* make a version of A* that is suitable for use with HighSweep policies by raising costs for moving off of the points where (mod x 3 = 0)
 * get high sweep first policy working for large environments
+* modify A* to accept a custom cost function rather than making all move costs equal to 1. Give this function access to enough parameters to support the two behavior modifications I plan to implement
+* make an A* cost function that is suitable for use with HighSweep policies by raising costs for moving off of the points where (mod x 3 = 0), make the high sweep policy instance use it
 * benchmark and improve my code's performance so that I can run 500 random trials of env 7 really fast
 rewrite all list traversing operations in terms of foldr and see if I get performance improvement
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not

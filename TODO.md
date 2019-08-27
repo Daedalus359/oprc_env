@@ -1,17 +1,15 @@
 To-Do List:
-* adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
+* get high sweep first policy working for large environments
 * benchmark and improve my code's performance so that I can run 500 random trials of env 7 really fast
 rewrite all list traversing operations in terms of foldr and see if I get performance improvement
-* make a version of A* that penalizes paths involving visited nodes by making those moves cost 1.5x as much as usual
-* get high sweep first policy working for large environments
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not
+* make a version of A* that penalizes paths involving visited nodes by making those moves cost 1.5x as much as usual
+* adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
 * create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators
 * create functionality to test policies on a random assortment of environments
-* create a policy that commands low flying moves toward the nearest unobserved patch
 * create a policy that maintains a PGM data structure of the environment, and **uses RL to tune the parameters of the PGM from session to session** - make the PGM be a kind of spatial policy that works much like a convolutional neural network, except that it spits out a belief map ("image") of the same size that it took in, where each patch in this belief map represents the probability that the patch requires high scrutiny
 * [expand] add a reward signal and other requirements for a proper RL agent to learn from this environment
-* use prettyprinter-ansi-terminal to do my prettyprinting properly
-* consider adding functionality such as needing to track bettery level and periodically return for a swap if the environment isn't rich enough
+* consider adding functionality such as needing to track battery level and periodically return for a swap if the environment isn't rich enough
 * add some kind of 2d visual representation of the environment / belief / activity data structures
 * create an alternate Doc ann (as in prettyprinter) generating function for Scenario history that shows where a drone was at the moment it get each command
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario

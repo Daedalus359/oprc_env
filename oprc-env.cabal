@@ -65,6 +65,7 @@ executable oprc-env
                         , diagrams-svg
                         , ghc
                         , prettyprinter
+                        , random
                         , trifecta
                         , text
   

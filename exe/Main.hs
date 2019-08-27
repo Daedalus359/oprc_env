@@ -12,6 +12,8 @@ import WorldState
 import Drone
 import qualified Scenario
 import RandomOPRC
+import SerializeOPRC
+import EnvGen
 
 --prettyprinting
 import PrettyOPRC
@@ -28,6 +30,7 @@ import qualified Diagrams.Backend.SVG.CmdLine as BE
 --general utilities
 import Util (nTimes)
 import Control.Applicative
+import System.Random as Random
 
 myCircle :: D.Diagram BE.B
 myCircle = D.circle 1
@@ -71,7 +74,8 @@ main = foldr (>>) (return ())
   --SV.threeStepsOfOutput SV.lsPolicy 1 2 5 >> 
   SV.fullScenarioWithOutput (return SV.lsPolicy) 1 7 100000 >>
   --SV.fullScenarioWithOutput SV.randPolicy 1 6 50000 >>
-  putStrLn "Random environment times for environment 6:" >>
-  fmap show (fmap averageRunTime ((SV.dumpParseFailure $ SV.parseEnvNum 7) >>= (randAgentRunTimes 5 1 1000000))) >>= putStrLn >>
+  --putStrLn "Random environment times for environment 6:" >>
+  --fmap show (fmap averageRunTime ((SV.dumpParseFailure $ SV.parseEnvNum 7) >>= (randAgentRunTimes 5 1 1000000))) >>= putStrLn >>
 
+  encodeEnv <$> (hole <$> newStdGen <*> (newBernoulliEnv <$> newStdGen <*> return 6 <*> return 0 <*> return 25 <*> return 0 <*> return 45 <*> return 0.27) <*> (return $ Env.Position 12 20) <*> return 5) >>= (writeFile "./test/environments/generated/withHole.env") >>
   return ()

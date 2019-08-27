@@ -6,6 +6,7 @@ import System.Random
 import Control.Monad
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
+import Data.Monoid
 
 class EnvGen e where
   mkEnv :: e -> StdGen -> Environment
@@ -34,6 +35,39 @@ bernoulliList bg@(BernoulliGen threshold gen) = fmap Patch $ fmap toDR $ randomR
         then Far
         else Close
 
+--given an environment, should return a new environment with a square hole the requested size (dist. center to middle of size) centered at the position parameter
+--creates a smaller hole or no hole at all if removing additional patches would cause the perimiter of the hole to not be an intact loop
+hole :: StdGen -> Environment -> Position -> Int -> Environment
+hole gen env@(Environment map) ctr radius = Environment $ foldr Map.delete map toRemove
+  where
+    toRemove = checkAndHole 0 (radius + 1) [ctr] []
+
+    checkAndHole :: Int -> Int -> [Position] -> [Position] -> [Position]
+    checkAndHole currentR limitR lastPerimeter holeSoFar =
+      if (not (getAll $ allInBounds newPerimeter) || currentR == limitR)
+        then holeSoFar
+        else checkAndHole (currentR + 1) limitR newPerimeter (lastPerimeter ++ holeSoFar)
+
+      where
+        newPerimeter = perimiter currentR ctr
+
+    allInBounds = foldMap (\p -> All (Set.member p fp)) 
+
+    fp = Map.keysSet map
+
+    perimiter 0 center = [center]
+    perimiter r center@(Position xc yc) = leftSide ++ rightSide ++ topSide ++ bottomSide
+      where
+        leftSide = fmap (Position xmin) [ymin .. ymax]
+        rightSide = fmap (Position xmax) [ymin .. ymax]
+        topSide = fmap (\x -> Position x ymax) [xmin + 1 .. xmax - 1]
+        bottomSide = fmap (\x -> Position x ymin) [xmin + 1 .. xmax - 1]
+
+        ymax = yc + r
+        ymin = yc - r
+        xmax = xc + r
+        xmin = xc - r
+
 randomFootprint :: StdGen -> Int -> Int -> Int -> Int -> Int -> Maybe Footprint
 randomFootprint gen varLimit xMin xMax yMin yMax =
   if (xMin < xMax && yMin < yMax)
@@ -48,10 +82,10 @@ randomFootprint gen varLimit xMin xMax yMin yMax =
     rightFrontier = frontier lowCorner lowRightBridge rightCorner highRightBridge highCorner
     leftFrontier = frontier lowCorner lowLeftBridge leftCorner highLeftBridge highCorner
 
-    highRightBridge = bridge urbGen varLimit Lft rightCorner highCorner
-    lowRightBridge = bridge lrbGen varLimit Lft lowCorner rightCorner
-    highLeftBridge = bridge ulbGen varLimit Rt leftCorner highCorner
-    lowLeftBridge = bridge llbGen varLimit Rt lowCorner leftCorner
+    highRightBridge = fmap (clamp xMin xMax) $ bridge urbGen varLimit Lft rightCorner highCorner
+    lowRightBridge = fmap (clamp xMin xMax) $ bridge lrbGen varLimit Lft lowCorner rightCorner
+    highLeftBridge = fmap (clamp xMin xMax) $ bridge ulbGen varLimit Rt leftCorner highCorner
+    lowLeftBridge = fmap (clamp xMin xMax) $ bridge llbGen varLimit Rt lowCorner leftCorner
 
     (lrbGen, urbGen) = split rbGen
     (llbGen, ulbGen) = split lbGen
@@ -87,8 +121,6 @@ data ProtectDir = Rt | Lft
 --run fmap (clamp lowerBound upperBound) on the result of this if you have bounds to respect
 bridge :: StdGen -> Int -> ProtectDir -> Position -> Position -> [XCoord]
 bridge gen varLimit pDir p1@(Position x1 y1) p2@(Position x2 y2) = fmap protF unprotected
-
-
 
   where
 

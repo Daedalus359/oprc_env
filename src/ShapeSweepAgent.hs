@@ -9,6 +9,7 @@ import Env
 
 import Data.Maybe
 import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
 
 --agents that execute paths based purely on the footprint of the environment
 
@@ -75,6 +76,43 @@ data HighSweepPolicy = HighSweepPolicy
     getPhase :: SweepPhase
   , getDirs :: Directions
   }
+
+instance Policy HighSweepPolicy where
+  nextMove p@(HighSweepPolicy LowSweep dirs) wv = fmap toHighSweep $ nextMove (LowSweepPolicy dirs) wv
+  nextMove p@(HighSweepPolicy HighSweep dirs) wv = undefined
+
+--just converts between data types. Since the LowSweep phases is used, it does not alter the associated behavior of the policy
+toHighSweep :: LowSweepPolicy -> HighSweepPolicy
+toHighSweep (LowSweepPolicy dirs) = HighSweepPolicy LowSweep dirs
+
+highSweepPoints :: Footprint -> Footprint
+highSweepPoints envFp = foldr (accumulateSweepLocations envFp) Set.empty envFp
+
+--take nearestSweepPos and make a version that is of type Footprint -> Position -> Footprint -> Footprint for use in a fold
+accumulateSweepLocations :: Footprint -> Position -> Footprint -> Footprint
+accumulateSweepLocations envFp pos visitFp = Set.insert (nearestSweepPos envFp pos) visitFp
+
+nearestSweepPos :: Footprint -> Position -> Position
+nearestSweepPos fp pos@(Position x y) =
+  if (Set.member perfectPos fp)
+    then perfectPos
+    else if (Set.member secondChoice fp)
+           then secondChoice
+           else if (Set.member thirdChoice fp)
+            then thirdChoice
+            else pos
+
+  where
+    secondChoice = neighborTo North perfectPos
+    thirdChoice = neighborTo South perfectPos
+
+    perfectPos = (Position perfectX y)
+    perfectX =
+      case (mod x 3) of
+        0 -> x
+        1 -> x - 1
+        2 -> x + 1
+
 
 --a second, "HighSweepPolicy" should probably use the same policy as LowSweep for its "phase 2" behavior, after the high environment has been explored and it has descended again
 --highsweepPolicy should use a smart function to query A* for paths to a filtered subset of nodes that make sense to visit (e.g rows 2, 5, 8, etc. with shape caveats)

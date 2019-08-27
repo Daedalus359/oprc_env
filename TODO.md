@@ -1,4 +1,5 @@
 To-Do List:
+* make a version of A* that is suitable for use with HighSweep policies by raising costs for moving off of the points where (mod x 3 = 0)
 * get high sweep first policy working for large environments
 * benchmark and improve my code's performance so that I can run 500 random trials of env 7 really fast
 rewrite all list traversing operations in terms of foldr and see if I get performance improvement
@@ -50,3 +51,4 @@ Completed Items:
 * make a function to fill in each patch of the environment with a bernoulli chance of Far / Close (8/26/2019)
 * make a function that will generate a .env file from an environment (8/26/2019)
 * make a function that adds holes to a footprint (8/27/2019)
+* create a function that turns an environment into a (Data.Set) of locations to visit from a high altitude (8/27/2019)

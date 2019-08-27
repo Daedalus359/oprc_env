@@ -1,6 +1,4 @@
 To-Do List:
-* make a function that adds holes to a footprint
-* make a function that gives the probability of a patch type as a function of its neighbors
 * adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
 * benchmark and improve my code's performance so that I can run 500 random trials of env 7 really fast
 rewrite all list traversing operations in terms of foldr and see if I get performance improvement
@@ -53,3 +51,4 @@ Completed Items:
 * make a function that randomly generates a footprint based on x and y bounds (8/26/2019)
 * make a function to fill in each patch of the environment with a bernoulli chance of Far / Close (8/26/2019)
 * make a function that will generate a .env file from an environment (8/26/2019)
+* make a function that adds holes to a footprint (8/27/2019)

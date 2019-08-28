@@ -19,7 +19,8 @@ cabal-version:            >=1.10
 
 library
   hs-source-dirs:         src
-  exposed-modules:        Drone
+  exposed-modules:        AnimateOPRC
+                        , Drone
                         , Ensemble
                         , Env
                         , EnvGen
@@ -36,8 +37,9 @@ library
                         , Scenario
                         , SerializeOPRC
                         , ShapeSweepAgent
-  build-depends:          base >=4.8 && <4.12
+  build-depends:          base
                         , containers
+                        , gloss
                         , trifecta
                         , prettyprinter
                         , random
@@ -50,13 +52,13 @@ library
 Test-Suite oprc-env-test
   type:                   exitcode-stdio-1.0
   main-is:                TestSuite.hs
-  build-depends:          base >=4.8 && <4.9, oprc-env, hspec
+  build-depends:          base , oprc-env, hspec
   hs-source-dirs:         test
   default-language:       Haskell2010
 
 executable oprc-env
   main-is:                Main.hs
-  build-depends:          base >=4.8 && <4.9, oprc-env
+  build-depends:          base , oprc-env
                         , containers
                         , diagrams
                         , diagrams-lib
@@ -68,6 +70,14 @@ executable oprc-env
                         , random
                         , trifecta
                         , text
+
+  hs-source-dirs:         exe
+  default-language:       Haskell2010
+
+executable animate-scenario
+  main-is:                AnimateScenario.hs
+  build-depends:          base , oprc-env
+                        , gloss
   
   hs-source-dirs:         exe
   default-language:       Haskell2010

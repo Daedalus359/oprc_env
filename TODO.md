@@ -1,4 +1,5 @@
 To-Do List:
+* replace my environment data structure with something like Data.Quadtree
 * get high sweep first policy working for large environments
 * modify A* to accept a custom cost function rather than making all move costs equal to 1. Give this function access to enough parameters to support the two behavior modifications I plan to implement
 * make an A* cost function that is suitable for use with HighSweep policies by raising costs for moving off of the points where (mod x 3 = 0), make the high sweep policy instance use it

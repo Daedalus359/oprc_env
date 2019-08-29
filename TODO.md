@@ -1,4 +1,10 @@
 To-Do List:
+* make a function to draw an environment to screen
+* make a function that represents a worldState on screen
+* make a "Replay" datatype in Scenario that contains all of the info in a scenario at any given time step, and the history from the end of that
+Scenario, and make a function that steps this foreward one time step
+* modify my droneStatus drawing function to represent the field of view of the drone at that time
+* create functionality to animate the complete replay of a scenario with the worldState and worldView at each time step forming the frames
 * get rid of PSQueue in my project in favor of a data structure from stackage snapshot 14.3
 * replace my environment data structure with something like Data.Quadtree
 * get high sweep first policy working for large environments
@@ -55,3 +61,5 @@ Completed Items:
 * make a function that will generate a .env file from an environment (8/26/2019)
 * make a function that adds holes to a footprint (8/27/2019)
 * create a function that turns an environment into a (Data.Set) of locations to visit from a high altitude (8/27/2019)
+* make a function to draw a representation of a WorldView to screen (8/29/2019)
+* make a function to draw the current time to screen (8/29/2019)

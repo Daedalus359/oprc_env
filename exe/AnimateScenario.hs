@@ -1,8 +1,9 @@
 module Main where
 
-import Env
-import WorldState
 import qualified AnimateOPRC as AO
+import Env
+import SampleVals
+import WorldState
 
 import System.Environment
 import Graphics.Gloss

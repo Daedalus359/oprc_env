@@ -79,6 +79,11 @@ data DroneStatus =
   | Acting Action StepsRemaining DronePosition
   deriving (Eq, Show)
 
+posFromStat :: DroneStatus -> DronePosition
+posFromStat (Unassigned pos) = pos
+posFromStat (Assigned _ pos) = pos
+posFromStat (Acting _ _ pos) = pos
+
 groundPos :: DroneStatus -> Position
 groundPos (Unassigned dronePos) = getEnvPos dronePos
 groundPos (Assigned _ dronePos) = getEnvPos dronePos

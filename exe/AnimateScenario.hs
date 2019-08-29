@@ -9,3 +9,4 @@ import Graphics.Gloss
 
 main :: IO ()
 main = simulate AO.windowDisplay white AO.defaultFramerate AO.initModel AO.drawingFunc AO.updateFunc
+  --animate AO.windowDisplay white AO.testAnimate

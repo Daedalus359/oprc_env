@@ -26,11 +26,19 @@ defaultFramerate = 60
 initModel :: Float
 initModel = 10
 
+--probably want to just draw the static environment once, and calculate all relative positions based on the size of that
 drawingFunc :: Float -> Picture
 drawingFunc t =
-  Rotate (5 * t) $ Scale 3 3 $ drawWorldView wv
+  Scale 3 3 $ drawWorldState ws
   where
+    ws = WorldState env envInfo enStat
     wv = WorldView envInfo enStat
+    env = Environment $ Map.fromList
+            [ (Position 0 0, Patch Close)
+            , (Position 1 0, Patch Close)
+            , (Position 0 1, Patch Far)
+            , (Position 1 1, Patch Far)
+            ]
     enStat = 
       [ (DroneID 1, Unassigned (DronePos (Position 0 0) Low))
       , (DroneID 2, Unassigned (DronePos (Position 1 1) High))
@@ -99,6 +107,9 @@ gridSquare c = Pictures [Color c filledSquare, squareFrame]
 drawEnvInfo :: EnvironmentInfo -> Picture
 drawEnvInfo = Map.foldMapWithKey (placeAndDraw patchInfoPic)
 
+drawEnv :: Environment -> Picture
+drawEnv (Environment envMap) = Map.foldMapWithKey (placeAndDraw patchPic) envMap
+
 drawDroneStat :: DroneStatus -> Picture
 drawDroneStat ds = toGridPos x y $ droneFrom alt
   where
@@ -114,15 +125,28 @@ drawEnStat = foldMap (drawDroneStat . snd)
 drawWorldView :: WorldView -> Picture
 drawWorldView (WorldView envInfo enStat) = (drawEnvInfo envInfo) <> (drawEnStat enStat)
 
+--make this adapt the positioning to the size of the images, or just have it take a parameter that is passed in once from above
+drawWorldState :: WorldState -> Picture
+drawWorldState ws@(WorldState env envInfo enStat) =
+  Pictures
+    [ drawEnv env, drawEnStat enStat
+    , Translate 100 0 $ drawWorldView wv
+    ]
+
+  where
+    wv = WorldView envInfo enStat
+
 placeAndDraw :: (a -> Picture) -> Position -> a -> Picture
 placeAndDraw f pos@(Position x y) a = toGridPos x y $ f a
 
+patchPic :: Patch -> Picture
+patchPic (Patch Close) = gridSquare $ makeColorI 50 200 100 200
+patchPic (Patch Far) = gridSquare $ makeColorI 0 75 200 200
+
 patchInfoPic :: PatchInfo -> Picture
 patchInfoPic Unseen = Pictures [gridSquare $ greyN 0.5, Translate (-4) (-5) $ Scale 0.1 0.1 $ Text "?"]
-patchInfoPic (Classified Close) = Pictures [patchInfoPic (FullyObserved $ Patch Close), classifiedMysteryFog]
-patchInfoPic (Classified Far) = Pictures [patchInfoPic (FullyObserved $ Patch Far), classifiedMysteryFog]
-patchInfoPic (FullyObserved (Patch Close)) = gridSquare $ makeColorI 50 200 100 200
-patchInfoPic (FullyObserved (Patch Far)) = gridSquare $ makeColorI 0 75 200 200
+patchInfoPic (Classified dist) = Pictures [patchPic $ Patch dist, classifiedMysteryFog]
+patchInfoPic (FullyObserved patch) = patchPic patch
 --patchInfoPic 
 
 toGridPos :: XCoord -> YCoord -> Picture -> Picture

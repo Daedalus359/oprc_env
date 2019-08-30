@@ -1,10 +1,12 @@
 To-Do List:
-* implement K means clustering on my environment by performing a fold over the environment map that assigns each patch to the mean it is closest to
+* implement K means clustering on my environment by performing a fold over the environment map that assigns each patch to the mean it is closest to (according to a distance metric that is something like 14 * min(delta_x, delta_y) + 10 * abs (delta_x - delta_y)
 * implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization
 * make a "Replay" datatype in Scenario that contains all of the info in a scenario at any given time step, and the history from the end of that
 Scenario, and make a function that steps this foreward one time step
 * modify my droneStatus drawing function to represent the field of view of the drone at that time
 * create functionality to animate the complete replay of a scenario with the worldState and worldView at each time step forming the frames
+* make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
+* augment the scenario animation to keep an up to date representation of drone territories on screen
 * get rid of PSQueue in my project in favor of a data structure from stackage snapshot 14.3
 * replace my environment data structure with something like Data.Quadtree
 * get high sweep first policy working for large environments

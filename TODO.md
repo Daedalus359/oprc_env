@@ -1,8 +1,6 @@
 To-Do List:
 * implement K means clustering on my environment by performing a fold over the environment map that assigns each patch to the mean it is closest to (according to a distance metric that is something like 14 * min(delta_x, delta_y) + 10 * abs (delta_x - delta_y)
 * implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization
-* make a "Replay" datatype in Scenario that contains all of the info in a scenario at any given time step, and the history from the end of that
-Scenario, and make a function that steps this foreward one time step
 * modify my droneStatus drawing function to represent the field of view of the drone at that time
 * create functionality to animate the complete replay of a scenario with the worldState and worldView at each time step forming the frames
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
@@ -67,3 +65,5 @@ Completed Items:
 * make a function to draw the current time to screen (8/29/2019)
 * make a function to draw an environment to screen (8/29/2019)
 * make a function that represents a worldState on screen (8/29/2019)
+* make a "Replay" datatype in Scenario that contains all of the info in a scenario at any given time step, and the history from the end of that
+Scenario, and make a function that steps this foreward one time step (9/3/2019)

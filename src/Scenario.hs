@@ -72,6 +72,21 @@ fullRun timeLimit numDrones policy environment = runScenario timeLimit scenario
   where
     scenario = mkScenario policy numDrones environment
 
+--in this case, the moveHistory is what is coming next
+data ScenarioReplay = ScenarioReplay WorldState Integer MoveHistory
+
+--move the replay foreward one time step and get the new worldstate that resulted from that
+advanceReplay :: ScenarioReplay -> ScenarioReplay
+advanceReplay srp@(ScenarioReplay ws time hist) =
+  ScenarioReplay newWs (time + 1) newHist
+  where
+    (newWs, newHist) = if (nextMoveTime == time)
+              then (updateState (getCommands nextSnap) ws, tail hist)
+              else (ws, hist)
+
+    nextMoveTime = getTimeStamp nextSnap
+    nextSnap = head hist
+
 -- below are some utlilty functions to help start and end a scenario --------------------------------------------------------------------
 
 --takes an environment, a number of drones to spawn, and creates a WorldState representing a completely unexplored scenario

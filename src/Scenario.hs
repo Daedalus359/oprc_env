@@ -92,6 +92,11 @@ advanceReplay srp@(ScenarioReplay ws time hist) =
     nextMoveTime = getTimeStamp nextSnap
     nextSnap = head hist
 
+advanceUntilTime :: Integer -> ScenarioReplay -> ScenarioReplay
+advanceUntilTime t sr@(ScenarioReplay ws time hist) =
+  if (time >= t) then sr
+    else advanceUntilTime t $ advanceReplay sr
+
 -- below are some utlilty functions to help start and end a scenario --------------------------------------------------------------------
 
 --takes an environment, a number of drones to spawn, and creates a WorldState representing a completely unexplored scenario

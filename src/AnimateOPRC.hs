@@ -20,38 +20,29 @@ windowDisplay = InWindow "Window" (600, 600) (100, 100)
 testAnimate :: Float -> Picture
 testAnimate = Circle . ( * 10)
 
+--how often the display updates
 defaultFramerate :: Int
-defaultFramerate = 60
+defaultFramerate = 5
 
-initModel :: Float
-initModel = 10
+--turns a number of seconds elapsed into a number of sim timesteps elapsed
+toSimSteps :: Float -> Integer
+toSimSteps f = round $ f * 10
+
+--the current simulation time that gloss uses, then everything else
+type SimState = (Float, ScenarioReplay)
 
 --probably want to just draw the static environment once, and calculate all relative positions based on the size of that
-drawingFunc :: Float -> Picture
-drawingFunc t =
-  Scale 3 3 $ drawWorldState ws
-  where
-    ws = WorldState env envInfo enStat
-    wv = WorldView envInfo enStat
-    env = Environment $ Map.fromList
-            [ (Position 0 0, Patch Close)
-            , (Position 1 0, Patch Close)
-            , (Position 0 1, Patch Far)
-            , (Position 1 1, Patch Far)
-            ]
-    enStat = 
-      [ (DroneID 1, Unassigned (DronePos (Position 0 0) Low))
-      , (DroneID 2, Unassigned (DronePos (Position 1 1) High))
-      ]
-    envInfo = Map.fromList
-                  [ (Position 0 0, FullyObserved (Patch Close))
-                  , (Position 1 0, Classified Close)
-                  , (Position 0 1, Unseen)
-                  , (Position 1 1, FullyObserved (Patch Far))
-                  ]
+--drawingFunc :: Float -> Picture
 
-updateFunc :: ViewPort -> Float -> Float -> Float
-updateFunc _ dt i = dt * 10 + i
+drawReplay :: Int -> ScenarioReplay -> Picture
+drawReplay offset sr@(ScenarioReplay ws time _) = Scale 3 3 $ Pictures [drawWorldState offset ws, Circle $ fromIntegral (time * 10)]
+
+updateFunc :: ViewPort -> Float -> ScenarioReplay -> ScenarioReplay
+updateFunc _ dt sr = times intSteps sr
+  where
+    times 0 srv = srv
+    times n srv = times (n - 1) (advanceReplay srv)
+    intSteps = min 1 $ toSimSteps dt
 
 drawTime :: Integer -> Picture
 drawTime t = Scale 0.2 0.2 $ Text $ timeString
@@ -125,12 +116,13 @@ drawEnStat = foldMap (drawDroneStat . snd)
 drawWorldView :: WorldView -> Picture
 drawWorldView (WorldView envInfo enStat) = (drawEnvInfo envInfo) <> (drawEnStat enStat)
 
+--draws the state of the world once with full information, then again with only the partil information available to the ensemble
 --make this adapt the positioning to the size of the images, or just have it take a parameter that is passed in once from above
-drawWorldState :: WorldState -> Picture
-drawWorldState ws@(WorldState env envInfo enStat) =
+drawWorldState :: Int -> WorldState -> Picture
+drawWorldState offset ws@(WorldState env envInfo enStat) =
   Pictures
     [ drawEnv env, drawEnStat enStat
-    , Translate 100 0 $ drawWorldView wv
+    , Translate (gridScale * (fromIntegral offset)) 0 $ drawWorldView wv
     ]
 
   where

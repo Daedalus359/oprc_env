@@ -172,7 +172,7 @@ randFiltPolicy = fmap RandomFilteredPolicy newStdGen
 lsPolicy :: LowSweepPolicy
 lsPolicy = LowSweepPolicy []
 
-fullScenarioWithOutput :: Policy p => IO (p) -> Int -> Integer -> Integer -> IO ()
+fullScenarioWithOutput :: Policy p => IO (p) -> Int -> Integer -> Integer -> IO (Scenario p)
 fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     putStrLn "Running scenario..."
     (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) ioPol (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
@@ -184,6 +184,7 @@ fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     print (Scenario.getTime scenario)
     --putStrLn "Move History: "
     --putDocW 80 (vsep $ fmap pretty $ Scenario.getHist scenario)
+    return scenario
 
 firstStepsWithOutput :: IO ()
 firstStepsWithOutput = do

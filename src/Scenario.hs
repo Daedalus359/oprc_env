@@ -74,6 +74,7 @@ fullRun timeLimit numDrones policy environment = runScenario timeLimit scenario
 
 --in this case, the moveHistory is what is coming next
 data ScenarioReplay = ScenarioReplay WorldState Integer MoveHistory
+  deriving Show
 
 createReplay :: Scenario p -> ScenarioReplay
 createReplay sc@(Scenario _ ws@(WorldState env info ensembleStat) _ hist) = ScenarioReplay startWS 0 hist

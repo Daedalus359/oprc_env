@@ -16,11 +16,11 @@ randPolicy = fmap RandomPolicy newStdGen
 randGen :: IO StdGen
 randGen = newStdGen
 
-randAgentRunTime :: Integer -> Integer -> Environment -> StdGen -> Maybe Integer
+randAgentRunTime :: Int -> Integer -> Environment -> StdGen -> Maybe Integer
 randAgentRunTime numDrones timeLimit env gen = timeScenarioRun timeLimit scenario
   where scenario = mkScenario (RandomPolicy gen) numDrones env
 
-randAgentRunTimes :: Int -> Integer -> Integer -> Environment -> IO [Maybe Integer]
+randAgentRunTimes :: Int -> Int -> Integer -> Environment -> IO [Maybe Integer]
 randAgentRunTimes numReps numDrones timeLimit env = (fmap . fmap) timedRun $ replicateM numReps newStdGen
   where timedRun = randAgentRunTime numDrones timeLimit env
 

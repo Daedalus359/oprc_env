@@ -3,7 +3,7 @@ module Drone where -- the simulation of one drone
 import Env
 import MoveCosts
 
-data Drone = DroneID Integer
+data Drone = DroneID Int
   deriving (Eq, Show)
 
 data DronePosition = DronePos 

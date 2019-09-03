@@ -21,7 +21,7 @@ resultToMaybe (Success a) = Just a
 --parses an integer, packs that int into a Drone
 parseDrone :: Parser Drone
 parseDrone = do
-  id <- natural --natural parses a positive integer
+  id <- fmap fromInteger natural --natural parses a positive integer
   return (DroneID id)
 
 parseCardinal :: Parser CardinalDir

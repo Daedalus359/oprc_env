@@ -75,7 +75,7 @@ parseEnvNum :: Integer -> IO (Result Env.Environment)
 parseEnvNum i = fmap (parseString parseEnvironment mempty) $ readFile fileStr
   where fileStr = "./test/environments/" ++ (show i) ++ ".env"
 
-liftToWS :: Integer -> IO (Result Env.Environment) -> IO (Result WorldState)
+liftToWS :: Int -> IO (Result Env.Environment) -> IO (Result WorldState)
 liftToWS i envIO = (fmap . fmap) (initializeWorldState i) envIO
 
 dumpParseFailure :: IO (Result a) -> IO a
@@ -172,7 +172,7 @@ randFiltPolicy = fmap RandomFilteredPolicy newStdGen
 lsPolicy :: LowSweepPolicy
 lsPolicy = LowSweepPolicy []
 
-fullScenarioWithOutput :: Policy p => IO (p) -> Integer -> Integer -> Integer -> IO ()
+fullScenarioWithOutput :: Policy p => IO (p) -> Int -> Integer -> Integer -> IO ()
 fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     putStrLn "Running scenario..."
     (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) ioPol (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
@@ -209,7 +209,7 @@ firstStepsWithOutput = do
 sampleAStar :: IO (Maybe Path)
 sampleAStar = aStar <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))
 
-threeStepsOfOutput :: (Policy p, Show p) => p -> Integer -> Integer -> Integer -> IO ()
+threeStepsOfOutput :: (Policy p, Show p) => p -> Int -> Integer -> Integer -> IO ()
 threeStepsOfOutput p numDrones envNum timeLimit = do
   scenario <- (Scenario.mkScenario p numDrones) <$> (dumpParseFailure $ parseEnvNum envNum)
 

@@ -21,11 +21,4 @@ visualReplay sc = simulate AO.windowDisplay white AO.defaultFramerate initModel 
     replay = createReplay sc
 
 main :: IO ()
-main = do
-  scenario <- SV.fullScenarioWithOutput (return SV.lsPolicy) 1 8 100000
-  putDocW 80 $ pretty $ scenario
-  putDocW 80 $ pretty $ advanceUntilTime 51 $ createReplay scenario
-  visualReplay scenario
-  --simulate AO.windowDisplay white 1 (50 :: Float) (Circle) (\vp -> \dt -> \f -> f + (dt * 10)) >> 
-  -- fmap createReplay (SV.fullScenarioWithOutput (return SV.lsPolicy) 1 4 100000) >>= print --visualReplay
-  --SV.fullScenarioWithOutput (return SV.lsPolicy) 1 4 100000 >>= visualReplay
+main = SV.fullScenarioWithOutput (return SV.lsPolicy) 1 8 100000 >>= visualReplay

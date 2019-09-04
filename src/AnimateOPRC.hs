@@ -22,7 +22,7 @@ testAnimate = Circle . ( * 10)
 
 --how often the display updates
 defaultFramerate :: Int
-defaultFramerate = 5
+defaultFramerate = 60
 
 --turns a number of seconds elapsed into a number of sim timesteps elapsed
 speedupFactor :: Float

@@ -50,3 +50,11 @@ instance Pretty WorldState where
 
 instance Pretty Snapshot where
   pretty (Snapshot commands time) = pretty "Snapshot: " <+> (pretty commands) <+> (pretty "Time: ") <+> (pretty time)
+
+instance Pretty (Scenario p) where
+  pretty (Scenario policy ws time hist) =
+    nest 2 $ vsep [pretty "Scenario: ", pretty ws, pretty "Time: " <+> pretty time, vsep $ fmap pretty hist]
+
+instance Pretty ScenarioReplay where
+  pretty (ScenarioReplay ws i moveHist) =
+    nest 2 $ vsep [pretty "ScenarioReplay: ", pretty ws, pretty i, vsep $ fmap pretty moveHist]

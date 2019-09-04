@@ -77,25 +77,28 @@ data ScenarioReplay = ScenarioReplay WorldState Integer MoveHistory
   deriving Show
 
 createReplay :: Scenario p -> ScenarioReplay
-createReplay sc@(Scenario _ ws@(WorldState env info ensembleStat) _ hist) = ScenarioReplay startWS 0 hist
+createReplay sc@(Scenario _ ws@(WorldState env info ensembleStat) _ hist) = ScenarioReplay startWS 0 (reverse hist)
   where
     startWS = initializeWorldState (length ensembleStat) env
 
 --move the replay foreward one time step and get the new worldstate that resulted from that
 advanceReplay :: ScenarioReplay -> ScenarioReplay
 advanceReplay srp@(ScenarioReplay ws time hist) =
-  ScenarioReplay newWs (time + 1) newHist
+  if (isTerminal ws) then srp
+    else case hist of
+           [] -> ScenarioReplay (updateState [] ws) (time + 1) hist
+           (snap : snaps) -> ScenarioReplay newWs (time + 1) newHist
   where
     (newWs, newHist) = if (nextMoveTime == time)
               then (updateState (getCommands nextSnap) ws, tail hist)
-              else (ws, hist)
+              else (updateState [] ws, hist)
 
     nextMoveTime = getTimeStamp nextSnap
     nextSnap = head hist
 
 advanceUntilTime :: Integer -> ScenarioReplay -> ScenarioReplay
 advanceUntilTime t sr@(ScenarioReplay ws time hist) =
-  if (time >= t) then sr
+  if (time >= t || isTerminal ws) then sr
     else advanceUntilTime t $ advanceReplay sr
 
 -- below are some utlilty functions to help start and end a scenario --------------------------------------------------------------------

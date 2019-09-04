@@ -25,8 +25,8 @@ defaultFramerate :: Int
 defaultFramerate = 5
 
 --turns a number of seconds elapsed into a number of sim timesteps elapsed
-toSimSteps :: Float -> Integer
-toSimSteps f = round $ f * 10
+speedupFactor :: Float
+speedupFactor = 200
 
 --the current simulation time that gloss uses, then everything else
 type SimState = (Float, ScenarioReplay)
@@ -34,15 +34,15 @@ type SimState = (Float, ScenarioReplay)
 --probably want to just draw the static environment once, and calculate all relative positions based on the size of that
 --drawingFunc :: Float -> Picture
 
-drawReplay :: Int -> ScenarioReplay -> Picture
-drawReplay offset sr@(ScenarioReplay ws time _) = Scale 3 3 $ Pictures [drawWorldState offset ws, Circle $ fromIntegral (time * 10)]
+drawReplay2 :: Int -> SimState -> Picture
+drawReplay2 i (f, sr) = drawReplay i sr
 
-updateFunc :: ViewPort -> Float -> ScenarioReplay -> ScenarioReplay
-updateFunc _ dt sr = times intSteps sr
-  where
-    times 0 srv = srv
-    times n srv = times (n - 1) (advanceReplay srv)
-    intSteps = min 1 $ toSimSteps dt
+drawReplay :: Int -> ScenarioReplay -> Picture
+drawReplay offset sr@(ScenarioReplay ws time _) = Scale 3 3 $ Pictures [drawWorldState offset ws, Text $ show time]
+
+updateFunc :: ViewPort -> Float -> SimState -> SimState
+updateFunc _ dt (t, sr) = (newTime, advanceUntilTime (round newTime) sr)
+  where newTime = t + (dt * speedupFactor)
 
 drawTime :: Integer -> Picture
 drawTime t = Scale 0.2 0.2 $ Text $ timeString

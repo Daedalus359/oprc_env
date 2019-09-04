@@ -78,6 +78,7 @@ executable animate-scenario
   main-is:                AnimateScenario.hs
   build-depends:          base , oprc-env
                         , gloss
+                        , prettyprinter
   
   hs-source-dirs:         exe
   default-language:       Haskell2010

@@ -6,6 +6,8 @@ import qualified Data.Set as Set
 import qualified Data.PSQueue as Q
 import Data.List
 import Data.Maybe
+import System.Random as Random
+import qualified Data.Sequence as SQ
 
 import Env
 import EnvView
@@ -121,19 +123,6 @@ insertFromList :: (Ord k, Ord p) => (k -> p) -> [k] -> Q.PSQ k p -> Q.PSQ k p
 insertFromList f [] psq = psq
 insertFromList f (k : kList) psq = insertFromList f kList (Q.insert k (f k) psq)
 
---need memoization for efficiency, not an immediate priority
---should probably use Manhattan distance as a heuristic
---use inBoundsNeighborsOf
---open set represents the search frontier
---ties should be broken by searching the most recently discovered node first, so that multiple equally viable paths aren't drawn out in parallel
-
--- f(x) = c(x) + h(x)
-----c(x) : the lowest cost path from start to x currently known
-------implement as a map with all initial values equal to the number of nodes in the Footprint, as this is an upper bound on path cost
-----h(x) : the heuristic estimated cost from x to end
-
---f(x) values should also be implemented as a map with initialized upper bound values for all nodes
-
 --useful heuristic functions go here
 mkManhattanHeuristic :: Position -> Heuristic
 mkManhattanHeuristic endPos = manhattanDistance endPos
@@ -143,3 +132,26 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = deltaX + deltaY
   where
     deltaX = abs $ x1 - x2
     deltaY = abs $ y1 - y2
+
+kMeans :: StdGen -> Int -> Footprint -> [Footprint]
+kMeans gen k footprint = kMeansInternal kMeans kSplits
+  where
+    kMeans = fmap undefined kSplits
+    kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, gen) footprint
+
+kMeansInternal = undefined
+
+avgPos :: Footprint -> Position
+avgPos ftp = undefined
+  where
+    sumPos = foldr accumulate (0, 0) ftp
+    sz = Set.size ftp
+
+    accumulate :: Position -> (Int, Int) -> (Int, Int)
+    accumulate (Position x y) (xTot, yTot) = (xTot + x, yTot + y)
+
+assignAtRandom :: Ord a => a -> (SQ.Seq(Set.Set a), StdGen) -> (SQ.Seq(Set.Set a), StdGen)
+assignAtRandom a (sets, gen) = (SQ.adjust (Set.insert a) i sets, newGen)
+  where
+    (i, newGen) = randomR (0, k - 1) gen
+    k = SQ.length sets

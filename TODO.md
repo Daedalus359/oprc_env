@@ -1,4 +1,5 @@
 To-Do List:
+* finish all of the undefineds in GraphOPRC
 * implement K means clustering on my environment by performing a fold over the environment map that assigns each patch to the mean it is closest to (according to a distance metric that is something like 14 * min(delta_x, delta_y) + 10 * abs (delta_x - delta_y)
 * implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization
 * modify my droneStatus drawing function to represent the field of view of the drone at that time

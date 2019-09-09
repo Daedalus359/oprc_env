@@ -8,7 +8,9 @@ import Data.List
 import Data.Maybe
 import System.Random as Random
 import qualified Data.Sequence as SQ
+import Data.Foldable
 
+import MoveCosts
 import Env
 import EnvView
 
@@ -133,18 +135,50 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = deltaX + deltaY
     deltaX = abs $ x1 - x2
     deltaY = abs $ y1 - y2
 
-kMeans :: StdGen -> Int -> Footprint -> [Footprint]
-kMeans gen k footprint = kMeansInternal kMeans kSplits
+--may not make sense to keep the toList stuff around - decide what form I need this in
+kMeans :: Int -> StdGen -> Int -> Footprint -> [Footprint]
+kMeans iterations gen k footprint = fmap snd $ Map.toList $ kMeansInternal iterations initMap
   where
-    kMeans = fmap undefined kSplits
+    initMap :: Map.Map Position Footprint
+    initMap = Map.fromList $ toList $ SQ.zip kMeans kSplits
+
+    kMeans = fmap avgPos kSplits
     kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, gen) footprint
 
-kMeansInternal = undefined
+--don't call with a number of iterations greater than zero!
+kMeansInternal :: Int -> Map.Map Position Footprint -> Map.Map Position Footprint
+kMeansInternal 0 = id
+kMeansInternal iterations map = kMeansInternal (iterations - 1)
+
+nearestMeanIndex :: SQ.Seq(Position) -> Position -> Int
+nearestMeanIndex means pos = undefined -- foldr (closerTo pos) means
+
+--returns whichever of args 2 and 3 is closer to arg 1, with preference for arg 2 in case of a tie
+closerTo :: Position -> Position -> Position -> Position
+closerTo pos mean1 mean2 =
+  if (dist2 < dist1) then mean2 else mean1
+  where
+    dist2 = idealDistance pos mean2
+    dist1 = idealDistance pos mean1
+
+--"closeness" is based on maximum utilization of diagonal motion (shortest possible path assuming no obstacles)
+idealDistance :: Position -> Position -> Int
+idealDistance (Position x1 y1) (Position x2 y2) = diagCost * diagonalMoves + straightCost * straightMoves
+  where
+    --just need the type to get an answer from cost
+    straightCost = cost (undefined :: CardinalDir)
+    diagCost = cost (undefined :: IntercardinalDir)
+
+    straightMoves = abs deltaX - deltaY
+    diagonalMoves = min deltaX deltaY
+
+    deltaX = abs $ x1 - x2
+    deltaY = abs $ y1 - y2
 
 avgPos :: Footprint -> Position
-avgPos ftp = undefined
+avgPos ftp = Position (quot sumX sz) (quot sumY sz)
   where
-    sumPos = foldr accumulate (0, 0) ftp
+    (sumX, sumY) = foldr accumulate (0, 0) ftp
     sz = Set.size ftp
 
     accumulate :: Position -> (Int, Int) -> (Int, Int)

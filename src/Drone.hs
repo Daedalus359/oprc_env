@@ -6,6 +6,9 @@ import MoveCosts
 data Drone = DroneID Int
   deriving (Eq, Show)
 
+instance Ord Drone where
+  compare (DroneID i1) (DroneID i2) = compare i1 i2
+
 data DronePosition = DronePos 
   {
     getEnvPos :: Env.Position

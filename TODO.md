@@ -1,4 +1,6 @@
 To-Do List:
+* make a variant of k means that directly assigns footprints to drones
+* change my KMeansLowPolicy (and DroneTerritoty datatype) to be a map between droneterritory data and the territory itself
 * implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization
 * modify my droneStatus drawing function to represent the field of view of the drone at that time
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone

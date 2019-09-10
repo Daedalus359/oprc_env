@@ -61,6 +61,8 @@ instance Policy LowSweepPolicy where
       --don't command any actions if at least one drone is still in the middle of acting
       else ([], p)
 
+
+
 makeDirections :: Path -> Maybe Directions
 makeDirections [] = Just []
 makeDirections (pos : []) = Just []
@@ -113,6 +115,49 @@ nearestSweepPos fp pos@(Position x y) =
         1 -> x - 1
         2 -> x + 1
 
+data DroneTerritory = DroneTerritory
+  { getDrone :: Drone
+  , getMean :: Position
+  , getTerritory :: Footprint
+  , getDirsDT :: Directions
+  }
+  deriving (Eq, Show)
+
+instance Ord DroneTerritory where
+  compare (DroneTerritory d1 _ _ _) (DroneTerritory d2 _ _ _) = compare d1 d2
+
+anyWaiting :: EnsembleStatus -> [DroneTerritory] -> Bool
+anyWaiting enStat [] = False
+anyWaiting enStat (dt@(DroneTerritory drone mean territory dirs) : dts) =
+  case dirs of
+    (action : actions) -> anyWaiting enStat dts --the currently scrutinized drone was not waiting for new directions to be computed
+    [] -> if (fromMaybe True $ fmap isUnassigned $ lookup drone enStat)
+            then True --an idle drone with nothing else to do has been discovered
+            else anyWaiting enStat dts --currently scrutinized drone is still acting
+
+data KMeansLowPolicy = KMeansLowPolicy [DroneTerritory]
+
+instance Policy KMeansLowPolicy where
+  nextMove p@(KMeansLowPolicy []) _ = ([], p) --base case for recursion over [DroneTerritory]
+  nextMove p@(KMeansLowPolicy dts@(dt : rest)) wv@(WorldView envInfo enStat) = 
+    if (anyWaiting enStat dts)
+      then undefined--run an iteration of k-means to redistribute territories between drones
+      else undefined--just need to assign any idle drones to the next task in its directions list in this case
+
+    --if one of the drones needs 
 
 --a second, "HighSweepPolicy" should probably use the same policy as LowSweep for its "phase 2" behavior, after the high environment has been explored and it has descended again
 --highsweepPolicy should use a smart function to query A* for paths to a filtered subset of nodes that make sense to visit (e.g rows 2, 5, 8, etc. with shape caveats)
+
+class Ord d => HasCenter d where
+  getCenter :: d -> Position
+  moveCenter :: Position -> d -> d
+
+--for working directly with 
+instance HasCenter Position where
+  getCenter = id
+  moveCenter p = const p
+
+instance HasCenter DroneTerritory where
+  getCenter = getMean
+  moveCenter newMean (DroneTerritory drone oldMean territory dirs) = DroneTerritory drone newMean territory dirs

@@ -9,6 +9,8 @@ import Data.Maybe
 import System.Random as Random
 import qualified Data.Sequence as SQ
 import Data.Foldable
+import Data.Monoid
+import Data.Semigroup
 
 import MoveCosts
 import Env
@@ -145,13 +147,38 @@ kMeans iterations gen k footprint = fmap snd $ Map.toList $ kMeansInternal itera
     kMeans = fmap avgPos kSplits
     kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, gen) footprint
 
---don't call with a number of iterations greater than zero!
+--don't call with a number of iterations less than zero!
 kMeansInternal :: Int -> Map.Map Position Footprint -> Map.Map Position Footprint
-kMeansInternal 0 = id
-kMeansInternal iterations map = kMeansInternal (iterations - 1)
+kMeansInternal 0 map = map
+kMeansInternal iterations map = kMeansInternal (iterations - 1) newMap
+  where
+    newMap = Map.foldr (\fp -> \soFar -> Map.union soFar $ Map.singleton (avgPos fp) fp) Map.empty reassignedMap  
 
-nearestMeanIndex :: SQ.Seq(Position) -> Position -> Int
-nearestMeanIndex means pos = undefined -- foldr (closerTo pos) means
+    reassignedMap = Map.foldrWithKey (\oldMean -> \fp -> \soFar -> Map.unionWith Set.union soFar $ reassign oldMean fp) Map.empty map
+
+
+    --assignmentList = Map.foldrWithKey (\oldMean -> \oldFp -> \soFar -> Set.union soFar $ makeTuples oldMean oldFp) Set.empty map
+
+    reassign :: Position -> Footprint -> Map.Map Position Footprint
+    reassign mean fp = foldr (\(aMean, aPos) -> \b -> Map.union b $ Map.singleton aMean $ Set.singleton aPos) Map.empty newAssignments
+      where
+        newAssignments = fmap (\(oldMean, pos) -> (nearestMean means oldMean pos, pos)) oldAssignments
+        oldAssignments = makeTuples mean fp
+
+    makeTuples :: Position -> Footprint -> [(Position, Position)]
+    makeTuples mean fp = fmap (\pos -> (mean, pos)) $ toList fp
+
+    means = Map.keysSet map
+    --positions = Map.foldr Set.union Set.empty map --a Set of all positions to get their means reassigned
+      --
+      --unionWith
+      --foldrWithKey :: (k -> a -> b -> b) -> b -> Map k a -> b
+      --singleton :: k -> a -> Map k a
+
+
+
+nearestMean :: Set.Set(Position) -> Position -> Position -> Position
+nearestMean means currentMean pos = foldr (closerTo pos) currentMean means
 
 --returns whichever of args 2 and 3 is closer to arg 1, with preference for arg 2 in case of a tie
 closerTo :: Position -> Position -> Position -> Position

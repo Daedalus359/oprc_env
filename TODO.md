@@ -1,6 +1,7 @@
 To-Do List:
-* change my KMeansLowPolicy (and DroneTerritoty datatype) to be a map between droneterritory data and the territory itself
 * implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization
+* alter K means to only pay attention to patches that need to be explored when 
+* make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heauristic estimates of the time required to traverse the remaining unexplored territory
 * modify my droneStatus drawing function to represent the field of view of the drone at that time
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
 * augment the scenario animation to keep an up to date representation of drone territories on screen
@@ -69,3 +70,4 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * create functionality to animate the complete replay of a scenario with the worldState and worldView at each time step forming the frames (9/4/2019)
 * implement K means clustering on my environment (9/10/2019)
 * make a variant of k means that directly assigns footprints to drones (9/11/2019)
+* change my KMeansLowPolicy (and DroneTerritoty datatype) to be a map between droneterritory data and the territory itself (9/11/2019)

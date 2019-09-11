@@ -140,8 +140,8 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = deltaX + deltaY
     deltaY = abs $ y1 - y2
 
 --may not make sense to keep the toList stuff around - decide what form I need this in
-kMeans :: HasCenter d => Int -> StdGen -> Int -> Footprint -> SQ.Seq d -> Map.Map d Footprint
-kMeans iterations gen k footprint droneSeq = kMeansInternal iterations initMap
+kMeans :: HasCenter d => Int -> StdGen -> Footprint -> SQ.Seq d -> Map.Map d Footprint
+kMeans iterations gen footprint droneSeq = kMeansInternal iterations initMap
   where
     --initMap :: HasCenter d => Map.Map d Footprint
     initMap = Map.fromList $ toList $ SQ.zip keys kSplits
@@ -151,7 +151,10 @@ kMeans iterations gen k footprint droneSeq = kMeansInternal iterations initMap
     kMeans = fmap avgPos kSplits
     kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, gen) footprint
 
+    k = SQ.length droneSeq
+
 --don't call with a number of iterations less than zero!
+--possible bug - avgPos will always move to (0, 0) if there are no patches in a footprint. Is this desirable behavior?
 kMeansInternal :: HasCenter d => Int -> Map.Map d Footprint -> Map.Map d Footprint
 kMeansInternal 0 map = map
 kMeansInternal iterations map = kMeansInternal (iterations - 1) newMap
@@ -203,7 +206,7 @@ avgPos :: Footprint -> Position
 avgPos ftp = Position (quot sumX sz) (quot sumY sz)
   where
     (sumX, sumY) = foldr accumulate (0, 0) ftp
-    sz = Set.size ftp
+    sz = min 1 $ Set.size ftp --min prevents divide by zero when the set is empty
 
     accumulate :: Position -> (Int, Int) -> (Int, Int)
     accumulate (Position x y) (xTot, yTot) = (xTot + x, yTot + y)
@@ -224,14 +227,19 @@ data DroneTerritory = DroneTerritory
 instance Ord DroneTerritory where
   compare (DroneTerritory d1 _ _) (DroneTerritory d2 _ _) = compare d1 d2
 
-anyWaiting :: EnsembleStatus -> [DroneTerritory] -> Bool
-anyWaiting enStat [] = False
-anyWaiting enStat (dt@(DroneTerritory drone mean dirs) : dts) =
+anyWaiting :: EnsembleStatus -> Set.Set DroneTerritory -> Bool
+anyWaiting enStat territories = getAny $ foldMap (idleAndUndirected enStat) territories
+
+idleAndUndirected :: EnsembleStatus -> DroneTerritory -> Any
+idleAndUndirected enStat dt@(DroneTerritory drone mean dirs) =
   case dirs of
-    (action : actions) -> anyWaiting enStat dts --the currently scrutinized drone was not waiting for new directions to be computed
-    [] -> if (fromMaybe True $ fmap isUnassigned $ lookup drone enStat)
-            then True --an idle drone with nothing else to do has been discovered
-            else anyWaiting enStat dts --currently scrutinized drone is still acting
+    (action : actions) -> Any False
+    [] -> if (idleOrUnlisted enStat dt)
+            then Any True
+            else Any False
+
+idleOrUnlisted :: EnsembleStatus -> DroneTerritory -> Bool
+idleOrUnlisted enStat (DroneTerritory drone _ _) = (fromMaybe True $ fmap isUnassigned $ lookup drone enStat)
 
 --agents that execute paths based purely on the footprint of the environment
 type Directions = [Action]

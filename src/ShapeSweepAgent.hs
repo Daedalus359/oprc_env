@@ -6,11 +6,13 @@ import Drone
 import EnvView
 import Ensemble
 import Env
+import WorldState
 
 import Data.Maybe
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
-
+import System.Random
+import qualified Data.Sequence as SQ
 
 
 --commands all drones to follow along the same path, obviously inefficient
@@ -114,14 +116,77 @@ nearestSweepPos fp pos@(Position x y) =
         2 -> x + 1
 
 
-data KMeansLowPolicy = KMeansLowPolicy [DroneTerritory]
+data KMeansLowPolicy = KMeansLowPolicy (Map.Map DroneTerritory Footprint)
+
+--only call this after checking that there are moves to apply for each idle drone
+applyMoves :: EnsembleStatus -> KMeansLowPolicy -> (NextActions, KMeansLowPolicy)
+applyMoves enStat (KMeansLowPolicy map) = (catMaybes maybeAssignments, newPolicy)
+  where
+    (maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves enStat) ([], KMeansLowPolicy $ Map.empty) map
+
+accumulateNextMoves :: EnsembleStatus -> DroneTerritory -> Footprint -> ([Maybe (Drone, Action)], KMeansLowPolicy) -> ([Maybe (Drone, Action)], KMeansLowPolicy)
+accumulateNextMoves enStat dt fp (na, KMeansLowPolicy map) = (newAction : na, KMeansLowPolicy $ Map.insert newKey fp map)
+  where
+    (newAction, newKey) = applyMove enStat dt
+
+applyMove :: EnsembleStatus -> DroneTerritory -> (Maybe (Drone, Action), DroneTerritory)
+applyMove enStat dt@(DroneTerritory drone mean dirs) =
+  if (idleOrUnlisted enStat dt)
+    then (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
+    else (Nothing, dt)
+
+--uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
+--should prioritize visiting the territory farthest from any other means
+assignDirections :: WorldView -> KMeansLowPolicy -> KMeansLowPolicy
+assignDirections wv p@(KMeansLowPolicy map) = KMeansLowPolicy $ Map.foldrWithKey (setDirections wv) Map.empty map
+  where
+    droneTerritories = Map.keysSet map
+
+setDirections :: WorldView -> DroneTerritory -> Footprint -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
+setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) fp soFar = Map.insert newKey fp soFar
+  where
+    newKey =
+      case dirs of
+        (dir : rest) -> dt
+        [] -> DroneTerritory drone mean newDirs
+
+    newDirs = fromMaybe [Hover] maybeDirections
+
+    maybeDirections = maybePath >>= makeDirections
+    maybePath = currentPos >>= (\cp -> aStar envInfo mkManhattanHeuristic cp targetPos)
+
+    --eventually refactor to provide list of all means to this function, then make this step pick the position farthest from all foreign means
+    targetPos :: Position
+    targetPos = if (null toVisit)
+                  then minPos
+                  else Set.findMin toVisit
+
+    toVisit = Set.intersection fp $ Map.keysSet $ Map.filter (not . isFullyObserved) envInfo
+
+    currentPos :: Maybe Position
+    currentPos = fmap groundPos $ lookup drone enStat
+
+    minPos = fst $ Map.findMin envInfo
+
+initializeKMP :: Int -> StdGen -> WorldView -> KMeansLowPolicy
+initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy $ kMeans iterations gen fp dSeq
+  where
+    fp = Map.keysSet envInfo
+
+    dSeq = SQ.fromList $ fmap (\(drone, pos) -> DroneTerritory drone pos []) dronesList
+
+    dronesList :: [(Drone, Position)]
+    dronesList = fmap (fmap groundPos) enStat
+
 
 instance Policy KMeansLowPolicy where
-  nextMove p@(KMeansLowPolicy []) _ = ([], p) --base case for recursion over [DroneTerritory]
-  nextMove p@(KMeansLowPolicy dts@(dt : rest)) wv@(WorldView envInfo enStat) = 
-    if (anyWaiting enStat dts)
-      then undefined--run an iteration of k-means to redistribute territories between drones
-      else undefined--just need to assign any idle drones to the next task in its directions list in this case
+  nextMove p@(KMeansLowPolicy map) wv@(WorldView envInfo enStat) = 
+    if (anyWaiting enStat $ Map.keysSet map)
+      then applyMoves enStat $ assignDirections wv $ KMeansLowPolicy $ kMeansInternal 1 map --need to assign new moves after the K-means step
+      else applyMoves enStat p--just need to assign any idle drones to the next task in its directions list in this case
+
+   
+
 
     --if one of the drones needs 
 

@@ -21,8 +21,11 @@ data Scenario p =
   }
   deriving (Eq, Show)
 
-mkScenario :: (Policy p) => p -> Int -> Environment -> Scenario p
-mkScenario policy numDrones env = Scenario policy (initializeWorldState numDrones env) 0 []
+mkScenario :: (Policy p) => (WorldView -> p) -> Int -> Environment -> Scenario p
+mkScenario policyF numDrones env = Scenario (policyF wv) ws 0 []
+  where
+    wv = toView ws
+    ws = initializeWorldState numDrones env
 
 data Snapshot = 
   Snapshot {
@@ -67,10 +70,10 @@ timeScenarioRun timeLimit s =
      (success, afterRun) = runScenario timeLimit s
 
 --fullRun initializes a scenario from an environment and number of drones and sets it to run to completion with a time limit
-fullRun :: (Policy p) => Integer -> Int -> p -> Environment -> (Bool, Scenario p)
-fullRun timeLimit numDrones policy environment = runScenario timeLimit scenario
+fullRun :: (Policy p) => Integer -> Int -> (WorldView -> p) -> Environment -> (Bool, Scenario p)
+fullRun timeLimit numDrones policyF environment = runScenario timeLimit scenario
   where
-    scenario = mkScenario policy numDrones environment
+    scenario = mkScenario policyF numDrones environment
 
 --in this case, the moveHistory is what is coming next
 data ScenarioReplay = ScenarioReplay WorldState Integer MoveHistory

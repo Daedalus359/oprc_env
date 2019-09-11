@@ -1,7 +1,7 @@
 To-Do List:
 * implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization
-* alter K means to only pay attention to patches that need to be explored when 
-* make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heauristic estimates of the time required to traverse the remaining unexplored territory
+* alter K means to only pay attention to patches that need to be explored when it makes sense to do so
+* make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory
 * modify my droneStatus drawing function to represent the field of view of the drone at that time
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
 * augment the scenario animation to keep an up to date representation of drone territories on screen

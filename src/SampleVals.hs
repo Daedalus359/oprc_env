@@ -175,7 +175,7 @@ lsPolicy = LowSweepPolicy []
 fullScenarioWithOutput :: Policy p => IO (p) -> Int -> Integer -> Integer -> IO (Scenario p)
 fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     putStrLn "Running scenario..."
-    (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) ioPol (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
+    (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) (fmap const ioPol) (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
     putStrLn "Environment explored? - "
     print finished
     --putStrLn "Final worldState: "
@@ -188,7 +188,7 @@ fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
 
 firstStepsWithOutput :: IO ()
 firstStepsWithOutput = do
-  scenario <- liftA3 (Scenario.mkScenario) randPolicy (return 1) (dumpParseFailure $ parseEnvNum 4)
+  scenario <- liftA3 (Scenario.mkScenario) (fmap const randPolicy) (return 1) (dumpParseFailure $ parseEnvNum 4)
   putStrLn "Unstepped time: "
   print (Scenario.getTime scenario)
   putStrLn "Unstepped move hist"
@@ -212,7 +212,7 @@ sampleAStar = aStar <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2)
 
 threeStepsOfOutput :: (Policy p, Show p) => p -> Int -> Integer -> Integer -> IO ()
 threeStepsOfOutput p numDrones envNum timeLimit = do
-  scenario <- (Scenario.mkScenario p numDrones) <$> (dumpParseFailure $ parseEnvNum envNum)
+  scenario <- (Scenario.mkScenario (const p) numDrones) <$> (dumpParseFailure $ parseEnvNum envNum)
 
   putStrLn "Unstepped time: "
   print (Scenario.getTime scenario)

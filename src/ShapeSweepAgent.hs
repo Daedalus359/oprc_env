@@ -11,9 +11,7 @@ import Data.Maybe
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 
---agents that execute paths based purely on the footprint of the environment
 
-type Directions = [Action]
 
 --commands all drones to follow along the same path, obviously inefficient
 data LowSweepPolicy = LowSweepPolicy
@@ -115,25 +113,6 @@ nearestSweepPos fp pos@(Position x y) =
         1 -> x - 1
         2 -> x + 1
 
-data DroneTerritory = DroneTerritory
-  { getDrone :: Drone
-  , getMean :: Position
-  , getTerritory :: Footprint
-  , getDirsDT :: Directions
-  }
-  deriving (Eq, Show)
-
-instance Ord DroneTerritory where
-  compare (DroneTerritory d1 _ _ _) (DroneTerritory d2 _ _ _) = compare d1 d2
-
-anyWaiting :: EnsembleStatus -> [DroneTerritory] -> Bool
-anyWaiting enStat [] = False
-anyWaiting enStat (dt@(DroneTerritory drone mean territory dirs) : dts) =
-  case dirs of
-    (action : actions) -> anyWaiting enStat dts --the currently scrutinized drone was not waiting for new directions to be computed
-    [] -> if (fromMaybe True $ fmap isUnassigned $ lookup drone enStat)
-            then True --an idle drone with nothing else to do has been discovered
-            else anyWaiting enStat dts --currently scrutinized drone is still acting
 
 data KMeansLowPolicy = KMeansLowPolicy [DroneTerritory]
 
@@ -149,15 +128,3 @@ instance Policy KMeansLowPolicy where
 --a second, "HighSweepPolicy" should probably use the same policy as LowSweep for its "phase 2" behavior, after the high environment has been explored and it has descended again
 --highsweepPolicy should use a smart function to query A* for paths to a filtered subset of nodes that make sense to visit (e.g rows 2, 5, 8, etc. with shape caveats)
 
-class Ord d => HasCenter d where
-  getCenter :: d -> Position
-  moveCenter :: Position -> d -> d
-
---for working directly with 
-instance HasCenter Position where
-  getCenter = id
-  moveCenter p = const p
-
-instance HasCenter DroneTerritory where
-  getCenter = getMean
-  moveCenter newMean (DroneTerritory drone oldMean territory dirs) = DroneTerritory drone newMean territory dirs

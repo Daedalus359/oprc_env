@@ -15,6 +15,8 @@ import Data.Semigroup
 import MoveCosts
 import Env
 import EnvView
+import Drone
+import Ensemble
 
 --allows for efficiently building a Path as a list from back to front
 data PathStep = PathStep Position (Maybe ParentPos)
@@ -138,8 +140,8 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = deltaX + deltaY
     deltaY = abs $ y1 - y2
 
 --may not make sense to keep the toList stuff around - decide what form I need this in
-kMeans :: Int -> StdGen -> Int -> Footprint -> [Footprint]
-kMeans iterations gen k footprint = fmap snd $ Map.toList $ kMeansInternal iterations initMap
+kMeans :: HasCenter d => Int -> StdGen -> Int -> Footprint -> [d] -> [Footprint]
+kMeans iterations gen k footprint droneList = fmap snd $ Map.toList $ kMeansInternal iterations initMap
   where
     initMap :: Map.Map Position Footprint
     initMap = Map.fromList $ toList $ SQ.zip kMeans kSplits
@@ -216,3 +218,39 @@ assignAtRandom a (sets, gen) = (SQ.adjust (Set.insert a) i sets, newGen)
   where
     (i, newGen) = randomR (0, k - 1) gen
     k = SQ.length sets
+
+data DroneTerritory = DroneTerritory
+  { getDrone :: Drone
+  , getMean :: Position
+  , getTerritory :: Footprint
+  , getDirsDT :: Directions
+  }
+  deriving (Eq, Show)
+
+instance Ord DroneTerritory where
+  compare (DroneTerritory d1 _ _ _) (DroneTerritory d2 _ _ _) = compare d1 d2
+
+anyWaiting :: EnsembleStatus -> [DroneTerritory] -> Bool
+anyWaiting enStat [] = False
+anyWaiting enStat (dt@(DroneTerritory drone mean territory dirs) : dts) =
+  case dirs of
+    (action : actions) -> anyWaiting enStat dts --the currently scrutinized drone was not waiting for new directions to be computed
+    [] -> if (fromMaybe True $ fmap isUnassigned $ lookup drone enStat)
+            then True --an idle drone with nothing else to do has been discovered
+            else anyWaiting enStat dts --currently scrutinized drone is still acting
+
+--agents that execute paths based purely on the footprint of the environment
+type Directions = [Action]
+
+class Ord d => HasCenter d where
+  getCenter :: d -> Position
+  moveCenter :: Position -> d -> d
+
+--for working directly with 
+instance HasCenter Position where
+  getCenter = id
+  moveCenter p = const p
+
+instance HasCenter DroneTerritory where
+  getCenter = getMean
+  moveCenter newMean (DroneTerritory drone oldMean territory dirs) = DroneTerritory drone newMean territory dirs

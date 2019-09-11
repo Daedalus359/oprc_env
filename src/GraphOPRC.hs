@@ -140,55 +140,50 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = deltaX + deltaY
     deltaY = abs $ y1 - y2
 
 --may not make sense to keep the toList stuff around - decide what form I need this in
-kMeans :: HasCenter d => Int -> StdGen -> Int -> Footprint -> [d] -> [Footprint]
-kMeans iterations gen k footprint droneList = fmap snd $ Map.toList $ kMeansInternal iterations initMap
+kMeans :: HasCenter d => Int -> StdGen -> Int -> Footprint -> SQ.Seq d -> Map.Map d Footprint
+kMeans iterations gen k footprint droneSeq = kMeansInternal iterations initMap
   where
-    initMap :: Map.Map Position Footprint
-    initMap = Map.fromList $ toList $ SQ.zip kMeans kSplits
+    --initMap :: HasCenter d => Map.Map d Footprint
+    initMap = Map.fromList $ toList $ SQ.zip keys kSplits
+
+    keys = SQ.zipWith moveCenter kMeans droneSeq
 
     kMeans = fmap avgPos kSplits
     kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, gen) footprint
 
 --don't call with a number of iterations less than zero!
-kMeansInternal :: Int -> Map.Map Position Footprint -> Map.Map Position Footprint
+kMeansInternal :: HasCenter d => Int -> Map.Map d Footprint -> Map.Map d Footprint
 kMeansInternal 0 map = map
 kMeansInternal iterations map = kMeansInternal (iterations - 1) newMap
   where
-    newMap = Map.foldr (\fp -> \soFar -> Map.union soFar $ Map.singleton (avgPos fp) fp) Map.empty reassignedMap  
+    newMap = Map.foldrWithKey (\needsMeanUpdate -> \fp -> \soFar -> Map.union soFar $ Map.singleton (moveCenter (avgPos fp) needsMeanUpdate) fp) Map.empty reassignedMap  
 
     reassignedMap = Map.foldrWithKey (\oldMean -> \fp -> \soFar -> Map.unionWith Set.union soFar $ reassign oldMean fp) Map.empty map
 
 
     --assignmentList = Map.foldrWithKey (\oldMean -> \oldFp -> \soFar -> Set.union soFar $ makeTuples oldMean oldFp) Set.empty map
 
-    reassign :: Position -> Footprint -> Map.Map Position Footprint
-    reassign mean fp = foldr (\(aMean, aPos) -> \b -> Map.union b $ Map.singleton aMean $ Set.singleton aPos) Map.empty newAssignments
+    --reassign :: HasCenter d => d -> Footprint -> Map.Map d Footprint
+    reassign mean fp = foldr (\(aMean, aPos) -> \b -> Map.unionWith Set.union b $ Map.singleton aMean $ Set.singleton aPos) Map.empty newAssignments
       where
         newAssignments = fmap (\(oldMean, pos) -> (nearestMean means oldMean pos, pos)) oldAssignments
         oldAssignments = makeTuples mean fp
 
-    makeTuples :: Position -> Footprint -> [(Position, Position)]
+    --makeTuples :: HasCenter d => d -> Footprint -> [(d, Position)]
     makeTuples mean fp = fmap (\pos -> (mean, pos)) $ toList fp
 
     means = Map.keysSet map
-    --positions = Map.foldr Set.union Set.empty map --a Set of all positions to get their means reassigned
-      --
-      --unionWith
-      --foldrWithKey :: (k -> a -> b -> b) -> b -> Map k a -> b
-      --singleton :: k -> a -> Map k a
 
-
-
-nearestMean :: Set.Set(Position) -> Position -> Position -> Position
+nearestMean :: HasCenter d => Set.Set d -> d -> Position -> d
 nearestMean means currentMean pos = foldr (closerTo pos) currentMean means
 
 --returns whichever of args 2 and 3 is closer to arg 1, with preference for arg 2 in case of a tie
-closerTo :: Position -> Position -> Position -> Position
+closerTo :: HasCenter d => Position -> d -> d -> d
 closerTo pos mean1 mean2 =
   if (dist2 < dist1) then mean2 else mean1
   where
-    dist2 = idealDistance pos mean2
-    dist1 = idealDistance pos mean1
+    dist2 = idealDistance pos $ getCenter mean2
+    dist1 = idealDistance pos $ getCenter mean1
 
 --"closeness" is based on maximum utilization of diagonal motion (shortest possible path assuming no obstacles)
 idealDistance :: Position -> Position -> Int
@@ -222,17 +217,16 @@ assignAtRandom a (sets, gen) = (SQ.adjust (Set.insert a) i sets, newGen)
 data DroneTerritory = DroneTerritory
   { getDrone :: Drone
   , getMean :: Position
-  , getTerritory :: Footprint
   , getDirsDT :: Directions
   }
   deriving (Eq, Show)
 
 instance Ord DroneTerritory where
-  compare (DroneTerritory d1 _ _ _) (DroneTerritory d2 _ _ _) = compare d1 d2
+  compare (DroneTerritory d1 _ _) (DroneTerritory d2 _ _) = compare d1 d2
 
 anyWaiting :: EnsembleStatus -> [DroneTerritory] -> Bool
 anyWaiting enStat [] = False
-anyWaiting enStat (dt@(DroneTerritory drone mean territory dirs) : dts) =
+anyWaiting enStat (dt@(DroneTerritory drone mean dirs) : dts) =
   case dirs of
     (action : actions) -> anyWaiting enStat dts --the currently scrutinized drone was not waiting for new directions to be computed
     [] -> if (fromMaybe True $ fmap isUnassigned $ lookup drone enStat)
@@ -253,4 +247,4 @@ instance HasCenter Position where
 
 instance HasCenter DroneTerritory where
   getCenter = getMean
-  moveCenter newMean (DroneTerritory drone oldMean territory dirs) = DroneTerritory drone newMean territory dirs
+  moveCenter newMean (DroneTerritory drone oldMean dirs) = DroneTerritory drone newMean dirs

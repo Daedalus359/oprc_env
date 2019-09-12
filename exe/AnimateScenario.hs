@@ -24,11 +24,8 @@ visualReplay sc = simulate AO.windowDisplay white AO.defaultFramerate initModel 
     initModel = (0, replay)
     replay = createReplay sc
 
-kmp :: IO (WorldView -> KMeansLowPolicy)
-kmp = initializeKMP 10 <$> randGen
-
 main :: IO ()
-main = SV.fullScenarioWithOutput kmp 3 8 100000 >>= visualReplay
+main = SV.fullScenarioWithOutput SV.kmp 3 8 100000 >>= visualReplay
 
 --other policy functions
   --(return $ const SV.lsPolicy)

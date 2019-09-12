@@ -10,6 +10,7 @@ import RandomAgent
 import Policy
 import ShapeSweepAgent
 import GraphOPRC
+import RandomOPRC
 
 import ParseOPRC
 import Text.Trifecta
@@ -163,9 +164,6 @@ manualControl ws = forever $ do
   na <- getNewCommandTerm
   manualControl (updateState na ws)
 
-randPolicy :: IO (RandomPolicy)
-randPolicy = fmap RandomPolicy newStdGen
-
 randFiltPolicy :: IO (RandomFilteredPolicy)
 randFiltPolicy = fmap RandomFilteredPolicy newStdGen
 
@@ -210,9 +208,9 @@ firstStepsWithOutput = do
 sampleAStar :: IO (Maybe Path)
 sampleAStar = aStar <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))
 
-threeStepsOfOutput :: (Policy p, Show p) => p -> Int -> Integer -> Integer -> IO ()
-threeStepsOfOutput p numDrones envNum timeLimit = do
-  scenario <- (Scenario.mkScenario (const p) numDrones) <$> (dumpParseFailure $ parseEnvNum envNum)
+threeStepsOfOutput :: (Policy p, Show p) => IO (WorldView -> p) -> Int -> Integer -> Integer -> IO ()
+threeStepsOfOutput pF numDrones envNum timeLimit = do
+  scenario <- Scenario.mkScenario <$> pF <*> (pure numDrones) <*> (dumpParseFailure $ parseEnvNum envNum)
 
   putStrLn "Unstepped time: "
   print (Scenario.getTime scenario)
@@ -256,3 +254,6 @@ threeStepsOfOutput p numDrones envNum timeLimit = do
   --putStrLn "Three step hist"
   --print (Scenario.getHist $ stepScenario $ stepScenario $ stepScenario scenario)
   return ()
+
+kmp :: IO (WorldView -> KMeansLowPolicy)
+kmp = initializeKMP 10 <$> randGen

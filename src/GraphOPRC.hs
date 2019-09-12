@@ -159,7 +159,11 @@ kMeansInternal :: HasCenter d => Int -> Map.Map d Footprint -> Map.Map d Footpri
 kMeansInternal 0 map = map
 kMeansInternal iterations map = kMeansInternal (iterations - 1) newMap
   where
-    newMap = Map.foldrWithKey (\needsMeanUpdate -> \fp -> \soFar -> Map.union soFar $ Map.singleton (moveCenter (avgPos fp) needsMeanUpdate) fp) Map.empty reassignedMap  
+    newMap = Set.foldr (\key -> \soFar -> Map.unionWith Set.union soFar $ Map.singleton key $ Set.empty) correctedMeans means
+
+    --inefficient! Probably worth reimplementing this using toList or something
+    --now that reassignments have been made, correct the mean value assigned to each footprint.
+    correctedMeans = Map.foldrWithKey (\needsMeanUpdate -> \fp -> \soFar -> Map.union soFar $ Map.singleton (moveCenter (avgPos fp) needsMeanUpdate) fp) Map.empty reassignedMap  
 
     reassignedMap = Map.foldrWithKey (\oldMean -> \fp -> \soFar -> Map.unionWith Set.union soFar $ reassign oldMean fp) Map.empty map
 
@@ -206,7 +210,7 @@ avgPos :: Footprint -> Position
 avgPos ftp = Position (quot sumX sz) (quot sumY sz)
   where
     (sumX, sumY) = foldr accumulate (0, 0) ftp
-    sz = min 1 $ Set.size ftp --min prevents divide by zero when the set is empty
+    sz = max 1 $ Set.size ftp --max prevents divide by zero when the set is empty
 
     accumulate :: Position -> (Int, Int) -> (Int, Int)
     accumulate (Position x y) (xTot, yTot) = (xTot + x, yTot + y)

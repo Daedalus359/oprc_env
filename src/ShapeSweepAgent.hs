@@ -117,6 +117,7 @@ nearestSweepPos fp pos@(Position x y) =
 
 
 data KMeansLowPolicy = KMeansLowPolicy (Map.Map DroneTerritory Footprint)
+  deriving (Eq, Show)
 
 --only call this after checking that there are moves to apply for each idle drone
 applyMoves :: EnsembleStatus -> KMeansLowPolicy -> (NextActions, KMeansLowPolicy)

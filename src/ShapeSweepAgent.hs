@@ -47,7 +47,7 @@ instance Policy LowSweepPolicy where
 
                 maybeDirections :: Maybe Directions
                 maybeDirections = maybePath >>= makeDirections
-                maybePath = aStar envInfo mkManhattanHeuristic startPos nextPosToVisit
+                maybePath = aStar Low envInfo mkManhattanHeuristic startPos nextPosToVisit
 
                 startPos :: Position
                 startPos = groundPos $ snd $ head enStat
@@ -133,19 +133,23 @@ accumulateNextMoves enStat dt fp (na, KMeansLowPolicy map) = (newAction : na, KM
 applyMove :: EnsembleStatus -> DroneTerritory -> (Maybe (Drone, Action), DroneTerritory)
 applyMove enStat dt@(DroneTerritory drone mean dirs) =
   if (idleOrUnlisted enStat dt)
-    then (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
+    then case dirs of --this should not be necessary!
+           (d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
+           [] -> (Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
     else (Nothing, dt)
 
 --uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
 --should prioritize visiting the territory farthest from any other means
 assignDirections :: WorldView -> KMeansLowPolicy -> KMeansLowPolicy
 assignDirections wv p@(KMeansLowPolicy map) = KMeansLowPolicy $ Map.foldrWithKey (setDirections wv) Map.empty map
-  where
-    droneTerritories = Map.keysSet map
 
 setDirections :: WorldView -> DroneTerritory -> Footprint -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
-setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) fp soFar = Map.insert newKey fp soFar
+setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) fp soFar = Map.insert key fp soFar
   where
+    key = if (idleOrUnlisted enStat dt)
+            then newKey
+            else dt
+
     newKey =
       case dirs of
         (dir : rest) -> dt
@@ -154,7 +158,7 @@ setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) 
     newDirs = fromMaybe [Hover] maybeDirections
 
     maybeDirections = maybePath >>= makeDirections
-    maybePath = currentPos >>= (\cp -> aStar envInfo mkManhattanHeuristic cp targetPos)
+    maybePath = currentPos >>= (\cp -> aStar droneAlt envInfo mkManhattanHeuristic cp targetPos)
 
     --eventually refactor to provide list of all means to this function, then make this step pick the position farthest from all foreign means
     targetPos :: Position
@@ -164,8 +168,14 @@ setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) 
 
     toVisit = Set.intersection fp $ Map.keysSet $ Map.filter (not . isFullyObserved) envInfo
 
+    droneAlt :: Altitude
+    droneAlt = fromMaybe Low $ fmap (getEnvAlt . posFromStat) droneStat
+
     currentPos :: Maybe Position
-    currentPos = fmap groundPos $ lookup drone enStat
+    currentPos = fmap groundPos droneStat
+
+    droneStat :: Maybe DroneStatus
+    droneStat = lookup drone enStat
 
     minPos = fst $ Map.findMin envInfo
 
@@ -181,13 +191,13 @@ initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy $ k
 
 
 instance Policy KMeansLowPolicy where
-  nextMove p@(KMeansLowPolicy map) wv@(WorldView envInfo enStat) = 
-    if (anyWaiting enStat $ Map.keysSet map)
-      then applyMoves enStat $ assignDirections wv $ KMeansLowPolicy $ kMeansInternal 1 map --need to assign new moves after the K-means step
-      else applyMoves enStat p--just need to assign any idle drones to the next task in its directions list in this case
+  nextMove p@(KMeansLowPolicy map) wv@(WorldView envInfo enStat) =
 
-   
+    applyMoves enStat $ assignDirections wv $ KMeansLowPolicy $ kMeansInternal 1 map
 
+    --if (anyWaiting enStat $ Map.keysSet map)
+      --then applyMoves enStat $ assignDirections wv $ KMeansLowPolicy $ kMeansInternal 1 map --need to assign new moves after the K-means step
+      --else applyMoves enStat p--just need to assign any idle drones to the next task in its directions list in this case
 
     --if one of the drones needs 
 

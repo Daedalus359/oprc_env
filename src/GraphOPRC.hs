@@ -54,8 +54,8 @@ recreatePathInternal start end pMap partialPath@(front : positions) =
     (Just parent) -> recreatePathInternal start end pMap (parent : partialPath)
     Nothing -> if (front == start) then (Just partialPath) else Nothing
 
-aStar :: EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
-aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
+aStar :: Altitude -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
+aStar droneAlt envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal droneAlt envInfo fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
  where
    openSet = (Q.singleton startPos 0 :: Q.PSQ Position Int)
    fMax = initializeETC fp
@@ -63,35 +63,63 @@ aStar envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarIntern
    fp = toFootprint envInfo
 
 --continue making recursive calls until endPos can be entered into the ParentMap
-aStarInternal :: Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Int -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
-aStarInternal fp h startPos endPos openSet closedSet f c parentMap =
+aStarInternal :: Altitude -> EnvironmentInfo -> Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Int -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
+aStarInternal droneAlt envInfo fp h startPos endPos openSet closedSet f c parentMap =
   case mostPromising of
     Nothing -> parentMap --if the open set is empty, A* should have either found an answer or failed (more likely)
     (Just position) ->
       if (position == endPos)
         then parentMap --A* has succeeded
-        else aStarInternal fp h startPos endPos newOpenSet newClosedSet newF newC newParentMap
+        else aStarInternal droneAlt envInfo fp h startPos endPos newOpenSet newClosedSet newF newC newParentMap
           where
             --updates related to the improvedNeighbors
-            newF = foldr (\neighbor -> Map.insert neighbor $ h neighbor + posCost + 1) fWithNewNeighbors improvedNeighbors
-            newC = foldr (\neighbor -> Map.insert neighbor (posCost + 1)) cWithNewNeighbors improvedNeighbors
+            newF = foldr (\neighbor -> Map.insert neighbor $ h neighbor + (totalCostThroughPos neighbor)) fWithNewNeighbors improvedNeighbors
+            newC = foldr (\neighbor -> Map.insert neighbor (totalCostThroughPos neighbor)) cWithNewNeighbors improvedNeighbors
             newParentMap = foldr (\child -> Map.insert child position) parentMapWithNewNeighbors improvedNeighbors
             newOpenSet = updateFromLists improvedNeighbors improvedNeighborCosts openSetWithNewNeighbors
             improvedNeighborCosts = fmap (costFrom h posCost) improvedNeighbors --new f values
 
             --those oldNeighbors for which a lower cost from start has just been found
-            improvedNeighbors = filter (\n -> (<) (posCost + 1) $ fromMaybe fpSize $ Map.lookup n c) oldNeighbors
+            improvedNeighbors = filter (\n -> (<) (totalCostThroughPos n) $ fromMaybe fpSize $ Map.lookup n c) oldNeighbors
 
             --updates related to neighbors that haven't been seen at all so far
-            fWithNewNeighbors = foldr (\neighbor -> Map.insert neighbor $ h neighbor + posCost + 1) f newNeighbors
-            cWithNewNeighbors = foldr (\neighbor -> Map.insert neighbor (posCost + 1)) c newNeighbors
+            fWithNewNeighbors = foldr (\neighbor -> Map.insert neighbor $ h neighbor + (totalCostThroughPos neighbor)) f newNeighbors
+            cWithNewNeighbors = foldr (\neighbor -> Map.insert neighbor (totalCostThroughPos neighbor)) c newNeighbors
+
+            totalCostThroughPos :: Position -> Int
+            totalCostThroughPos neighbor = posCost + (fromMaybe fpSize $ Map.lookup neighbor penalizedNeighborCostsFromPos)
+
             parentMapWithNewNeighbors = foldr (\child -> Map.insert child position) parentMap newNeighbors
+
             openSetWithNewNeighbors = insertFromLists newNeighbors newNeighborCosts openSetNoCurrent --redo this as a fold
             newNeighborCosts = fmap (costFrom h posCost) newNeighbors
 
-            --get the neighbors that have not already been visited
             (oldNeighbors, newNeighbors) = partition (memberOfPSQ openSetNoCurrent) neighborsToExplore
-            neighborsToExplore = filter (\a -> not $ Set.member a newClosedSet) $ inBoundsNeighborsOf fp position
+            neighborsToExplore = Set.toList $  Map.keysSet neighborCostsFromPos
+
+            --alter the cost function to reward moving through territory that has not yet been explored
+            penalizedNeighborCostsFromPos :: Map.Map Position Int
+            penalizedNeighborCostsFromPos = Map.foldrWithKey penalizeAccum neighborCostsFromPos neighborCostsFromPos
+
+            --fix to include more context about what's going on
+            penalizeAccum :: Position -> Int -> Map.Map Position Int -> Map.Map Position Int
+            penalizeAccum pos geomCost map = Map.adjust (const $ penalty pi + geomCost) pos map
+              where
+                pi = fromMaybe Unseen $ Map.lookup pos envInfo
+
+            penalty :: PatchInfo -> Int
+            penalty Unseen = 0
+            penalty (Classified _) =
+              case droneAlt of
+                High -> pointlessPenalty
+                Low -> 0
+            penalty (FullyObserved _) = pointlessPenalty
+
+            --tune this!
+            pointlessPenalty = 0
+
+            neighborCostsFromPos :: Map.Map Position Int
+            neighborCostsFromPos = Map.fromList $ filter (\(p, c) -> not $ Set.member p newClosedSet) $ MoveCosts.inBoundsNeighborsOfWithCosts fp position
 
             --move current position from open set to closed set
             openSetNoCurrent = Q.delete position openSet
@@ -100,6 +128,9 @@ aStarInternal fp h startPos endPos openSet closedSet f c parentMap =
             --useful numbers
             fpSize = Set.size fp
             posCost = fromMaybe fpSize $ Map.lookup position c
+
+            straightCost = cost (undefined :: CardinalDir)
+            diagCost = cost (undefined :: IntercardinalDir)
 
   where
     mostPromising = fmap Q.key $ Q.findMin openSet --this has type Maybe Position
@@ -134,10 +165,11 @@ mkManhattanHeuristic :: Position -> Heuristic
 mkManhattanHeuristic endPos = manhattanDistance endPos
 
 manhattanDistance :: Position -> Position -> Int
-manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = deltaX + deltaY
+manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = (*) straightCost $ deltaX + deltaY
   where
     deltaX = abs $ x1 - x2
     deltaY = abs $ y1 - y2
+    straightCost = cost (undefined :: CardinalDir)
 
 --may not make sense to keep the toList stuff around - decide what form I need this in
 kMeans :: HasCenter d => Int -> StdGen -> Footprint -> SQ.Seq d -> Map.Map d Footprint

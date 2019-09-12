@@ -1,7 +1,6 @@
 To-Do List:
-* get animate scenario working with my k means policy
-* implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization
 * alter K means to only pay attention to patches that need to be explored when it makes sense to do so
+* experiment with different values of the "pointless penalty" in aStar
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory
 * modify my droneStatus drawing function to represent the field of view of the drone at that time
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
@@ -72,3 +71,5 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * implement K means clustering on my environment (9/10/2019)
 * make a variant of k means that directly assigns footprints to drones (9/11/2019)
 * change my KMeansLowPolicy (and DroneTerritoty datatype) to be a map between droneterritory data and the territory itself (9/11/2019)
+* implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization (9/11/2019)
+* get animate scenario working with my k means policy (9/12/2019)

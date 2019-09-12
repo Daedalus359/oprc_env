@@ -206,7 +206,7 @@ firstStepsWithOutput = do
   return ()
 
 sampleAStar :: IO (Maybe Path)
-sampleAStar = aStar <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))
+sampleAStar = aStar Low <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))
 
 threeStepsOfOutput :: (Policy p, Show p) => IO (WorldView -> p) -> Int -> Integer -> Integer -> IO ()
 threeStepsOfOutput pF numDrones envNum timeLimit = do
@@ -223,17 +223,6 @@ threeStepsOfOutput pF numDrones envNum timeLimit = do
 
   worldView <- return $ toView $ Scenario.getWorldState scenario
   envInfo <- return $ getView worldView
-  minPos <- return $ fst $ Map.findMin envInfo
-  unobservedMap <- return $ Map.filter (not . isFullyObserved) envInfo
-  nextPosToVisit <- return $ if (null unobservedMap)
-                                   then minPos
-                                   else fst $ Map.findMin unobservedMap
-
-  putStrLn "Min Patch for environment"
-  print (minPos)
-  putStrLn "Target patch for A*"
-  print nextPosToVisit
-  putStrLn "A* Output"
 
   putStrLn "One step time"
   print (Scenario.getTime $ stepScenario scenario)

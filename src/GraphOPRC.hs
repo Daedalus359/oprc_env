@@ -172,8 +172,8 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = (*) straightCost
     straightCost = cost (undefined :: CardinalDir)
 
 --may not make sense to keep the toList stuff around - decide what form I need this in
-kMeans :: HasCenter d => Int -> StdGen -> Footprint -> SQ.Seq d -> Map.Map d Footprint
-kMeans iterations gen footprint droneSeq = kMeansInternal iterations initMap
+kMeans :: HasCenter d => Int -> StdGen -> EnvironmentInfo -> Footprint -> SQ.Seq d -> Map.Map d Footprint
+kMeans iterations gen envInfo footprint droneSeq = kMeansInternal nextGen envInfo iterations initMap
   where
     --initMap :: HasCenter d => Map.Map d Footprint
     initMap = Map.fromList $ toList $ SQ.zip keys kSplits
@@ -181,15 +181,17 @@ kMeans iterations gen footprint droneSeq = kMeansInternal iterations initMap
     keys = SQ.zipWith moveCenter kMeans droneSeq
 
     kMeans = fmap avgPos kSplits
-    kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, gen) footprint
+    kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, currentGen) $ Set.filter (needsExploration envInfo) footprint
 
     k = SQ.length droneSeq
 
+    (nextGen, currentGen) = split gen
+
 --don't call with a number of iterations less than zero!
 --possible bug - avgPos will always move to (0, 0) if there are no patches in a footprint. Is this desirable behavior?
-kMeansInternal :: HasCenter d => Int -> Map.Map d Footprint -> Map.Map d Footprint
-kMeansInternal 0 map = map
-kMeansInternal iterations map = kMeansInternal (iterations - 1) newMap
+kMeansInternal :: HasCenter d => StdGen -> EnvironmentInfo -> Int -> Map.Map d Footprint -> Map.Map d Footprint
+kMeansInternal _ _ 0 map = map
+kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iterations - 1) newMap
   where
     newMap = Set.foldr (\key -> \soFar -> Map.unionWith Set.union soFar $ Map.singleton key $ Set.empty) correctedMeans means
 
@@ -212,6 +214,12 @@ kMeansInternal iterations map = kMeansInternal (iterations - 1) newMap
     makeTuples mean fp = fmap (\pos -> (mean, pos)) $ toList fp
 
     means = Map.keysSet map
+
+    --make an infinite list of random locations to assign drones with no territory
+
+    (nextGen, currentGen) = split gen
+
+    placesNeedingObservation = EnvView.incompleteLocations envInfo
 
 nearestMean :: HasCenter d => Set.Set d -> d -> Position -> d
 nearestMean means currentMean pos = foldr (closerTo pos) currentMean means

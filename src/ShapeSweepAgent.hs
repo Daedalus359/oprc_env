@@ -116,17 +116,17 @@ nearestSweepPos fp pos@(Position x y) =
         2 -> x + 1
 
 
-data KMeansLowPolicy = KMeansLowPolicy (Map.Map DroneTerritory Footprint)
-  deriving (Eq, Show)
+data KMeansLowPolicy = KMeansLowPolicy StdGen (Map.Map DroneTerritory Footprint)
+  deriving Show
 
 --only call this after checking that there are moves to apply for each idle drone
 applyMoves :: EnsembleStatus -> KMeansLowPolicy -> (NextActions, KMeansLowPolicy)
-applyMoves enStat (KMeansLowPolicy map) = (catMaybes maybeAssignments, newPolicy)
+applyMoves enStat (KMeansLowPolicy gen map) = (catMaybes maybeAssignments, newPolicy)
   where
-    (maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves enStat) ([], KMeansLowPolicy $ Map.empty) map
+    (maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves enStat) ([], KMeansLowPolicy gen $ Map.empty) map
 
 accumulateNextMoves :: EnsembleStatus -> DroneTerritory -> Footprint -> ([Maybe (Drone, Action)], KMeansLowPolicy) -> ([Maybe (Drone, Action)], KMeansLowPolicy)
-accumulateNextMoves enStat dt fp (na, KMeansLowPolicy map) = (newAction : na, KMeansLowPolicy $ Map.insert newKey fp map)
+accumulateNextMoves enStat dt fp (na, KMeansLowPolicy gen map) = (newAction : na, KMeansLowPolicy gen $ Map.insert newKey fp map)
   where
     (newAction, newKey) = applyMove enStat dt
 
@@ -141,7 +141,7 @@ applyMove enStat dt@(DroneTerritory drone mean dirs) =
 --uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
 --should prioritize visiting the territory farthest from any other means
 assignDirections :: WorldView -> KMeansLowPolicy -> KMeansLowPolicy
-assignDirections wv p@(KMeansLowPolicy map) = KMeansLowPolicy $ Map.foldrWithKey (setDirections wv) Map.empty map
+assignDirections wv p@(KMeansLowPolicy gen map) = KMeansLowPolicy gen $ Map.foldrWithKey (setDirections wv) Map.empty map
 
 setDirections :: WorldView -> DroneTerritory -> Footprint -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
 setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) fp soFar = Map.insert key fp soFar
@@ -180,7 +180,7 @@ setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) 
     minPos = fst $ Map.findMin envInfo
 
 initializeKMP :: Int -> StdGen -> WorldView -> KMeansLowPolicy
-initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy $ kMeans iterations gen fp dSeq
+initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen2 $ kMeans iterations gen1 envInfo fp dSeq
   where
     fp = Map.keysSet envInfo
 
@@ -189,11 +189,20 @@ initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy $ k
     dronesList :: [(Drone, Position)]
     dronesList = fmap (fmap groundPos) enStat
 
+    (gen1, gen2) = split gen
+
+
+
+removeExploredTerritory :: EnvironmentInfo -> Footprint -> Footprint
+removeExploredTerritory envInfo fp = Set.filter (needsExploration envInfo) fp
 
 instance Policy KMeansLowPolicy where
-  nextMove p@(KMeansLowPolicy map) wv@(WorldView envInfo enStat) =
+  nextMove p@(KMeansLowPolicy gen map) wv@(WorldView envInfo enStat) =
 
-    applyMoves enStat $ assignDirections wv $ KMeansLowPolicy $ kMeansInternal 1 map
+    applyMoves enStat $ assignDirections wv $ KMeansLowPolicy gen2 $ kMeansInternal gen1 envInfo 1 $ fmap (removeExploredTerritory envInfo) map
+
+    where
+      (gen1, gen2) = split gen
 
     --if (anyWaiting enStat $ Map.keysSet map)
       --then applyMoves enStat $ assignDirections wv $ KMeansLowPolicy $ kMeansInternal 1 map --need to assign new moves after the K-means step

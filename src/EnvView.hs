@@ -3,7 +3,10 @@ module EnvView where --a representation of (possibly incomplete) knowledge about
 import Env
 import Drone
 import Ensemble
+
 import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
+import Data.Maybe
 
 --given a patch of land, what do we know about it?
 data PatchInfo =
@@ -32,6 +35,12 @@ data WorldView =
   , getEnsembleStatus :: Ensemble.EnsembleStatus
   }
   deriving Eq
+
+needsExploration :: EnvironmentInfo -> Position -> Bool
+needsExploration envInfo pos = fromMaybe True $ fmap (not . isFullyObserved) $ Map.lookup pos envInfo
+
+incompleteLocations :: EnvironmentInfo -> Footprint
+incompleteLocations envInfo = Set.filter (needsExploration envInfo) $ toFootprint envInfo
 
 numDronesRunning :: WorldView -> Int
 numDronesRunning (WorldView _ enStat) = length enStat 

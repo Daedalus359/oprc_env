@@ -1,4 +1,5 @@
 To-Do List:
+* get animate scenario working with my k means policy
 * implement an "adaptive K-means" policy that repeatedly re-assigns territory based on performing a limited number of K-means iterations with current drone positions as an initialization
 * alter K means to only pay attention to patches that need to be explored when it makes sense to do so
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory

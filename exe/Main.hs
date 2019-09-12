@@ -72,7 +72,7 @@ main = foldr (>>) (return ())
   -- SV.fullScenarioWithOutput SV.randFiltPolicy 4 6 10000 >>
   -- SV.firstStepsWithOutput >> 
   --SV.threeStepsOfOutput SV.lsPolicy 1 2 5 >> 
-  SV.fullScenarioWithOutput (return SV.lsPolicy) 1 7 100000 >>
+  SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 1 7 100000 >>
   --SV.fullScenarioWithOutput SV.randPolicy 1 6 50000 >>
   --putStrLn "Random environment times for environment 6:" >>
   fmap show (fmap averageRunTime ((SV.dumpParseFailure $ SV.parseEnvNum 7) >>= (randAgentRunTimes 5 1 1000000))) >>= putStrLn >>

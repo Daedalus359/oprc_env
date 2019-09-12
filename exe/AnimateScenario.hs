@@ -5,9 +5,13 @@ import Env
 import qualified SampleVals as SV
 import WorldState
 import Scenario
+import Policy
+import EnvView
+import ShapeSweepAgent
 
 import System.Environment
 import Graphics.Gloss
+import RandomOPRC
 
 import Data.Text.Prettyprint.Doc
 import Data.Text.Prettyprint.Doc.Util
@@ -20,5 +24,11 @@ visualReplay sc = simulate AO.windowDisplay white AO.defaultFramerate initModel 
     initModel = (0, replay)
     replay = createReplay sc
 
+kmp :: IO (WorldView -> KMeansLowPolicy)
+kmp = initializeKMP 10 <$> randGen
+
 main :: IO ()
-main = SV.fullScenarioWithOutput (return SV.lsPolicy) 1 8 100000 >>= visualReplay
+main = SV.fullScenarioWithOutput kmp 3 8 100000 >>= visualReplay
+
+--other policy functions
+  --(return $ const SV.lsPolicy)

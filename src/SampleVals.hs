@@ -172,10 +172,10 @@ randFiltPolicy = fmap RandomFilteredPolicy newStdGen
 lsPolicy :: LowSweepPolicy
 lsPolicy = LowSweepPolicy []
 
-fullScenarioWithOutput :: Policy p => IO (p) -> Int -> Integer -> Integer -> IO (Scenario p)
+fullScenarioWithOutput :: Policy p => IO (WorldView -> p) -> Int -> Integer -> Integer -> IO (Scenario p)
 fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     putStrLn "Running scenario..."
-    (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) (fmap const ioPol) (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
+    (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) (ioPol) (dumpParseFailure $ parseEnvNum envNum)-- IO (Bool, Scenario RandomPolicy)
     putStrLn "Environment explored? - "
     print finished
     --putStrLn "Final worldState: "

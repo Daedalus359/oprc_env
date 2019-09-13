@@ -195,6 +195,10 @@ kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iter
   where
     newMap = Set.foldr (\key -> \soFar -> Map.unionWith Set.union soFar $ Map.singleton key $ Set.empty) correctedMeans means
 
+    randomTerritory :: Position -> Map.Map Position Footprint -> Map.Map Position Footprint
+    randomTerritory = undefined
+
+
     --inefficient! Probably worth reimplementing this using toList or something
     --now that reassignments have been made, correct the mean value assigned to each footprint.
     correctedMeans = Map.foldrWithKey (\needsMeanUpdate -> \fp -> \soFar -> Map.union soFar $ Map.singleton (moveCenter (avgPos fp) needsMeanUpdate) fp) Map.empty reassignedMap  
@@ -216,10 +220,19 @@ kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iter
     means = Map.keysSet map
 
     --make an infinite list of random locations to assign drones with no territory
+    newMeans = randomElems currentGen placesNeedingObservation
 
     (nextGen, currentGen) = split gen
 
+    placesNeedingObservation :: Footprint
     placesNeedingObservation = EnvView.incompleteLocations envInfo
+
+randomElems :: StdGen -> Set.Set a -> [a]
+randomElems gen set = fmap (\i -> setList !! i) indices
+  where
+    setList = Set.toList set
+    indices = randomRs (0, sz - 1) gen
+    sz = Set.size set
 
 nearestMean :: HasCenter d => Set.Set d -> d -> Position -> d
 nearestMean means currentMean pos = foldr (closerTo pos) currentMean means

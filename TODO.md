@@ -1,4 +1,5 @@
 To-Do List:
+* finish randomTerritory in pursuit of vvvv
 * alter kMeans to reassign random means to those droneTerritories that run out of stuff to do
 * experiment with different values of the "pointless penalty" in aStar
 * find the actual problem with the empty list head / tail issue and fix

@@ -15,7 +15,7 @@ gridScale :: Float
 gridScale = 20
 
 windowDisplay :: Display
-windowDisplay = InWindow "Window" (600, 600) (100, 100)
+windowDisplay = InWindow "Window" (1200, 1200) (100, 100)
 
 testAnimate :: Float -> Picture
 testAnimate = Circle . ( * 10)
@@ -38,7 +38,7 @@ drawReplay2 :: Int -> SimState -> Picture
 drawReplay2 i (f, sr) = drawReplay i sr
 
 drawReplay :: Int -> ScenarioReplay -> Picture
-drawReplay offset sr@(ScenarioReplay ws time _) = Scale 3 3 $ Pictures [drawWorldState offset ws, Text $ show time]
+drawReplay offset sr@(ScenarioReplay ws time _) = Scale 1.75 1.75 $ Pictures [drawWorldState offset ws, Text $ show time]
 
 updateFunc :: ViewPort -> Float -> SimState -> SimState
 updateFunc _ dt (t, sr) = (newTime, advanceUntilTime (round newTime) sr)

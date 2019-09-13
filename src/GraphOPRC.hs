@@ -193,17 +193,24 @@ kMeansInternal :: HasCenter d => StdGen -> EnvironmentInfo -> Int -> Map.Map d F
 kMeansInternal _ _ 0 map = map
 kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iterations - 1) newMap
   where
-    newMap = Set.foldr (\key -> \soFar -> Map.unionWith Set.union soFar $ Map.singleton key $ Set.empty) correctedMeans means
+    newMap = 
+      --fst $ Set.foldr randomTerritory (correctedMeans, newMeans) means
+      Set.foldr (\key -> \soFar -> Map.unionWith Set.union soFar $ Map.singleton key $ Set.empty) correctedMeans means
 
-    randomTerritory :: Position -> Map.Map Position Footprint -> Map.Map Position Footprint
-    randomTerritory = undefined
+    --meant to be called with a position list that is infinite and random
+    --randomTerritory :: d -> (Map.Map d Footprint, [Position]) -> (Map.Map d Footprint, [Position])
+    randomTerritory mean (mapSoFar, posList) =
+      (Map.union mapSoFar $ Map.singleton (moveCenter hPos mean) (Set.singleton hPos), tail posList)
+      where
+        hPos = head posList
 
 
     --inefficient! Probably worth reimplementing this using toList or something
     --now that reassignments have been made, correct the mean value assigned to each footprint.
     correctedMeans = Map.foldrWithKey (\needsMeanUpdate -> \fp -> \soFar -> Map.union soFar $ Map.singleton (moveCenter (avgPos fp) needsMeanUpdate) fp) Map.empty reassignedMap  
 
-    reassignedMap = Map.foldrWithKey (\oldMean -> \fp -> \soFar -> Map.unionWith Set.union soFar $ reassign oldMean fp) Map.empty map
+    --reassignedMap = Map.foldrWithKey (\oldMean -> \fp -> \soFar -> Map.unionWith Set.union soFar $ reassign oldMean fp) Map.empty map
+    reassignedMap = Set.foldr (\pos -> \soFar -> Map.insertWith Set.union (nearestMean means pos) (Set.singleton pos) soFar) Map.empty placesNeedingObservation
 
 
     --assignmentList = Map.foldrWithKey (\oldMean -> \oldFp -> \soFar -> Set.union soFar $ makeTuples oldMean oldFp) Set.empty map
@@ -211,7 +218,7 @@ kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iter
     --reassign :: HasCenter d => d -> Footprint -> Map.Map d Footprint
     reassign mean fp = foldr (\(aMean, aPos) -> \b -> Map.unionWith Set.union b $ Map.singleton aMean $ Set.singleton aPos) Map.empty newAssignments
       where
-        newAssignments = fmap (\(oldMean, pos) -> (nearestMean means oldMean pos, pos)) oldAssignments
+        newAssignments = fmap (\(oldMean, pos) -> (nearestMean means pos, pos)) oldAssignments
         oldAssignments = makeTuples mean fp
 
     --makeTuples :: HasCenter d => d -> Footprint -> [(d, Position)]
@@ -234,8 +241,11 @@ randomElems gen set = fmap (\i -> setList !! i) indices
     indices = randomRs (0, sz - 1) gen
     sz = Set.size set
 
-nearestMean :: HasCenter d => Set.Set d -> d -> Position -> d
-nearestMean means currentMean pos = foldr (closerTo pos) currentMean means
+--don't call this with an empty set of means!
+nearestMean :: HasCenter d => Set.Set d -> Position -> d
+nearestMean means pos = foldr (closerTo pos) currentMean means
+  where
+    currentMean = Set.findMin means
 
 --returns whichever of args 2 and 3 is closer to arg 1, with preference for arg 2 in case of a tie
 closerTo :: HasCenter d => Position -> d -> d -> d

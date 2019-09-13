@@ -177,7 +177,9 @@ setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) 
     droneStat :: Maybe DroneStatus
     droneStat = lookup drone enStat
 
-    minPos = fst $ Map.findMin envInfo
+    minPos = fromMaybe (fst $ Map.findMin envInfo) $ Set.lookupMin placesNeedingObservations
+
+    placesNeedingObservations = EnvView.incompleteLocations envInfo
 
 initializeKMP :: Int -> StdGen -> WorldView -> KMeansLowPolicy
 initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen2 $ kMeans iterations gen1 envInfo fp dSeq

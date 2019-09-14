@@ -135,7 +135,7 @@ applyMove enStat dt@(DroneTerritory drone mean dirs) =
   if (idleOrUnlisted enStat dt)
     then case dirs of --this should not be necessary!
            (d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
-           [] -> (Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
+           [] -> undefined --(Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
     else (Nothing, dt)
 
 --uses A* and the current territory assignments to assign what the idle and unassigned drones should do next

@@ -208,14 +208,15 @@ firstStepsWithOutput = do
 sampleAStar :: IO (Maybe Path)
 sampleAStar = aStar Low <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))
 
-threeStepsOfOutput :: (Policy p, Show p) => IO (WorldView -> p) -> Int -> Integer -> Integer -> IO ()
+threeStepsOfOutput :: (Policy p, Pretty p) => IO (WorldView -> p) -> Int -> Integer -> Integer -> IO ()
 threeStepsOfOutput pF numDrones envNum timeLimit = do
   scenario <- Scenario.mkScenario <$> pF <*> (pure numDrones) <*> (dumpParseFailure $ parseEnvNum envNum)
+  oneStep <- return $ stepScenario scenario
 
   putStrLn "Unstepped time: "
   print (Scenario.getTime scenario)
   putStrLn "Unstepped policy: "
-  print (Scenario.getPolicy scenario)
+  putDocW 80 (pretty $ Scenario.getPolicy scenario)
   putStrLn "Unstepped move hist"
   print (vsep $ fmap pretty $ Scenario.getHist scenario)
   putStrLn "Unstepped WorldState"
@@ -225,13 +226,16 @@ threeStepsOfOutput pF numDrones envNum timeLimit = do
   envInfo <- return $ getView worldView
 
   putStrLn "One step time"
-  print (Scenario.getTime $ stepScenario scenario)
+  print (Scenario.getTime oneStep)
   putStrLn "One step policy"
-  print (Scenario.getPolicy $ stepScenario scenario)
+  putDocW 80 (pretty $ Scenario.getPolicy oneStep)
   putStrLn "One step hist"
-  print (vsep $ fmap pretty $ Scenario.getHist $ stepScenario scenario)
+  print (vsep $ fmap pretty $ Scenario.getHist oneStep)
   putStrLn "One step WorldState"
-  putDocW 80 (pretty $ Scenario.getWorldState $ stepScenario scenario)
+  putDocW 80 (pretty $ Scenario.getWorldState oneStep)
+  putStrLn ""
+
+  return ()
 
   --putStrLn "Two step time"
   --print (Scenario.getTime $ stepScenario $ stepScenario scenario)
@@ -242,7 +246,6 @@ threeStepsOfOutput pF numDrones envNum timeLimit = do
   --print (Scenario.getTime $ stepScenario $ stepScenario $ stepScenario scenario)
   --putStrLn "Three step hist"
   --print (Scenario.getHist $ stepScenario $ stepScenario $ stepScenario scenario)
-  return ()
 
 kmp :: IO (WorldView -> KMeansLowPolicy)
 kmp = initializeKMP 10 <$> randGen

@@ -1,5 +1,4 @@
 To-Do List:
-* find the actual problem with the empty list head / tail issue and fix
 * modify my kMeans direction assignment functions to pick what patch to visit in the territory based on what is farthest from all foreign means
 * figure out why my drones all follow each other around
 * experiment with different values of the "pointless penalty" in aStar
@@ -77,3 +76,4 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * get animate scenario working with my k means policy (9/12/2019)
 * alter K means to only pay attention to patches that need to be explored when it makes sense to do so (9/12/2019)
 * alter kMeans to reassign random means to those droneTerritories that run out of stuff to do (9/13/2019)
+* find the actual problem with the empty list head / tail issue and fix (9/16/2019)

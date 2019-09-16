@@ -119,10 +119,8 @@ data KMeansLowPolicy = KMeansLowPolicy StdGen (Map.Map DroneTerritory Footprint)
   deriving Show
 
 initializeKMP :: Int -> StdGen -> WorldView -> KMeansLowPolicy
-initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen2 $ kMeans iterations gen1 envInfo fp dSeq
+initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen2 $ kMeans iterations gen1 envInfo dSeq
   where
-    fp = Map.keysSet envInfo
-
     dSeq = SQ.fromList $ fmap (\(drone, pos) -> DroneTerritory drone pos []) dronesList
 
     dronesList :: [(Drone, Position)]
@@ -176,28 +174,11 @@ setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) 
     droneAlt = getEnvAlt dronePos --need altitude info to let A* decide the observational value of slightly longer paths
 
     --A* and conversion to the datatype we need
-    newDirs = fromMaybe [Hover] $ maybeDirections --this should really never fail if A* was given a sensible environment and accurate startPos info
+    newDirs = case maybeDirections of
+                Just al@(action : actions) -> al
+                _ -> [Hover] --covers both failed A* (Nothing) and case where start and end position are the same (Just [])
     maybeDirections = maybePath >>= makeDirections
     maybePath = aStar droneAlt envInfo mkManhattanHeuristic droneGroundPos targetPos
-
---only call this after checking that there are moves to apply for each idle drone
-applyMoves2 :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
-applyMoves2 enStat gen map = (catMaybes maybeAssignments, newPolicy)
-  where
-    (maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves2 enStat) ([], KMeansLowPolicy gen $ Map.empty) map
-
-accumulateNextMoves2 :: EnsembleStatus -> DroneTerritory -> Footprint -> ([Maybe (Drone, Action)], KMeansLowPolicy) -> ([Maybe (Drone, Action)], KMeansLowPolicy)
-accumulateNextMoves2 enStat dt fp (na, KMeansLowPolicy gen map) = (newAction : na, KMeansLowPolicy gen $ Map.insert newKey fp map)
-  where
-    (newAction, newKey) = applyMove2 enStat dt
-
-applyMove2 :: EnsembleStatus -> DroneTerritory -> (Maybe (Drone, Action), DroneTerritory)
-applyMove2 enStat dt@(DroneTerritory drone mean dirs) =
-  if (idleOrUnlisted enStat dt)
-    then case dirs of --this should not be necessary!
-           (d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
-           [] -> (Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
-    else (Nothing, dt)
 
 applyMoves :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
 applyMoves enStat gen map = (nextActions, policy)
@@ -221,3 +202,24 @@ accumulateNextMoves enStat (dt@(DroneTerritory drone mean dirs), fp) (assignment
 
     droneStat = fromJust $ lookup drone enStat --the lookup operation should never fail to find the drone's real status
     droneIsIdle = isUnassigned droneStat --will this drone need a new action assignment during this nextMove step?
+
+
+--OLD
+--only call this after checking that there are moves to apply for each idle drone
+applyMoves2 :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
+applyMoves2 enStat gen map = (catMaybes maybeAssignments, newPolicy)
+  where
+    (maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves2 enStat) ([], KMeansLowPolicy gen $ Map.empty) map
+
+accumulateNextMoves2 :: EnsembleStatus -> DroneTerritory -> Footprint -> ([Maybe (Drone, Action)], KMeansLowPolicy) -> ([Maybe (Drone, Action)], KMeansLowPolicy)
+accumulateNextMoves2 enStat dt fp (na, KMeansLowPolicy gen map) = (newAction : na, KMeansLowPolicy gen $ Map.insert newKey fp map)
+  where
+    (newAction, newKey) = applyMove2 enStat dt
+
+applyMove2 :: EnsembleStatus -> DroneTerritory -> (Maybe (Drone, Action), DroneTerritory)
+applyMove2 enStat dt@(DroneTerritory drone mean dirs) =
+  if (idleOrUnlisted enStat dt)
+    then case dirs of --this should not be necessary!
+           (d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
+           [] -> (Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
+    else (Nothing, dt)

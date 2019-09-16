@@ -172,8 +172,8 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = (*) straightCost
     straightCost = cost (undefined :: CardinalDir)
 
 --may not make sense to keep the toList stuff around - decide what form I need this in
-kMeans :: Int -> StdGen -> EnvironmentInfo -> Footprint -> SQ.Seq DroneTerritory -> Map.Map DroneTerritory Footprint
-kMeans iterations gen envInfo footprint droneSeq = kMeansInternal nextGen envInfo iterations initMap
+kMeans :: Int -> StdGen -> EnvironmentInfo -> SQ.Seq DroneTerritory -> Map.Map DroneTerritory Footprint
+kMeans iterations gen envInfo droneSeq = kMeansInternal nextGen envInfo iterations initMap
   where
     --initMap :: HasCenter d => Map.Map d Footprint
     initMap = Map.fromList $ toList $ SQ.zip keys kSplits
@@ -181,14 +181,19 @@ kMeans iterations gen envInfo footprint droneSeq = kMeansInternal nextGen envInf
     keys = SQ.zipWith moveCenter kMeans droneSeq
 
     kMeans = fmap avgPos kSplits
-    kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, currentGen) $ Set.filter (needsExploration envInfo) footprint
+    kSplits = fst $ foldr assignAtRandom (SQ.replicate k Set.empty, currentGen) $ incompleteLocations envInfo
 
     k = SQ.length droneSeq
 
     (nextGen, currentGen) = split gen
 
+assignAtRandom :: Ord a => a -> (SQ.Seq(Set.Set a), StdGen) -> (SQ.Seq(Set.Set a), StdGen)
+assignAtRandom a (sets, gen) = (SQ.adjust (Set.insert a) i sets, newGen)
+  where
+    (i, newGen) = randomR (0, k - 1) gen
+    k = SQ.length sets
+
 --don't call with a number of iterations less than zero!
---possible bug - avgPos will always move to (0, 0) if there are no patches in a footprint. Is this desirable behavior?
 kMeansInternal :: StdGen -> EnvironmentInfo -> Int -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
 kMeansInternal _ _ 0 map = map
 kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iterations - 1) newMap
@@ -247,7 +252,7 @@ idealDistance (Position x1 y1) (Position x2 y2) = diagCost * diagonalMoves + str
     straightCost = cost (undefined :: CardinalDir)
     diagCost = cost (undefined :: IntercardinalDir)
 
-    straightMoves = abs deltaX - deltaY
+    straightMoves = abs $ deltaX - deltaY
     diagonalMoves = min deltaX deltaY
 
     deltaX = abs $ x1 - x2
@@ -261,12 +266,6 @@ avgPos ftp = Position (quot sumX sz) (quot sumY sz)
 
     accumulate :: Position -> (Int, Int) -> (Int, Int)
     accumulate (Position x y) (xTot, yTot) = (xTot + x, yTot + y)
-
-assignAtRandom :: Ord a => a -> (SQ.Seq(Set.Set a), StdGen) -> (SQ.Seq(Set.Set a), StdGen)
-assignAtRandom a (sets, gen) = (SQ.adjust (Set.insert a) i sets, newGen)
-  where
-    (i, newGen) = randomR (0, k - 1) gen
-    k = SQ.length sets
 
 data DroneTerritory = DroneTerritory
   { getDrone :: Drone
@@ -306,4 +305,4 @@ instance HasCenter Position where
 
 instance HasCenter DroneTerritory where
   getCenter = getMean
-  moveCenter newMean (DroneTerritory drone oldMean dirs) = DroneTerritory drone newMean dirs
+  moveCenter newMean (DroneTerritory drone _ dirs) = DroneTerritory drone newMean dirs

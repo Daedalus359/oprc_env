@@ -193,46 +193,29 @@ kMeansInternal :: HasCenter d => StdGen -> EnvironmentInfo -> Int -> Map.Map d F
 kMeansInternal _ _ 0 map = map
 kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iterations - 1) newMap
   where
-    newMap = 
-      --fst $ Set.foldr randomTerritory (correctedMeans, newMeans) means
-      Set.foldr (\key -> \soFar -> Map.unionWith Set.union soFar $ Map.singleton key $ Set.empty) correctedMeans means
-
-    --meant to be called with a position list that is infinite and random
-    --randomTerritory :: d -> (Map.Map d Footprint, [Position]) -> (Map.Map d Footprint, [Position])
-    randomTerritory mean (mapSoFar, posList) =
-      (Map.union mapSoFar $ Map.singleton (moveCenter hPos mean) (Set.singleton hPos), tail posList)
+    --if any means have lost all of their territory, give them a random patch
+    newMap = foldr (\(mean, backupTerritory) -> \existing -> Map.insertWith keepOld mean backupTerritory existing) correctedMeans backupAssignments
       where
-        hPos = head posList
+        keepOld newVal oldVal = oldVal
+        backupAssignments = zipWith littleTup newTerritories $ Set.toList means --a random location assigned to each of the original means
+        littleTup pos mean = (moveCenter pos mean, Set.singleton pos)
 
-
-    --inefficient! Probably worth reimplementing this using toList or something
     --now that reassignments have been made, correct the mean value assigned to each footprint.
-    correctedMeans = Map.foldrWithKey (\needsMeanUpdate -> \fp -> \soFar -> Map.union soFar $ Map.singleton (moveCenter (avgPos fp) needsMeanUpdate) fp) Map.empty reassignedMap  
-
-    --reassignedMap = Map.foldrWithKey (\oldMean -> \fp -> \soFar -> Map.unionWith Set.union soFar $ reassign oldMean fp) Map.empty map
-    reassignedMap = Set.foldr (\pos -> \soFar -> Map.insertWith Set.union (nearestMean means pos) (Set.singleton pos) soFar) Map.empty placesNeedingObservation
-
-
-    --assignmentList = Map.foldrWithKey (\oldMean -> \oldFp -> \soFar -> Set.union soFar $ makeTuples oldMean oldFp) Set.empty map
-
-    --reassign :: HasCenter d => d -> Footprint -> Map.Map d Footprint
-    reassign mean fp = foldr (\(aMean, aPos) -> \b -> Map.unionWith Set.union b $ Map.singleton aMean $ Set.singleton aPos) Map.empty newAssignments
+    correctedMeans = Map.fromList $ fmap recenter $ Map.toList reassignedMap
       where
-        newAssignments = fmap (\(oldMean, pos) -> (nearestMean means pos, pos)) oldAssignments
-        oldAssignments = makeTuples mean fp
+        recenter (oldMean, fp) = (moveCenter (avgPos fp) oldMean, fp)
 
-    --makeTuples :: HasCenter d => d -> Footprint -> [(d, Position)]
-    makeTuples mean fp = fmap (\pos -> (mean, pos)) $ toList fp
+    --take all places needing observation and assign to one of the existing means (some means may have no entry in this map)
+    reassignedMap = Set.foldr reassignAndAccum Map.empty placesNeedingObservation
+      where
+        reassignAndAccum pos soFar = Map.insertWith Set.union (newMean pos) (Set.singleton pos) soFar
+        newMean pos = nearestMean means pos
 
-    means = Map.keysSet map
-
-    --make an infinite list of random locations to assign drones with no territory
-    newMeans = randomElems currentGen placesNeedingObservation
-
+    --utility values
+    means = Map.keysSet map --the original keys - all of these should end up with an entry in the final map
+    newTerritories = randomElems currentGen placesNeedingObservation --random unexplored locations to assign to means as needed
     (nextGen, currentGen) = split gen
-
-    placesNeedingObservation :: Footprint
-    placesNeedingObservation = EnvView.incompleteLocations envInfo
+    placesNeedingObservation = EnvView.incompleteLocations envInfo --the set of locations that have not been explored fully so far
 
 randomElems :: StdGen -> Set.Set a -> [a]
 randomElems gen set = fmap (\i -> setList !! i) indices

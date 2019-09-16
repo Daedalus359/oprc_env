@@ -201,9 +201,10 @@ removeExploredTerritory envInfo fp = Set.filter (needsExploration envInfo) fp
 instance Policy KMeansLowPolicy where
   nextMove p@(KMeansLowPolicy gen map) wv@(WorldView envInfo enStat) =
 
-    applyMoves enStat $ assignDirections wv $ KMeansLowPolicy gen2 $ kMeansInternal gen1 envInfo 1 $ fmap (removeExploredTerritory envInfo) map
+    applyMoves enStat $ assignDirections wv $ KMeansLowPolicy gen2 newMap
 
     where
+      newMap = kMeansInternal gen1 envInfo 2 map --reassign territory to each drone
       (gen1, gen2) = split gen
 
     --if (anyWaiting enStat $ Map.keysSet map)

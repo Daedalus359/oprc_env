@@ -115,71 +115,8 @@ nearestSweepPos fp pos@(Position x y) =
         1 -> x - 1
         2 -> x + 1
 
-
 data KMeansLowPolicy = KMeansLowPolicy StdGen (Map.Map DroneTerritory Footprint)
   deriving Show
-
---only call this after checking that there are moves to apply for each idle drone
-applyMoves :: EnsembleStatus -> KMeansLowPolicy -> (NextActions, KMeansLowPolicy)
-applyMoves enStat (KMeansLowPolicy gen map) = (catMaybes maybeAssignments, newPolicy)
-  where
-    (maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves enStat) ([], KMeansLowPolicy gen $ Map.empty) map
-
-accumulateNextMoves :: EnsembleStatus -> DroneTerritory -> Footprint -> ([Maybe (Drone, Action)], KMeansLowPolicy) -> ([Maybe (Drone, Action)], KMeansLowPolicy)
-accumulateNextMoves enStat dt fp (na, KMeansLowPolicy gen map) = (newAction : na, KMeansLowPolicy gen $ Map.insert newKey fp map)
-  where
-    (newAction, newKey) = applyMove enStat dt
-
-applyMove :: EnsembleStatus -> DroneTerritory -> (Maybe (Drone, Action), DroneTerritory)
-applyMove enStat dt@(DroneTerritory drone mean dirs) =
-  if (idleOrUnlisted enStat dt)
-    then case dirs of --this should not be necessary!
-           (d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
-           [] -> undefined --(Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
-    else (Nothing, dt)
-
---uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
---should prioritize visiting the territory farthest from any other means
-assignDirections :: WorldView -> KMeansLowPolicy -> KMeansLowPolicy
-assignDirections wv p@(KMeansLowPolicy gen map) = KMeansLowPolicy gen $ Map.foldrWithKey (setDirections wv) Map.empty map
-
-setDirections :: WorldView -> DroneTerritory -> Footprint -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
-setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) fp soFar = Map.insert key fp soFar
-  where
-    key = if (idleOrUnlisted enStat dt)
-            then newKey
-            else dt
-
-    newKey =
-      case dirs of
-        (dir : rest) -> dt
-        [] -> DroneTerritory drone mean newDirs
-
-    newDirs = fromMaybe [Hover] maybeDirections
-
-    maybeDirections = maybePath >>= makeDirections
-    maybePath = currentPos >>= (\cp -> aStar droneAlt envInfo mkManhattanHeuristic cp targetPos)
-
-    --eventually refactor to provide list of all means to this function, then make this step pick the position farthest from all foreign means
-    targetPos :: Position
-    targetPos = if (null toVisit)
-                  then minPos
-                  else Set.findMin toVisit
-
-    toVisit = Set.intersection fp $ Map.keysSet $ Map.filter (not . isFullyObserved) envInfo
-
-    droneAlt :: Altitude
-    droneAlt = fromMaybe Low $ fmap (getEnvAlt . posFromStat) droneStat
-
-    currentPos :: Maybe Position
-    currentPos = fmap groundPos droneStat
-
-    droneStat :: Maybe DroneStatus
-    droneStat = lookup drone enStat
-
-    minPos = fromMaybe (fst $ Map.findMin envInfo) $ Set.lookupMin placesNeedingObservations
-
-    placesNeedingObservations = EnvView.incompleteLocations envInfo
 
 initializeKMP :: Int -> StdGen -> WorldView -> KMeansLowPolicy
 initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen2 $ kMeans iterations gen1 envInfo fp dSeq
@@ -193,26 +130,94 @@ initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen
 
     (gen1, gen2) = split gen
 
-
-
-removeExploredTerritory :: EnvironmentInfo -> Footprint -> Footprint
-removeExploredTerritory envInfo fp = Set.filter (needsExploration envInfo) fp
-
 instance Policy KMeansLowPolicy where
   nextMove p@(KMeansLowPolicy gen map) wv@(WorldView envInfo enStat) =
 
-    applyMoves enStat $ assignDirections wv $ KMeansLowPolicy gen2 newMap
+    applyMoves enStat gen2 directedMap
 
     where
-      newMap = kMeansInternal gen1 envInfo 2 map --reassign territory to each drone
+      directedMap = assignDirections wv reassignedMap --make sure all drones are either acting or have a list of actions to get a new assignment from
+      reassignedMap = kMeansInternal gen1 envInfo 2 map --reassign territory to each drone
       (gen1, gen2) = split gen
 
-    --if (anyWaiting enStat $ Map.keysSet map)
-      --then applyMoves enStat $ assignDirections wv $ KMeansLowPolicy $ kMeansInternal 1 map --need to assign new moves after the K-means step
-      --else applyMoves enStat p--just need to assign any idle drones to the next task in its directions list in this case
+--uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
+assignDirections :: WorldView -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
+assignDirections wv map = Map.fromAscList listWithDirections
+  where
+    listWithDirections :: [(DroneTerritory, Footprint)]
+    listWithDirections = fmap (\(dt, fp) -> (setDirections wv dt fp, fp)) mapList --preserves the Ascending property of the keys in this list
 
-    --if one of the drones needs 
+    mapList :: [(DroneTerritory, Footprint)]
+    mapList = Map.toAscList map
 
---a second, "HighSweepPolicy" should probably use the same policy as LowSweep for its "phase 2" behavior, after the high environment has been explored and it has descended again
---highsweepPolicy should use a smart function to query A* for paths to a filtered subset of nodes that make sense to visit (e.g rows 2, 5, 8, etc. with shape caveats)
+--once this has been applied to all DroneTerritories, every drone will either have a list of directions to follow or will be busy completing a motion
+setDirections :: WorldView -> DroneTerritory -> Footprint -> DroneTerritory
+setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) fp =
+  if (droneIsIdle && outOfDirections)--need new directions only when the drone is idle and there is not a precomputed list of what to do next
+    then DroneTerritory drone mean newDirs --evaluating newDirs causes A* to run
+    else dt
 
+  where
+    outOfDirections = --in this case, there are no more pre-computed actions to assign
+      case dirs of
+        (action : actions) -> False
+        [] -> True
+
+    droneStat = fromJust $ lookup drone enStat --the lookup operation should never fail to find the drone's real status
+    droneIsIdle = isUnassigned droneStat --will this drone need a new action assignment during this nextMove step?
+
+    targetPos :: Position --if A*  gets called, this is the location it will find directions to
+    targetPos = fromMaybe minPos $ Set.lookupMin fp --arbitrarily chosing the minimum position in the drone's assigned territory (change this)
+      where minPos = Set.findMin $ Map.keysSet envInfo --the overall environment needs to have patches in it, hence findMin
+
+    dronePos :: DronePosition
+    dronePos = posFromStat droneStat
+    droneGroundPos = getEnvPos dronePos
+    droneAlt = getEnvAlt dronePos --need altitude info to let A* decide the observational value of slightly longer paths
+
+    --A* and conversion to the datatype we need
+    newDirs = fromMaybe [Hover] $ maybeDirections --this should really never fail if A* was given a sensible environment and accurate startPos info
+    maybeDirections = maybePath >>= makeDirections
+    maybePath = aStar droneAlt envInfo mkManhattanHeuristic droneGroundPos targetPos
+
+--only call this after checking that there are moves to apply for each idle drone
+applyMoves2 :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
+applyMoves2 enStat gen map = (catMaybes maybeAssignments, newPolicy)
+  where
+    (maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves2 enStat) ([], KMeansLowPolicy gen $ Map.empty) map
+
+accumulateNextMoves2 :: EnsembleStatus -> DroneTerritory -> Footprint -> ([Maybe (Drone, Action)], KMeansLowPolicy) -> ([Maybe (Drone, Action)], KMeansLowPolicy)
+accumulateNextMoves2 enStat dt fp (na, KMeansLowPolicy gen map) = (newAction : na, KMeansLowPolicy gen $ Map.insert newKey fp map)
+  where
+    (newAction, newKey) = applyMove2 enStat dt
+
+applyMove2 :: EnsembleStatus -> DroneTerritory -> (Maybe (Drone, Action), DroneTerritory)
+applyMove2 enStat dt@(DroneTerritory drone mean dirs) =
+  if (idleOrUnlisted enStat dt)
+    then case dirs of --this should not be necessary!
+           (d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
+           [] -> (Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
+    else (Nothing, dt)
+
+applyMoves :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
+applyMoves enStat gen map = (nextActions, policy)
+  where
+    policy = KMeansLowPolicy gen $ Map.fromAscList newMapList
+    (newMapList, nextActions) = foldr (accumulateNextMoves enStat) ([], []) mapList--foldr should preserve ascending nature of mapList
+
+    mapList :: [(DroneTerritory, Footprint)]
+    mapList = Map.toAscList map
+
+accumulateNextMoves :: EnsembleStatus -> (DroneTerritory, Footprint) -> ([(DroneTerritory, Footprint)], NextActions) -> ([(DroneTerritory, Footprint)], NextActions)
+accumulateNextMoves enStat (dt@(DroneTerritory drone mean dirs), fp) (assignmentListSoFar, nextActionsSoFar) =
+  if droneIsIdle --only add to the list of NextActions if a drone is idle. Actions given to non idle drones may be discarded, and non idle drones are not guaranteed to have next actions
+    then ((newDt, fp) : assignmentListSoFar, newActionAssignment : nextActionsSoFar)
+    else ((dt, fp) : assignmentListSoFar, nextActionsSoFar)
+  where
+    --these should only be evauluated when the current drone is idle, which should mean dirs matches the (head : tail) pattern
+    newActionAssignment = (drone, newAction)
+    newAction = head dirs
+    newDt = DroneTerritory drone mean (tail dirs)
+
+    droneStat = fromJust $ lookup drone enStat --the lookup operation should never fail to find the drone's real status
+    droneIsIdle = isUnassigned droneStat --will this drone need a new action assignment during this nextMove step?

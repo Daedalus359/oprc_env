@@ -172,7 +172,7 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = (*) straightCost
     straightCost = cost (undefined :: CardinalDir)
 
 --may not make sense to keep the toList stuff around - decide what form I need this in
-kMeans :: HasCenter d => Int -> StdGen -> EnvironmentInfo -> Footprint -> SQ.Seq d -> Map.Map d Footprint
+kMeans :: Int -> StdGen -> EnvironmentInfo -> Footprint -> SQ.Seq DroneTerritory -> Map.Map DroneTerritory Footprint
 kMeans iterations gen envInfo footprint droneSeq = kMeansInternal nextGen envInfo iterations initMap
   where
     --initMap :: HasCenter d => Map.Map d Footprint
@@ -189,7 +189,7 @@ kMeans iterations gen envInfo footprint droneSeq = kMeansInternal nextGen envInf
 
 --don't call with a number of iterations less than zero!
 --possible bug - avgPos will always move to (0, 0) if there are no patches in a footprint. Is this desirable behavior?
-kMeansInternal :: HasCenter d => StdGen -> EnvironmentInfo -> Int -> Map.Map d Footprint -> Map.Map d Footprint
+kMeansInternal :: StdGen -> EnvironmentInfo -> Int -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
 kMeansInternal _ _ 0 map = map
 kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iterations - 1) newMap
   where
@@ -201,7 +201,8 @@ kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iter
         littleTup pos mean = (moveCenter pos mean, Set.singleton pos)
 
     --now that reassignments have been made, correct the mean value assigned to each footprint.
-    correctedMeans = Map.fromList $ fmap recenter $ Map.toList reassignedMap
+    correctedMeans = Map.fromAscList $ fmap recenter $ Map.toAscList reassignedMap
+    --can use to/from AscList because the ord instance for DroneTerritory is based on the ord instance for Drone, so fmap preserves the Ascending property
       where
         recenter (oldMean, fp) = (moveCenter (avgPos fp) oldMean, fp)
 

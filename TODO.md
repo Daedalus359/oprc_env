@@ -1,5 +1,6 @@
 To-Do List:
 * find the actual problem with the empty list head / tail issue and fix
+* modify my kMeans direction assignment functions to pick what patch to visit in the territory based on what is farthest from all foreign means
 * figure out why my drones all follow each other around
 * experiment with different values of the "pointless penalty" in aStar
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory

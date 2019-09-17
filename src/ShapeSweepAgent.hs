@@ -143,14 +143,18 @@ assignDirections :: WorldView -> Map.Map DroneTerritory Footprint -> Map.Map Dro
 assignDirections wv map = Map.fromAscList listWithDirections
   where
     listWithDirections :: [(DroneTerritory, Footprint)]
-    listWithDirections = fmap (\(dt, fp) -> (setDirections wv dt fp, fp)) mapList --preserves the Ascending property of the keys in this list
+    listWithDirections = fmap (\(dt, fp) -> (setF dt fp, fp)) mapList --preserves the Ascending property of the keys in this list
+
+    setF = setDirections wv meansSet
 
     mapList :: [(DroneTerritory, Footprint)]
     mapList = Map.toAscList map
 
+    meansSet = Map.keysSet map
+
 --once this has been applied to all DroneTerritories, every drone will either have a list of directions to follow or will be busy completing a motion
-setDirections :: WorldView -> DroneTerritory -> Footprint -> DroneTerritory
-setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) fp =
+setDirections :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
+setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone mean dirs) fp =
   if (droneIsIdle && outOfDirections)--need new directions only when the drone is idle and there is not a precomputed list of what to do next
     then DroneTerritory drone mean newDirs --evaluating newDirs causes A* to run
     else dt
@@ -164,10 +168,17 @@ setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) 
     droneStat = fromJust $ lookup drone enStat --the lookup operation should never fail to find the drone's real status
     droneIsIdle = isUnassigned droneStat --will this drone need a new action assignment during this nextMove step?
 
-    targetPos :: Position --if A*  gets called, this is the location it will find directions to
-    targetPos = fromMaybe minPos $ Set.lookupMin fp --arbitrarily chosing the minimum position in the drone's assigned territory (change this)
+    --a couple of layers of backup in case targetPos doesn't find a good choice
+    backupPos :: Position 
+    backupPos = fromMaybe minPos $ Set.lookupMin fp --arbitrarily chosing the minimum position in the drone's assigned territory
       where minPos = Set.findMin $ Map.keysSet envInfo --the overall environment needs to have patches in it, hence findMin
 
+    --if A*  gets called, this is the location it will find directions to
+    targetPos =
+      if (null otherMeans)
+        then backupPos
+        else snd $ Set.findMax $ Set.map (\p -> (leastDistMeans p, p)) fp--as far as possible from all foreign means
+      
     dronePos :: DronePosition
     dronePos = posFromStat droneStat
     droneGroundPos = getEnvPos dronePos
@@ -179,6 +190,14 @@ setDirections wv@(WorldView envInfo enStat) dt@(DroneTerritory drone mean dirs) 
                 _ -> [Hover] --covers both failed A* (Nothing) and case where start and end position are the same (Just [])
     maybeDirections = maybePath >>= makeDirections
     maybePath = aStar droneAlt envInfo mkManhattanHeuristic droneGroundPos targetPos
+
+    --finds a position's distance to the closest of the means position from the current drone policy that *don't* correspond to the one being altered
+    leastDistMeans :: Position -> Int
+    leastDistMeans p = minimum $ distanceFs <*> (pure p)
+      where
+        distanceFs = fmap idealDistance $ Set.toList $ Set.map getCenter otherMeans
+
+    otherMeans = Set.delete dt meansSet
 
 applyMoves :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
 applyMoves enStat gen map = (nextActions, policy)

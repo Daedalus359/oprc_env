@@ -25,7 +25,7 @@ visualReplay sc = simulate AO.windowDisplay white AO.defaultFramerate initModel 
     replay = createReplay sc
 
 main :: IO ()
-main = SV.fullScenarioWithOutput SV.kmp 3 8 100000 >>= visualReplay
+main = SV.fullScenarioWithOutput SV.kmp 3 7 100000 >>= visualReplay
 
 --other policy functions
   --(return $ const SV.lsPolicy)

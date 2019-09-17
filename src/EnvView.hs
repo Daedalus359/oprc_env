@@ -40,7 +40,7 @@ needsExploration :: EnvironmentInfo -> Position -> Bool
 needsExploration envInfo pos = fromMaybe True $ fmap (not . isFullyObserved) $ Map.lookup pos envInfo
 
 incompleteLocations :: EnvironmentInfo -> Footprint
-incompleteLocations envInfo = Set.filter (needsExploration envInfo) $ toFootprint envInfo
+incompleteLocations envInfo = Map.keysSet $ Map.filter (not . isFullyObserved) envInfo
 
 numDronesRunning :: WorldView -> Int
 numDronesRunning (WorldView _ enStat) = length enStat 

@@ -199,10 +199,9 @@ kMeansInternal _ _ 0 map = map
 kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iterations - 1) newMap
   where
     --if any means have lost all of their territory, give them a random patch
-    newMap = foldr (\(mean, backupTerritory) -> \existing -> Map.insertWith keepOld mean backupTerritory existing) correctedMeans backupAssignments
+    newMap = foldr (\(mean, backupTerritory) -> \existing -> Map.insert mean backupTerritory existing) correctedMeans backupAssignments
       where
-        keepOld newVal oldVal = oldVal
-        backupAssignments = zipWith littleTup newTerritories $ Set.toList means --a random location assigned to each of the original means
+        backupAssignments = zipWith littleTup newTerritories $ Set.toList leftOutMeans --a random location assigned to each of the original means that did not turn into something with territory
         littleTup pos mean = (moveCenter pos mean, Set.singleton pos)
 
     --now that reassignments have been made, correct the mean value assigned to each footprint.
@@ -210,6 +209,9 @@ kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iter
     --can use to/from AscList because the ord instance for DroneTerritory is based on the ord instance for Drone, so fmap preserves the Ascending property
       where
         recenter (oldMean, fp) = (moveCenter (avgPos fp) oldMean, fp)
+
+    leftOutMeans = Set.difference means preservedMeans
+    preservedMeans = Map.keysSet reassignedMap
 
     --take all places needing observation and assign to one of the existing means (some means may have no entry in this map)
     reassignedMap = Set.foldr reassignAndAccum Map.empty placesNeedingObservation
@@ -239,7 +241,7 @@ nearestMean means pos = foldr (closerTo pos) currentMean means
 --returns whichever of args 2 and 3 is closer to arg 1, with preference for arg 2 in case of a tie
 closerTo :: HasCenter d => Position -> d -> d -> d
 closerTo pos mean1 mean2 =
-  if (dist2 < dist1) then mean2 else mean1
+  if (dist2 <= dist1) then mean2 else mean1
   where
     dist2 = idealDistance pos $ getCenter mean2
     dist1 = idealDistance pos $ getCenter mean1
@@ -261,7 +263,10 @@ idealDistance (Position x1 y1) (Position x2 y2) = diagCost * diagonalMoves + str
 avgPos :: Footprint -> Position
 avgPos ftp = Position (f sumX sz) (f sumY sz)
   where
-    f = (\n -> \d -> quot (n + (quot d 2)) d)
+    f num denom = q + round
+      where
+        round = if (quot denom 2 >= r) then 0 else 1
+        (q, r) = quotRem num denom
 
     (sumX, sumY) = foldr accumulate (0, 0) ftp
     sz = max 1 $ Set.size ftp --max prevents divide by zero when the set is empty

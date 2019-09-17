@@ -212,28 +212,35 @@ threeStepsOfOutput :: (Policy p, Pretty p) => IO (WorldView -> p) -> Int -> Inte
 threeStepsOfOutput pF numDrones envNum timeLimit = do
   scenario <- Scenario.mkScenario <$> pF <*> (pure numDrones) <*> (dumpParseFailure $ parseEnvNum envNum)
   oneStep <- return $ stepScenario scenario
+  (finished100, sc100) <- return $ runScenario 100 oneStep
 
   putStrLn "Unstepped time: "
   print (Scenario.getTime scenario)
   putStrLn "Unstepped policy: "
   putDocW 80 (pretty $ Scenario.getPolicy scenario)
-  putStrLn "Unstepped move hist"
-  print (vsep $ fmap pretty $ Scenario.getHist scenario)
+  --putStrLn "Unstepped move hist"
+  --print (vsep $ fmap pretty $ Scenario.getHist scenario)
   putStrLn "Unstepped WorldState"
   putDocW 80 (pretty $ Scenario.getWorldState scenario)
 
-  worldView <- return $ toView $ Scenario.getWorldState scenario
-  envInfo <- return $ getView worldView
+  --worldView <- return $ toView $ Scenario.getWorldState scenario
+  --envInfo <- return $ getView worldView
 
-  putStrLn "One step time"
-  print (Scenario.getTime oneStep)
-  putStrLn "One step policy"
-  putDocW 80 (pretty $ Scenario.getPolicy oneStep)
-  putStrLn "One step hist"
-  print (vsep $ fmap pretty $ Scenario.getHist oneStep)
-  putStrLn "One step WorldState"
-  putDocW 80 (pretty $ Scenario.getWorldState oneStep)
-  putStrLn ""
+  --putStrLn "One step time"
+  --print (Scenario.getTime oneStep)
+  --putStrLn "One step policy"
+  --putDocW 80 (pretty $ Scenario.getPolicy oneStep)
+  --putStrLn "One step hist"
+  --print (vsep $ fmap pretty $ Scenario.getHist oneStep)
+  --putStrLn "One step WorldState"
+  --putDocW 80 (pretty $ Scenario.getWorldState oneStep)
+  --putStrLn ""
+
+  if finished100
+    then putStrLn "Scenario finished within 100 steps"
+    else do
+           putStrLn "100 step policy"
+           putDocW 80 (pretty $ Scenario.getPolicy sc100)
 
   return ()
 

@@ -116,7 +116,7 @@ aStarInternal droneAlt envInfo fp h startPos endPos openSet closedSet f c parent
             penalty (FullyObserved _) = pointlessPenalty
 
             --tune this!
-            pointlessPenalty = 0
+            pointlessPenalty = 9
 
             neighborCostsFromPos :: Map.Map Position Int
             neighborCostsFromPos = Map.fromList $ filter (\(p, c) -> not $ Set.member p newClosedSet) $ MoveCosts.inBoundsNeighborsOfWithCosts fp position

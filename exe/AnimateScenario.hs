@@ -9,23 +9,60 @@ import Policy
 import EnvView
 import ShapeSweepAgent
 
-import System.Environment
+import qualified System.Environment as SysEnv
 import Graphics.Gloss
 import RandomOPRC
+import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
 
 import Data.Text.Prettyprint.Doc
 import Data.Text.Prettyprint.Doc.Util
 
+windowWidth = 3400
+windowHeight = 2000
+
+edgeRelief = 100 :: Float
+
+windowDisplay :: Display
+windowDisplay = InWindow "Window" (windowWidth, windowHeight) (50, 50)
+
+defaultFramerate :: Int
+defaultFramerate = 60
+
+--turns a number of seconds elapsed into a number of sim timesteps elapsed
+speedupFactor :: Float
+speedupFactor = 200
+
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
 visualReplay :: Scenario p -> IO ()
-visualReplay sc = simulate AO.windowDisplay white AO.defaultFramerate initModel (AO.drawReplay2 offset) AO.updateFunc
+visualReplay sc = simulate windowDisplay white defaultFramerate initModel drawF updateF
   where
-    offset = 27
+    updateF = (AO.updateFunc speedupFactor)
+    drawF = (AO.drawReplay2 scaleFactor edgeRelief (fromIntegral windowWidth) (fromIntegral windowHeight) offset)
+
+    offset = fpWidth + 1
     initModel = (0, replay)
     replay = createReplay sc
 
+    scaleFactor = min horizontalScaleFactor vertScaleFactor
+
+    horizontalScaleFactor = verticalRoom / (fromIntegral fpWidth)
+    horizontalRoom = ((fromIntegral windowWidth) - (2 * edgeRelief)) / 24
+
+    vertScaleFactor = verticalRoom / (fromIntegral fpHeight)
+    verticalRoom = ((fromIntegral windowHeight) - (2 * edgeRelief)) / 24
+    fpHeight = maxy - miny + 1
+
+    (miny, maxy) = Set.foldr (\(Position _ y) -> \(minSF, maxSF) -> (min minSF y, max maxSF y)) (sampleY, sampleY) fp
+
+    fpWidth = maxx - minx + 1
+    (Position maxx sampleY) = Set.findMax fp
+    (Position minx _) = Set.findMin fp
+
+    fp = Map.keysSet $ getMap $ getEnv $ getWorldState sc
+
 main :: IO ()
-main = SV.fullScenarioWithOutput SV.kmp 3 7 100000 >>= visualReplay
+main = SV.fullScenarioWithOutput SV.kmp 3 8 100000 >>= visualReplay
 
 --other policy functions
   --(return $ const SV.lsPolicy)

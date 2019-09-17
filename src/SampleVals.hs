@@ -212,7 +212,7 @@ threeStepsOfOutput :: (Policy p, Pretty p) => IO (WorldView -> p) -> Int -> Inte
 threeStepsOfOutput pF numDrones envNum timeLimit = do
   scenario <- Scenario.mkScenario <$> pF <*> (pure numDrones) <*> (dumpParseFailure $ parseEnvNum envNum)
   oneStep <- return $ stepScenario scenario
-  (finished100, sc100) <- return $ runScenario 100 oneStep
+  (finished100, sc300) <- return $ runScenario 300 oneStep
 
   putStrLn "Unstepped time: "
   print (Scenario.getTime scenario)
@@ -237,10 +237,10 @@ threeStepsOfOutput pF numDrones envNum timeLimit = do
   --putStrLn ""
 
   if finished100
-    then putStrLn "Scenario finished within 100 steps"
+    then putStrLn "Scenario finished within 300 steps"
     else do
-           putStrLn "100 step policy"
-           putDocW 80 (pretty $ Scenario.getPolicy sc100)
+           putStrLn "300 step policy"
+           putDocW 80 (pretty $ Scenario.getPolicy sc300)
 
   return ()
 

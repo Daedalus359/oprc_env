@@ -79,6 +79,7 @@ executable animate-scenario
   build-depends:          base , oprc-env
                         , gloss
                         , prettyprinter
+                        , containers
   
   hs-source-dirs:         exe
   default-language:       Haskell2010

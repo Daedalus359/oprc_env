@@ -12,21 +12,7 @@ import Graphics.Gloss.Data.ViewPort
 import qualified Data.Map.Strict as Map
 
 gridScale :: Float  
-gridScale = 20
-
-windowDisplay :: Display
-windowDisplay = InWindow "Window" (1200, 1200) (100, 100)
-
-testAnimate :: Float -> Picture
-testAnimate = Circle . ( * 10)
-
---how often the display updates
-defaultFramerate :: Int
-defaultFramerate = 60
-
---turns a number of seconds elapsed into a number of sim timesteps elapsed
-speedupFactor :: Float
-speedupFactor = 200
+gridScale = 24
 
 --the current simulation time that gloss uses, then everything else
 type SimState = (Float, ScenarioReplay)
@@ -34,14 +20,18 @@ type SimState = (Float, ScenarioReplay)
 --probably want to just draw the static environment once, and calculate all relative positions based on the size of that
 --drawingFunc :: Float -> Picture
 
-drawReplay2 :: Int -> SimState -> Picture
-drawReplay2 i (f, sr) = drawReplay i sr
+drawReplay2 :: Float -> Float -> Float -> Float -> Int -> SimState -> Picture
+drawReplay2 scaleFactor edgeRelief width height offset (f, sr) = alignCorners $ scale $ cornerAtZero $ drawReplay offset sr
+  where
+    alignCorners = Translate (width * (-0.5) + edgeRelief) (height * (-0.5) + edgeRelief)
+    scale = Scale scaleFactor scaleFactor
+    cornerAtZero = Translate (gridScale / 2) (gridScale / 2)
 
 drawReplay :: Int -> ScenarioReplay -> Picture
-drawReplay offset sr@(ScenarioReplay ws time _) = Scale 1.75 1.75 $ Pictures [drawWorldState offset ws, Text $ show time]
+drawReplay offset sr@(ScenarioReplay ws time _) = Pictures [drawWorldState offset ws, Text $ show time]
 
-updateFunc :: ViewPort -> Float -> SimState -> SimState
-updateFunc _ dt (t, sr) = (newTime, advanceUntilTime (round newTime) sr)
+updateFunc :: Float -> ViewPort -> Float -> SimState -> SimState
+updateFunc speedupFactor _ dt (t, sr) = (newTime, advanceUntilTime (round newTime) sr)
   where newTime = t + (dt * speedupFactor)
 
 drawTime :: Integer -> Picture

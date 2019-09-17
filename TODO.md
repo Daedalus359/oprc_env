@@ -1,4 +1,5 @@
 To-Do List:
+* think more carefully about my f function if avgPos to make sure it makes sense
 * modify my kMeans direction assignment functions to pick what patch to visit in the territory based on what is farthest from all foreign means
 * figure out why my drones all follow each other around
 * experiment with different values of the "pointless penalty" in aStar

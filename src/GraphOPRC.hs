@@ -259,8 +259,10 @@ idealDistance (Position x1 y1) (Position x2 y2) = diagCost * diagonalMoves + str
     deltaY = abs $ y1 - y2
 
 avgPos :: Footprint -> Position
-avgPos ftp = Position (quot sumX sz) (quot sumY sz)
+avgPos ftp = Position (f sumX sz) (f sumY sz)
   where
+    f = (\n -> \d -> quot (n + (quot d 2)) d)
+
     (sumX, sumY) = foldr accumulate (0, 0) ftp
     sz = max 1 $ Set.size ftp --max prevents divide by zero when the set is empty
 

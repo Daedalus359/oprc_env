@@ -135,7 +135,7 @@ instance Policy KMeansLowPolicy where
 
     where
       directedMap = assignDirections wv reassignedMap --make sure all drones are either acting or have a list of actions to get a new assignment from
-      reassignedMap = kMeansInternal gen1 envInfo 2 map --reassign territory to each drone
+      reassignedMap = kMeansInternal gen1 envInfo 1 map --reassign territory to each drone
       (gen1, gen2) = split gen
 
 --uses A* and the current territory assignments to assign what the idle and unassigned drones should do next

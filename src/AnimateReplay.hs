@@ -1,4 +1,4 @@
-module AnimateOPRC where
+module AnimateReplay where
 
 import Drone
 import Ensemble

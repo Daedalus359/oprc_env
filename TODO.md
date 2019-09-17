@@ -1,8 +1,5 @@
 To-Do List:
-* think more carefully about my f function if avgPos to make sure it makes sense
 * modify my kMeans direction assignment functions to pick what patch to visit in the territory based on what is farthest from all foreign means
-* figure out why my drones all follow each other around
-* experiment with different values of the "pointless penalty" in aStar
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory
 * modify my droneStatus drawing function to represent the field of view of the drone at that time
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
@@ -78,3 +75,5 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * alter K means to only pay attention to patches that need to be explored when it makes sense to do so (9/12/2019)
 * alter kMeans to reassign random means to those droneTerritories that run out of stuff to do (9/13/2019)
 * find the actual problem with the empty list head / tail issue and fix (9/16/2019)
+* fix AnimateScenario to properly scale and align the drawing in frame
+* experiment with different values of the "pointless penalty" in aStar (9/17/2019)

@@ -1,6 +1,6 @@
 module Main where
 
-import qualified AnimateOPRC as AO
+import qualified AnimateReplay as AR
 import Env
 import qualified SampleVals as SV
 import WorldState
@@ -37,8 +37,8 @@ speedupFactor = 200
 visualReplay :: Scenario p -> IO ()
 visualReplay sc = simulate windowDisplay white defaultFramerate initModel drawF updateF
   where
-    updateF = (AO.updateFunc speedupFactor)
-    drawF = (AO.drawReplay2 scaleFactor edgeRelief (fromIntegral windowWidth) (fromIntegral windowHeight) offset)
+    updateF = (AR.updateFunc speedupFactor)
+    drawF = (AR.drawReplay2 scaleFactor edgeRelief (fromIntegral windowWidth) (fromIntegral windowHeight) offset)
 
     offset = fpWidth + 1
     initModel = (0, replay)

@@ -64,7 +64,7 @@ visualReplay sc = do
     fp = Map.keysSet $ getMap $ getEnv $ getWorldState sc
 
 main :: IO ()
-main = SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
+main = SV.fullScenarioWithOutput SV.kmp 6 7 100000 >>= visualReplay
 
 --other policy functions
   --(return $ const SV.lsPolicy)

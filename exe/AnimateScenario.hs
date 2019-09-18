@@ -35,7 +35,9 @@ speedupFactor = 100
 
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
 visualReplay :: Scenario p -> IO ()
-visualReplay sc = simulate windowDisplay white defaultFramerate initModel drawF updateF
+visualReplay sc = do
+                    print (Set.size fp)
+                    simulate windowDisplay white defaultFramerate initModel drawF updateF
   where
     updateF = (AR.updateFunc speedupFactor)
     drawF = (AR.drawReplay2 scaleFactor edgeRelief (fromIntegral windowWidth) (fromIntegral windowHeight) offset)

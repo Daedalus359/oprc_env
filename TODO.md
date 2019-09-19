@@ -3,23 +3,22 @@
 ### Bug Fixes Needed:
 
 ### Machine Learning To-Dos:
+* create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators
+* create functionality to test policies on a random assortment of environments
+* make basic a reward signal what RL based agents can include as a signal to learn from
 * make a simple learning agent that repeatedly refines a single number corresponding to the "pointless penalty" used by its version of A*
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory. Have this heuristic be a learned function
 * make a neural net architecture that does Q learning. Make the Q learning updates at each time step inform the Q estimates for both future measurements and improve Q estimates for all past measurements according to an achitecture something like a bidirectional recursive neural network
-* create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators
-* create functionality to test policies on a random assortment of environments
 * create a policy that maintains a PGM data structure of the environment, and **uses RL to tune the parameters of the PGM from session to session** - make the PGM be a kind of spatial policy that works much like a convolutional neural network, except that it spits out a belief map ("image") of the same size that it took in, where each patch in this belief map represents the probability that the patch requires high scrutiny
-* [expand] add a reward signal and other requirements for a proper RL agent to learn from this environment
 
 ### Hard Coded Algorithm Improvements:
+* get high sweep first policy working for large environments
+* make an A* cost function that is suitable for use with HighSweep policies by raising costs for moving off of the points where (mod x 3 = 0), make the high sweep policy instance use it
 * add an initial step to the kmeans policy where it has all drones traverse the spanning tree of their initial (10 iteration) assigned territory by making just the first path planning call go to a different function from A*
 * add an initial queue of positions to visit for each drone that represents a traversal of the drone's initial territory by spanning tree. Drones should give up this strategy and generate a new queue if the next place to visit is no longer in its territory
 * figure out a spanning tree based algorithm that can handle the case where a drone can cover more than one patch at once (i.e. high altitude)
 * Measure the complexity of the territory assigned to each drone according to the average number of in bounds / in territory *neighbors* each patch in the territory has. Make a variant of kMeans that scales up the distance calculations according to this complexity, causing drones with more difficult assignments to get less work. Another way to measure complexity could include distance from the drone's acutal location to its mean.
 * make a variant of A* that can connect disconnected islands of territory inside an environment which is connected overall. Use the patches of one "island" as an initial frontier, and estimate costs by taking the min of all costs patches in the "destination" environment
-* get high sweep first policy working for large environments
-* modify A* to accept a custom cost function rather than making all move costs equal to 1. Give this function access to enough parameters to support the two behavior modifications I plan to implement
-* make an A* cost function that is suitable for use with HighSweep policies by raising costs for moving off of the points where (mod x 3 = 0), make the high sweep policy instance use it
 
 ### Visualization / Interpretability Improvements:
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
@@ -38,8 +37,9 @@ rewrite all list traversing operations in terms of foldr and see if I get perfor
 * consider adding functionality such as needing to track battery level and periodically return for a swap if the environment isn't rich enough
 
 ### Miscellaneous:
-* adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
+* modify A* to accept a custom cost function
 * implement a random environment parser that accepts a third kind of character, ?, and assigns it high or low with some probability
+* adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
 
 ### Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)

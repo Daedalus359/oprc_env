@@ -1,10 +1,11 @@
+Bug Fixes Needed:
+
 Machine Learning To-Dos:
 * make a simple learning agent that repeatedly refines a single number corresponding to the "pointless penalty" used by its version of A*
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory. Have this heuristic be a learned function
 * make a neural net architecture that does Q learning. Make the Q learning updates at each time step inform the Q estimates for both future measurements and improve Q estimates for all past measurements according to an achitecture something like a bidirectional recursive neural network
 
 To-Do List:
-* modify my droneStatus drawing function to represent the field of view of the drone at that time
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
 * augment the scenario animation to keep an up to date representation of drone territories on screen
 * get rid of PSQueue in my project in favor of a data structure from stackage snapshot 14.3
@@ -88,3 +89,4 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * fix AnimateScenario to properly scale and align the drawing in frame
 * experiment with different values of the "pointless penalty" in aStar (9/17/2019)
 * modify my kMeans direction assignment functions to pick what patch to visit in the territory based on what is farthest from all foreign means (9/17/2019)
+* modify my droneStatus drawing function to represent the field of view of the drone at that time (9/19/2019)

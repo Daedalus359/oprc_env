@@ -97,7 +97,7 @@ drawDroneStat ds = toGridPos x y $ droneFrom alt
     dPos@(DronePos pos@(Position x y) alt) = posFromStat ds
 
 droneFrom :: Altitude -> Picture
-droneFrom High = dronePic
+droneFrom High = Scale 3 3 $ dronePic--Translate (-1 * gridScale) (-1 * gridScale) $ 
 droneFrom Low = Scale 0.5 0.5 dronePic
 
 drawEnStat :: EnsembleStatus -> Picture

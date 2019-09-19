@@ -39,8 +39,13 @@ instance Policy LowSweepPolicy where
                 --a recursive call makes more sense, but trying this way for debug purposes
                 (nextActions, restOfP) =
                   if (null directions)
-                    then (zip (fmap DroneID [1 .. ]) (take numDrones $ repeat Hover), LowSweepPolicy [])
+                    then (zip (fmap DroneID [1 .. ]) (take numDrones $ repeat fixAlt), LowSweepPolicy [])
                     else (zip (fmap DroneID [1 .. ]) (take numDrones $ repeat $ head directions), LowSweepPolicy $ tail directions)
+
+                fixAlt = case droneAlt of
+                           High -> MoveVertical Descend
+                           Low -> Hover
+
                 numDrones = numDronesRunning wv
 
                 directions = fromMaybe [Hover] maybeDirections --eventually do something more interesting?
@@ -50,10 +55,14 @@ instance Policy LowSweepPolicy where
                 maybePath = aStar Low envInfo mkManhattanHeuristic startPos nextPosToVisit
 
                 startPos :: Position
-                startPos = groundPos $ snd $ head enStat
+                startPos = getEnvPos dronePos
                 nextPosToVisit = if (null unobservedMap)
                                    then minPos
                                    else fst $ Map.findMin unobservedMap
+
+                droneStat = snd $ head enStat
+                dronePos = posFromStat droneStat
+                droneAlt = getEnvAlt dronePos
 
                 unobservedMap = Map.filter (not . isFullyObserved) envInfo
                 minPos = fst $ Map.findMin envInfo
@@ -156,7 +165,7 @@ assignDirections wv map = Map.fromAscList listWithDirections
 setDirections :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
 setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone mean dirs) fp =
   if (droneIsIdle && outOfDirections)--need new directions only when the drone is idle and there is not a precomputed list of what to do next
-    then DroneTerritory drone mean newDirs --evaluating newDirs causes A* to run
+    then DroneTerritory drone mean (fixAlt newDirs) --evaluating newDirs causes A* to run
     else dt
 
   where
@@ -183,6 +192,11 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
     dronePos = posFromStat droneStat
     droneGroundPos = getEnvPos dronePos
     droneAlt = getEnvAlt dronePos --need altitude info to let A* decide the observational value of slightly longer paths
+
+    fixAlt :: [Action] -> [Action] --this should make sure that the drones always fly low
+    fixAlt al = case droneAlt of
+      Low -> al
+      High -> (MoveVertical Descend) : al
 
     --A* and conversion to the datatype we need
     newDirs = case maybeDirections of

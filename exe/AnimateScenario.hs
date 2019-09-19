@@ -31,7 +31,7 @@ defaultFramerate = 60
 
 --turns a number of seconds elapsed into a number of sim timesteps elapsed
 speedupFactor :: Float
-speedupFactor = 200
+speedupFactor = 100
 
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
 visualReplay :: Scenario p -> IO ()

@@ -8,8 +8,7 @@ import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Data.Monoid
 
-class EnvGen e where
-  mkEnv :: e -> StdGen -> Environment
+data EnvGen = EnvGen {mkEnv :: StdGen -> Environment} | MixedGen [(Float, EnvGen)]
 
 --the double should be a valid probability, i.e. between 0 and 1
 data BernoulliGen = BernoulliGen Double StdGen

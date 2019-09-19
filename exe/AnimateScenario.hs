@@ -48,7 +48,7 @@ visualReplay sc = do
 
     scaleFactor = min horizontalScaleFactor vertScaleFactor
 
-    horizontalScaleFactor = verticalRoom / (fromIntegral fpWidth)
+    horizontalScaleFactor = horizontalRoom / (2 * (fromIntegral fpWidth) + 1) --map is displayed twice horizontally + 1 column of blank space
     horizontalRoom = ((fromIntegral windowWidth) - (2 * edgeRelief)) / 24
 
     vertScaleFactor = verticalRoom / (fromIntegral fpHeight)

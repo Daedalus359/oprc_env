@@ -1,8 +1,9 @@
-To-Do List:
+Machine Learning To-Dos:
 * make a simple learning agent that repeatedly refines a single number corresponding to the "pointless penalty" used by its version of A*
-* add an initial step to the kmeans policy where it has all drones traverse the spanning tree of their initial (10 iteration) assigned territory by making just the first path planning call go to a different function from A*
-* add an initial queue of positions to visit for each drone that represents a traversal of the drone's initial territory by spanning tree. Drones should give up this strategy and generate a new queue if the next place to visit is no longer in its territory
-* make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory
+* make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory. Have this heuristic be a learned function
+* make a neural net architecture that does Q learning. Make the Q learning updates at each time step inform the Q estimates for both future measurements and improve Q estimates for all past measurements according to an achitecture something like a bidirectional recursive neural network
+
+To-Do List:
 * modify my droneStatus drawing function to represent the field of view of the drone at that time
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
 * augment the scenario animation to keep an up to date representation of drone territories on screen
@@ -25,6 +26,13 @@ rewrite all list traversing operations in terms of foldr and see if I get perfor
 * create an alternate Doc ann (as in prettyprinter) generating function for Scenario history that shows where a drone was at the moment it get each command
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
 * implement a random environment parser that accepts a third kind of character, ?, and assigns it high or low with some probability
+
+Hard Coded Algorithm Improvements:
+* add an initial step to the kmeans policy where it has all drones traverse the spanning tree of their initial (10 iteration) assigned territory by making just the first path planning call go to a different function from A*
+* add an initial queue of positions to visit for each drone that represents a traversal of the drone's initial territory by spanning tree. Drones should give up this strategy and generate a new queue if the next place to visit is no longer in its territory
+* figure out a spanning tree based algorithm that can handle the case where a drone can cover more than one patch at once (i.e. high altitude)
+* Measure the complexity of the territory assigned to each drone according to the average number of in bounds / in territory *neighbors* each patch in the territory has. Make a variant of kMeans that scales up the distance calculations according to this complexity, causing drones with more difficult assignments to get less work. Another way to measure complexity could include distance from the drone's acutal location to its mean.
+* make a variant of A* that can connect disconnected islands of territory inside an environment which is connected overall. Use the patches of one "island" as an initial frontier, and estimate costs by taking the min of all costs patches in the "destination" environment
 
 Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)

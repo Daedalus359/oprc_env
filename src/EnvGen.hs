@@ -8,10 +8,38 @@ import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Data.Monoid
 
-data EnvGen = EnvGen {mkEnv :: StdGen -> Environment} | MixedGen [(Float, EnvGen)]
+data EnvGen = 
+    EnvGen (StdGen -> Environment)
+  | MixedGen [(Float, EnvGen)] --need defined behavior for an empty list, see sampleEnvironment
+
+sampleEnvironment :: StdGen -> EnvGen -> Environment
+sampleEnvironment gen (EnvGen f) = f gen
+sampleEnvironment gen (MixedGen []) = f gen --ideally, this case won't ever come up
+  where
+    (EnvGen f) = (mkEGBernoulli 0.5 fp)
+    fp = Set.singleton $ Position 0 0
+sampleEnvironment gen (MixedGen genList@((weight, g) : moreGens)) =
+  case chosenOne of
+    (EnvGen f) -> f gen
+    newME@(MixedGen list) -> sampleEnvironment gen2 newME
+  where
+    chosenOne = snd $ head $ filter (keep randomFloat) thresholdList--filter should never return an empty list based on the inputs it will get
+    keep randFloat (threshold, gen) = (randFloat <= threshold)
+
+    randomFloat = randomR (0, total) gen1
+    (gen1, gen2) = split gen
+
+    --figure out the total threshold value to generate a random number up to
+    (total, thresholdList) = foldr accumSumThresholds (0, []) genList
+    accumSumThresholds :: (Float, EnvGen) -> (Float, [(Float, EnvGen)]) -> (Float, [(Float, EnvGen)])
+    accumSumThresholds (weight, eg) (prevTotal, prevAssignments) = (newTotal, (newTotal, eg) : prevAssignments)
+      where newTotal = prevTotal + weight
 
 --the double should be a valid probability, i.e. between 0 and 1
 data BernoulliGen = BernoulliGen Double StdGen
+
+mkEGBernoulli :: Double -> Footprint -> EnvGen
+mkEGBernoulli threshold fp = EnvGen (\gen -> bernoulliEnv (BernoulliGen threshold gen) fp)
 
 patchBernoulli :: BernoulliGen -> (Patch, StdGen)
 patchBernoulli bg@(BernoulliGen threshold gen) = 

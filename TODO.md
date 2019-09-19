@@ -1,6 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed:
+* get sampleEnvironment in EnvGen working
 
 ### Machine Learning To-Dos:
 * create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators

@@ -3,6 +3,7 @@ module SampleVals where
 import Env
 import Drone
 import Ensemble
+import EnvGen
 import EnvView
 import WorldState
 import Scenario
@@ -256,3 +257,7 @@ threeStepsOfOutput pF numDrones envNum timeLimit = do
 
 kmp :: IO (WorldView -> KMeansLowPolicy)
 kmp = initializeKMP 10 <$> randGen
+
+--sample values:
+fromFPBernoulli70 :: Footprint -> EnvGen
+fromFPBernoulli70 fp = EnvGen (\gen -> bernoulliEnv (BernoulliGen 0.7 gen) fp)

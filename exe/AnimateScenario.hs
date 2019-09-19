@@ -67,6 +67,3 @@ main :: IO ()
 main = 
   SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 7 100000 >>= visualReplay
-
---other policy functions
-  --(return $ const SV.lsPolicy)

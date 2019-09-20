@@ -20,17 +20,25 @@ sampleEnvironment gen (MixedGen []) = f gen --ideally, this case won't ever come
     fp = Set.singleton $ Position 0 0
 sampleEnvironment gen (MixedGen genList@((weight, g) : moreGens)) =
   case chosenOne of
-    (EnvGen f) -> f gen
+    (EnvGen f) -> f gen2
     newME@(MixedGen list) -> sampleEnvironment gen2 newME
   where
-    chosenOne = snd $ head $ filter (keep randomFloat) thresholdList--filter should never return an empty list based on the inputs it will get
-    keep randFloat (threshold, gen) = (randFloat <= threshold)
+    chosenOne = snd $ head $ filteredList
 
-    randomFloat = randomR (0, total) gen1
+    filteredList :: [(Float, EnvGen)]
+    filteredList = filter (keep randomFloat) thresholdList--filter should never return an empty list based on the inputs it will get
+
+    keep :: Float -> (Float, a) -> Bool
+    keep randFloat (threshold, choice) = (randFloat <= threshold)
+
+    randomFloat = fst $ randomR (0, total) gen1
     (gen1, gen2) = split gen
 
     --figure out the total threshold value to generate a random number up to
+    total :: Float
+    thresholdList :: [(Float, EnvGen)]
     (total, thresholdList) = foldr accumSumThresholds (0, []) genList
+
     accumSumThresholds :: (Float, EnvGen) -> (Float, [(Float, EnvGen)]) -> (Float, [(Float, EnvGen)])
     accumSumThresholds (weight, eg) (prevTotal, prevAssignments) = (newTotal, (newTotal, eg) : prevAssignments)
       where newTotal = prevTotal + weight

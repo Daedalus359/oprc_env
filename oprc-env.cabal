@@ -83,3 +83,10 @@ executable animate-scenario
   
   hs-source-dirs:         exe
   default-language:       Haskell2010
+
+executable generate-environments
+  main-is:                GenerateEnvrionments.hs
+  build-depends:          base, oprc-env
+                        , random
+  hs-source-dirs:         exe
+  default-language:       Haskell2010

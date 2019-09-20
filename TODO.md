@@ -1,6 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed:
+* figure out why my environment generator is only generaying from the first element of mixedGen
 
 ### Machine Learning To-Dos:
 * create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators
@@ -10,6 +11,7 @@
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory. Have this heuristic be a learned function
 * make a neural net architecture that does Q learning. Make the Q learning updates at each time step inform the Q estimates for both future measurements and improve Q estimates for all past measurements according to an achitecture something like a bidirectional recursive neural network
 * create a policy that maintains a PGM data structure of the environment, and **uses RL to tune the parameters of the PGM from session to session** - make the PGM be a kind of spatial policy that works much like a convolutional neural network, except that it spits out a belief map ("image") of the same size that it took in, where each patch in this belief map represents the probability that the patch requires high scrutiny
+* create an algorithm that can learn a Q function offline by looking at the histories of other agents
 
 ### Hard Coded Algorithm Improvements:
 * get high sweep first policy working for large environments
@@ -32,6 +34,7 @@
 rewrite all list traversing operations in terms of foldr and see if I get performance improvement
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
+* research linear algebra libraries (linear, others mentioned on the wiki) and make a neural network functionalty for oprc out of it
 
 ### New Environment Features
 * consider adding functionality such as needing to track battery level and periodically return for a swap if the environment isn't rich enough

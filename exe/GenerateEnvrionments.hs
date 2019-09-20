@@ -8,8 +8,33 @@ import SerializeOPRC
 import System.IO
 import System.Random
 
+filePrefix :: String
+filePrefix = "./test/environments/generated/"
+
+numEnvs = 9
+
 main :: IO ()
 main = envString >>= writeCommand
+  where
+    writeCommand = writeFile $ filePrefix ++ "testMixed.env"
+
+    envString :: IO String
+    envString = encodeEnv <$> ioEnv
+
+    ioEnv :: IO Environment
+    ioEnv = (\gen -> sampleEnvironment gen eg) <$> newStdGen
+
+    eg :: EnvGen
+    eg = MixedGen [(1.0, sndGen), (3.0, fstGen)]
+
+    fstGen :: EnvGen
+    fstGen = mkEGBernoulli 0.1 6 0 25 0 45
+
+    sndGen :: EnvGen
+    sndGen = mkEGBernoulli 0.9 6 0 45 0 25
+
+writeBernoulliEnv :: IO ()
+writeBernoulliEnv = envString >>= writeCommand
 
   where
     writeCommand :: String -> IO ()

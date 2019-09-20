@@ -7,6 +7,7 @@ import Control.Monad
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Data.Monoid
+import Data.Maybe
 
 data EnvGen = 
     EnvGen (StdGen -> Environment)
@@ -16,8 +17,7 @@ sampleEnvironment :: StdGen -> EnvGen -> Environment
 sampleEnvironment gen (EnvGen f) = f gen
 sampleEnvironment gen (MixedGen []) = f gen --ideally, this case won't ever come up
   where
-    (EnvGen f) = (mkEGBernoulli 0.5 fp)
-    fp = Set.singleton $ Position 0 0
+    (EnvGen f) = (mkEGBernoulli 0.5 0 0 0 0 0)
 sampleEnvironment gen (MixedGen genList@((weight, g) : moreGens)) =
   case chosenOne of
     (EnvGen f) -> f gen2
@@ -46,8 +46,13 @@ sampleEnvironment gen (MixedGen genList@((weight, g) : moreGens)) =
 --the double should be a valid probability, i.e. between 0 and 1
 data BernoulliGen = BernoulliGen Double StdGen
 
-mkEGBernoulli :: Double -> Footprint -> EnvGen
-mkEGBernoulli threshold fp = EnvGen (\gen -> bernoulliEnv (BernoulliGen threshold gen) fp)
+mkEGBernoulli :: Double -> Int -> Int -> Int -> Int -> Int -> EnvGen
+mkEGBernoulli threshold varLimit xMin xMax yMin yMax = EnvGen f
+  where
+    f gen = bernoulliEnv (BernoulliGen threshold gen2) fp
+      where
+        fp = fromMaybe (Set.singleton $ Position 1 1) $ randomFootprint gen1 varLimit xMin xMax yMin yMax
+        (gen1, gen2) = split gen
 
 patchBernoulli :: BernoulliGen -> (Patch, StdGen)
 patchBernoulli bg@(BernoulliGen threshold gen) = 

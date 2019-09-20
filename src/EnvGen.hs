@@ -37,7 +37,10 @@ sampleEnvironment gen (MixedGen genList@((weight, g) : moreGens)) =
     --figure out the total threshold value to generate a random number up to
     total :: Float
     thresholdList :: [(Float, EnvGen)]
-    (total, thresholdList) = foldr accumSumThresholds (0, []) genList
+    total = fst $ last thresholdList
+    thresholdList = scanl (\(prevsum, _) -> \(f, eg) -> (prevsum + f, eg)) (weight, g) moreGens
+
+    --(total, thresholdList) = foldr accumSumThresholds (0, []) genList
 
     accumSumThresholds :: (Float, EnvGen) -> (Float, [(Float, EnvGen)]) -> (Float, [(Float, EnvGen)])
     accumSumThresholds (weight, eg) (prevTotal, prevAssignments) = (newTotal, (newTotal, eg) : prevAssignments)

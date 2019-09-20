@@ -1,10 +1,8 @@
 # To Do List
 
 ### Bug Fixes Needed:
-* figure out why my environment generator is only generaying from the first element of mixedGen
 
 ### Machine Learning To-Dos:
-* create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators
 * create functionality to test policies on a random assortment of environments
 * make basic a reward signal what RL based agents can include as a signal to learn from
 * make a simple learning agent that repeatedly refines a single number corresponding to the "pointless penalty" used by its version of A*
@@ -99,6 +97,8 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * experiment with different values of the "pointless penalty" in aStar (9/17/2019)
 * modify my kMeans direction assignment functions to pick what patch to visit in the territory based on what is farthest from all foreign means (9/17/2019)
 * modify my droneStatus drawing function to represent the field of view of the drone at that time (9/19/2019)
+* create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators (9/20/2019)
 
 ### Bugs Fixed
 * get sampleEnvironment in EnvGen working (9/20/2019)
+* figure out why my environment generator is only generating from the first element of mixedGen (9/20/2019)

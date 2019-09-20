@@ -25,7 +25,7 @@ main = envString >>= writeCommand
     ioEnv = (\gen -> sampleEnvironment gen eg) <$> newStdGen
 
     eg :: EnvGen
-    eg = MixedGen [(1.0, sndGen), (3.0, fstGen)]
+    eg = MixedGen [(33.0, fstGen), (67.0, sndGen)]
 
     fstGen :: EnvGen
     fstGen = mkEGBernoulli 0.1 6 0 25 0 45

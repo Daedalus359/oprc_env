@@ -1,6 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed:
+* finish writing runPolicyAccum and runScenarios in RunEnvironments.hs
 
 ### Machine Learning To-Dos:
 * create functionality to test policies on a random assortment of environments

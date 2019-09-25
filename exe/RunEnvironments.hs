@@ -1,7 +1,10 @@
 module Main where
 
 import Env
+import EnvView
 import ParseOPRC
+import Policy
+import Scenario
 
 import Control.Monad
 import Data.Maybe
@@ -32,8 +35,15 @@ readFilesAt dirPath = fmap allEnvs (allFiles >>= readFiles)
     toMaybe (Success a) = Just a
     toMaybe (Failure _) = Nothing
 
-runScenarios :: [Environment] -> IO ()
-runScenarios envs = undefined --foldr undefined undefined undefined
+runScenarios :: (PersistentPolicy p) => Integer -> Int -> (WorldView -> p) -> [Environment] -> IO [ScenarioReplay]
+runScenarios timeLimit numDrones policyF envs = undefined --foldr undefined (return ([], policyF)) envs
+
+--foldr function
+runPolicyAccum :: (PersistentPolicy p) => Environment -> IO ([ScenarioReplay], (WorldView -> p)) -> IO ([ScenarioReplay], (WorldView -> p))
+runPolicyAccum env ioVal = do
+  (replayList, policyF) <- ioVal
+  return ([], policyF)
+
 
 printList :: [Environment] -> IO ()
 printList strings = foldr (\env -> \soFar -> soFar >> (putStrLn $ take 50 $ show env)) (putStrLn "all files:") strings

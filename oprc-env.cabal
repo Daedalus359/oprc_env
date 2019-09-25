@@ -97,5 +97,6 @@ executable run-environments
   main-is:                RunEnvironments.hs
   build-depends:          base, oprc-env
                         , directory
+                        , trifecta
   hs-source-dirs:         exe
   default-language:       Haskell2010

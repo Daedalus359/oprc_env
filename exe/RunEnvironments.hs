@@ -1,22 +1,40 @@
 module Main where
 
 import Env
+import ParseOPRC
 
+import Control.Monad
+import Data.Maybe
 import System.Directory
 import System.Environment
+import Text.Trifecta
 
 main :: IO ()
 main = do
   args <- getArgs
   case args of
     [] -> putStrLn "No argument provided. Re-run with a directory containing only environment files"
-    (filePath:args) -> runThroughAt filePath
+    (filePath:args) -> readFilesAt filePath >> (return ())
 
-runThroughAt :: String -> IO ()
-runThroughAt dirPath = allFiles >>= printList
+readFilesAt :: String -> IO [Environment]
+readFilesAt dirPath = fmap allEnvs (allFiles >>= readFiles)
   where
-    allFiles :: IO [String]
-    allFiles = listDirectory dirPath
+    allFiles :: IO [FilePath]
+    allFiles = fmap (fmap ((++) dirPath)) $ listDirectory dirPath
 
-    printList :: [String] -> IO ()
-    printList strings = foldr (\str -> \soFar -> soFar >> (putStrLn str)) (putStrLn "all files:") strings
+    readFiles :: [FilePath] -> IO [String]
+    readFiles paths = sequenceA $ fmap readFile paths
+
+    allEnvs :: [String] -> [Environment]
+    allEnvs fileStrings = catMaybes $ fmap toMaybe $ fmap (parseString parseEnvironment mempty) fileStrings
+
+    toMaybe :: Result a -> Maybe a
+    toMaybe (Success a) = Just a
+    toMaybe (Failure _) = Nothing
+
+
+
+
+
+printList :: [Environment] -> IO ()
+printList strings = foldr (\env -> \soFar -> soFar >> (putStrLn $ take 50 $ show env)) (putStrLn "all files:") strings

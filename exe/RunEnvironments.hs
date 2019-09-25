@@ -32,9 +32,8 @@ readFilesAt dirPath = fmap allEnvs (allFiles >>= readFiles)
     toMaybe (Success a) = Just a
     toMaybe (Failure _) = Nothing
 
-
-
-
+runScenarios :: [Environment] -> IO ()
+runScenarios envs = undefined --foldr undefined undefined undefined
 
 printList :: [Environment] -> IO ()
 printList strings = foldr (\env -> \soFar -> soFar >> (putStrLn $ take 50 $ show env)) (putStrLn "all files:") strings

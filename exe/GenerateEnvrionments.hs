@@ -5,6 +5,8 @@ import EnvGen
 import qualified RandomOPRC as RO
 import SerializeOPRC
 
+import Data.Time.Clock
+import System.Directory
 import System.IO
 import System.Random
 
@@ -14,13 +16,23 @@ filePrefix = "./test/environments/generated/"
 numEnvs = 9
 
 main :: IO ()
-main = foldr writeFilesAccum (return ()) [1 .. numEnvs] 
+main = foldr writeFilesAccum makeDateDir [1 .. numEnvs]
+
   where
+    makeDateDir :: IO ()
+    makeDateDir = do
+      dtDir <- fmap ((++) filePrefix) getCurrentTimeStr
+      createDirectory dtDir
+      setCurrentDirectory dtDir
+
+    getCurrentTimeStr :: IO String
+    getCurrentTimeStr = show <$> getCurrentTime
+
     writeFilesAccum :: Int -> IO () -> IO () 
-    writeFilesAccum i soFar = envString >>= (writeCommandIndexed i) >> soFar
+    writeFilesAccum i soFar = soFar >> (envString >>= (writeCommandIndexed i))
 
     writeCommandIndexed :: Int -> String -> IO ()
-    writeCommandIndexed i = writeFile $ filePrefix ++ "testMixed" ++ (show i) ++ ".env"
+    writeCommandIndexed i = writeFile $ "./" ++ "testMixed" ++ (show i) ++ ".env"
 
     envString :: IO String
     envString = encodeEnv <$> ioEnv

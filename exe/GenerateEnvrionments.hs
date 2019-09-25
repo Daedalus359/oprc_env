@@ -14,9 +14,13 @@ filePrefix = "./test/environments/generated/"
 numEnvs = 9
 
 main :: IO ()
-main = envString >>= writeCommand
+main = foldr writeFilesAccum (return ()) [1 .. numEnvs] 
   where
-    writeCommand = writeFile $ filePrefix ++ "testMixed.env"
+    writeFilesAccum :: Int -> IO () -> IO () 
+    writeFilesAccum i soFar = envString >>= (writeCommandIndexed i) >> soFar
+
+    writeCommandIndexed :: Int -> String -> IO ()
+    writeCommandIndexed i = writeFile $ filePrefix ++ "testMixed" ++ (show i) ++ ".env"
 
     envString :: IO String
     envString = encodeEnv <$> ioEnv

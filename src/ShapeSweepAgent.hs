@@ -256,3 +256,7 @@ applyMove2 enStat dt@(DroneTerritory drone mean dirs) =
            (d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
            [] -> (Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
     else (Nothing, dt)
+
+--hard coding 10 may be a bad idea
+instance PersistentPolicy KMeansLowPolicy where
+  cleanup p@(KMeansLowPolicy gen map) = initializeKMP 10 gen

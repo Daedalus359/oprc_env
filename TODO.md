@@ -4,6 +4,7 @@
 
 ### Machine Learning To-Dos:
 * create functionality to test policies on a random assortment of environments
+* modify the policy typeclass to create a "clean up" function p -> p that prepares the policy to start over on a new environment but possibly keep its trained weights
 * make basic a reward signal what RL based agents can include as a signal to learn from
 * make a simple learning agent that repeatedly refines a single number corresponding to the "pointless penalty" used by its version of A*
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory. Have this heuristic be a learned function

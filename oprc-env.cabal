@@ -96,5 +96,6 @@ executable generate-environments
 executable run-environments
   main-is:                RunEnvironments.hs
   build-depends:          base, oprc-env
+                        , directory
   hs-source-dirs:         exe
   default-language:       Haskell2010

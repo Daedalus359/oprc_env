@@ -27,6 +27,7 @@
 * create an alternate Doc ann (as in prettyprinter) generating function for Scenario history that shows where a drone was at the moment it get each command
 
 ### Efficiency / Sofware Engineering Improvements:
+* make run-environments serialize and save replays of each scenario for analysis and visualization later
 * get rid of PSQueue in my project in favor of a data structure from stackage snapshot 14.3
 * replace my environment data structure with something like Data.Quadtree
 * benchmark and improve my code's performance so that I can run 500 random trials of env 7 really fast

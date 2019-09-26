@@ -52,7 +52,9 @@ runPolicyAccum timeLimit numDrones env ioVal = do
   (finished, scenario) <- return $ Scenario.fullRun timeLimit numDrones policyF env
   putStrLn $ "Scenario finished: " ++ (show finished)
   if finished
-    then putStrLn $ "Total time: " ++ (show $ getTime scenario)
+    then do
+      putStrLn $ "Total time: " ++ (show $ getTime scenario)
+      --putStrLn "syntax test"
     else putStrLn ""
   return (createReplay scenario : replayList, cleanup $ getPolicy scenario)
       

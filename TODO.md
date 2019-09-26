@@ -1,10 +1,8 @@
 # To Do List
 
 ### Bug Fixes Needed:
-* finish writing runPolicyAccum and runScenarios in RunEnvironments.hs
 
 ### Machine Learning To-Dos:
-* modify the policy typeclass to create a "clean up" function p -> p that prepares the policy to start over on a new environment but possibly keep its trained weights
 * make basic a reward signal what RL based agents can include as a signal to learn from
 * make a simple learning agent that repeatedly refines a single number corresponding to the "pointless penalty" used by its version of A*
 * make a heuristic guided territory assignment function that repeatedly balances territory assignments based on heuristic estimates of the time required to traverse the remaining unexplored territory. Have this heuristic be a learned function
@@ -27,6 +25,7 @@
 * create an alternate Doc ann (as in prettyprinter) generating function for Scenario history that shows where a drone was at the moment it get each command
 
 ### Efficiency / Sofware Engineering Improvements:
+* make a function that can scale down and align a footprint for the lower resolution versions needed for high sweep agent and spanning trees
 * make run-environments serialize and save replays of each scenario for analysis and visualization later
 * get rid of PSQueue in my project in favor of a data structure from stackage snapshot 14.3
 * replace my environment data structure with something like Data.Quadtree
@@ -101,6 +100,7 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * modify my droneStatus drawing function to represent the field of view of the drone at that time (9/19/2019)
 * create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators (9/20/2019)
 * create functionality to test policies on a random assortment of environments (9/25/2019)
+* create PresistentPolicy subclass to Policy that allows for custom resets between one scenario an the next (9/25/2019)
 
 ### Bugs Fixed
 * get sampleEnvironment in EnvGen working (9/20/2019)

@@ -5,6 +5,7 @@ import EnvView
 import WorldState
 
 import Data.Monoid
+import Numeric.AD
 
 infoValue :: PatchInfo -> Float
 infoValue Unseen = -1.0

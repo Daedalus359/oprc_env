@@ -39,6 +39,7 @@ library
                         , SerializeOPRC
                         , ShapeSweepAgent
   build-depends:          base
+                        , ad
                         , containers
                         , gloss
                         , trifecta

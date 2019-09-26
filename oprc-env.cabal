@@ -29,6 +29,7 @@ library
                         , SampleVals
                         , WorldState
                         , GraphOPRC
+                        , NeuralNet
                         , Policy
                         , ParseOPRC
                         , PrettyOPRC

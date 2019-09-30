@@ -25,6 +25,7 @@ library
                         , Env
                         , EnvGen
                         , EnvView
+                        , FisherYatesShuffle
                         , MoveCosts
                         , SampleVals
                         , WorldState
@@ -50,6 +51,7 @@ library
                         , text
                         , vector
                         , PSQueue
+                        , primitive
   default-language:       Haskell2010
 
 Test-Suite oprc-env-test

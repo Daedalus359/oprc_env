@@ -195,3 +195,12 @@ clamp lowBound highBound num =
     else if num > highBound
             then highBound
             else num
+
+islandsEnvGen :: Int -> Int -> Int -> Int -> Int -> (Environment -> Position -> Environment) -> StdGen -> Environment
+islandsEnvGen varLimit xMin xMax yMin yMax posAdder gen = undefined
+
+  where
+    fp = fromMaybe (Set.singleton $ Position 1 1) $ randomFootprint fpGen varLimit xMin xMax yMin yMax
+    (fpGen, patchesGen) = split gen
+
+--fillFootprint :: Footprint -> 

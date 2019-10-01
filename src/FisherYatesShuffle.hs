@@ -9,25 +9,18 @@ import System.Random
 
 import qualified Control.Monad.Primitive as P
 
+--handle conversion between vector <-> list
 shuffle :: StdGen -> [a] -> [a]
-shuffle gen xs = V.toList $ runST $ vecShuffle gen maxIndex $ V.thaw vec
+shuffle gen xs = V.toList $ runST $ vecShuffle gen maxIndex =<< V.thaw vec 
   where
     maxIndex = V.length vec - 1
     vec = V.fromList xs
 
-vecShuffle :: StdGen -> Int -> ST s (V.MVector (P.PrimState (ST s)) a) -> ST s (V.Vector a)
-vecShuffle _ 0 stv = stv >>= V.freeze
+vecShuffle :: StdGen -> Int -> V.MVector s a -> ST s (V.Vector a)
+vecShuffle _ 0 stv = V.freeze stv
 vecShuffle gen maxIndex stv =
   do
-    mVec <- stv
-    MV.swap mVec randomIndex maxIndex
-    vecShuffle nextGen (maxIndex - 1) (return mVec)
+    MV.swap stv randomIndex maxIndex --swap a randomly selected value from the currently unassigned vector with the one at the end of that space
+    vecShuffle nextGen (maxIndex - 1) stv --do it again to the front of the vector (everything before maxindex)
   where
     (randomIndex, nextGen) = randomR (0, maxIndex) gen
-
-sampleList = [0 .. 1000]
-
-demoShuffle :: IO ()
-demoShuffle = do
-  gen <- newStdGen
-  print $ shuffle gen sampleList

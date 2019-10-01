@@ -7,8 +7,6 @@ import qualified Data.Vector.Mutable as MV
 
 import System.Random
 
-import qualified Control.Monad.Primitive as P
-
 --handle conversion between vector <-> list
 shuffle :: StdGen -> [a] -> [a]
 shuffle gen xs = V.toList $ runST $ vecShuffle gen maxIndex =<< V.thaw vec 

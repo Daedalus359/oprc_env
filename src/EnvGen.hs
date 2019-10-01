@@ -1,6 +1,7 @@
 module EnvGen where
 
 import Env
+import qualified FisherYatesShuffle as FY
 
 import System.Random
 import Control.Monad
@@ -196,11 +197,18 @@ clamp lowBound highBound num =
             then highBound
             else num
 
-islandsEnvGen :: Int -> Int -> Int -> Int -> Int -> (Environment -> Position -> Environment) -> StdGen -> Environment
-islandsEnvGen varLimit xMin xMax yMin yMax posAdder gen = undefined
-
+islandsEnvGen :: Int -> Int -> Int -> Int -> Int -> (Position -> Environment -> Environment) -> StdGen -> Environment
+islandsEnvGen varLimit xMin xMax yMin yMax posAdder gen = foldr posAdder (Environment $ Map.empty) posList
   where
+    posList = FY.shuffle patchesGen $ Set.toList fp
     fp = fromMaybe (Set.singleton $ Position 1 1) $ randomFootprint fpGen varLimit xMin xMax yMin yMax
     (fpGen, patchesGen) = split gen
 
---fillFootprint :: Footprint -> 
+--
+likeNeighbors :: Position -> Environment -> Environment
+likeNeighbors newPos oldEnv@(Environment map) =
+  if (Map.member newPos map)
+    then oldEnv
+    else newEnv
+  where
+    newEnv = undefined

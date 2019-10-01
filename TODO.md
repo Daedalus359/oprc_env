@@ -1,6 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed:
+finish the islandsEnvGen supporting code
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from

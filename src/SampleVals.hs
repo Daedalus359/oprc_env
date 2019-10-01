@@ -73,6 +73,9 @@ parseEnv3 = fmap (parseString parseEnvironment mempty) $ readFile "./test/enviro
 parsedWs :: IO (Result WorldState)
 parsedWs = (fmap . fmap) (initializeWorldState 2) parseEnv3
 
+parseEnvFilePath :: String -> IO (Result Env.Environment)
+parseEnvFilePath path = fmap (parseString parseEnvironment mempty) $ readFile path
+
 parseEnvNum :: Integer -> IO (Result Env.Environment)
 parseEnvNum i = fmap (parseString parseEnvironment mempty) $ readFile fileStr
   where fileStr = "./test/environments/" ++ (show i) ++ ".env"
@@ -184,6 +187,20 @@ fullScenarioWithOutput ioPol nDrones envNum timeLimit = do
     --putStrLn "Move History: "
     --putDocW 80 (vsep $ fmap pretty $ Scenario.getHist scenario)
     return scenario
+
+fileNameScenarioWithOutput :: Policy p => IO (WorldView -> p) -> Int -> String -> Integer -> IO (Scenario p)
+fileNameScenarioWithOutput ioPol nDrones path timeLimit = do
+  putStrLn "Running scenario..."
+  (finished, scenario) <- liftA2 (Scenario.fullRun timeLimit nDrones) (ioPol) (dumpParseFailure $ parseEnvFilePath path)-- IO (Bool, Scenario RandomPolicy)
+  putStrLn "Environment explored? - "
+  print finished
+  --putStrLn "Final worldState: "
+  --putDocW 80 (pretty $ Scenario.getWorldState scenario)
+  putStrLn "Final time: "
+  print (Scenario.getTime scenario)
+  --putStrLn "Move History: "
+  --putDocW 80 (vsep $ fmap pretty $ Scenario.getHist scenario)
+  return scenario
 
 firstStepsWithOutput :: IO ()
 firstStepsWithOutput = do

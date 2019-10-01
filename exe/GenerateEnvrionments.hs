@@ -49,8 +49,45 @@ main = foldr writeFilesAccum makeDateDir [1 .. numEnvs]
     sndGen :: EnvGen
     sndGen = mkEGBernoulli 0.9 6 0 45 0 25
 
-writeBernoulliEnv :: IO ()
-writeBernoulliEnv = envString >>= writeCommand
+writeCustomEnv :: String -> EnvGen -> IO ()
+writeCustomEnv suffix envGen = envString >>= (writeCommand suffix)
+  where
+    envString = encodeEnv <$> finalEnv
+
+    finalEnv :: IO Environment
+    finalEnv = fmap (\stdgen -> sampleEnvironment stdgen envGen) newStdGen
+
+    writeCommand :: String -> String -> IO ()
+    writeCommand suffix = writeFile $ filePrefix ++ suffix
+
+    filePrefix :: String
+    filePrefix = "./test/environments/generated/"
+
+writeClumpedEnv :: Float -> Float -> IO ()
+writeClumpedEnv neighborEffect initThreshold = writeCustomEnv ("clumpedNE=" ++ (show neighborEffect) ++ "T=" ++ (show initThreshold) ++ ".env") eg
+  where
+    eg = islandsEnvGen varLimit xMin xMax yMin yMax posAdder
+    varLimit = 6
+    xMin = 0
+    xMax = 25
+    yMin = 0
+    yMax = 45
+    posAdder = likeNeighbors neighborEffect initThreshold
+
+
+writeBernoulliEnv :: Double -> IO ()
+writeBernoulliEnv threshold = writeCustomEnv ("bernoulli" ++ (show threshold) ++ ".env") eg
+  where
+    eg = mkEGBernoulli threshold varLimit xMin xMax yMin yMax
+    varLimit = 6
+    xMin = 0
+    xMax = 25
+    yMin = 0
+    yMax = 45
+
+--original one, has a hole
+writeBernoulliEnv2 :: IO ()
+writeBernoulliEnv2 = envString >>= writeCommand
 
   where
     writeCommand :: String -> IO ()

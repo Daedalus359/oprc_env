@@ -197,14 +197,22 @@ clamp lowBound highBound num =
             then highBound
             else num
 
-islandsEnvGen :: Int -> Int -> Int -> Int -> Int -> (Position -> Environment -> Environment) -> EnvGen
+foldrWGen :: Foldable t => StdGen -> (StdGen -> a -> b -> b) -> b -> t a -> b
+foldrWGen gen f b ta = fst $ foldr newF newB ta
+  where
+    newB = (b, gen)
+    newF a (bVal, genVal) = (f useGen a bVal, passGen)
+      where (useGen, passGen) = split genVal
+
+islandsEnvGen :: Int -> Int -> Int -> Int -> Int -> (StdGen -> Position -> Environment -> Environment) -> EnvGen
 islandsEnvGen varLimit xMin xMax yMin yMax posAdder = EnvGen f
   where
-    f gen = foldr posAdder (Environment $ Map.empty) posList
+    f gen = foldrWGen patchesGen posAdder (Environment $ Map.empty) posList
       where
-        posList = FY.shuffle patchesGen $ Set.toList fp
+        posList = FY.shuffle orderGen $ Set.toList fp
         fp = fromMaybe (Set.singleton $ Position 1 1) $ randomFootprint fpGen varLimit xMin xMax yMin yMax
-        (fpGen, patchesGen) = split gen
+        (orderGen, patchesGen) = split newGen
+        (fpGen, newGen) = split gen
 
 --initThreshold represents the probability of generating a Close scrutiny patch before neighbor effects
 likeNeighbors :: Float -> Float -> StdGen -> Position -> Environment -> Environment

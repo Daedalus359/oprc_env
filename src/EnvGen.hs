@@ -197,18 +197,27 @@ clamp lowBound highBound num =
             then highBound
             else num
 
-islandsEnvGen :: Int -> Int -> Int -> Int -> Int -> (Position -> Environment -> Environment) -> StdGen -> Environment
-islandsEnvGen varLimit xMin xMax yMin yMax posAdder gen = foldr posAdder (Environment $ Map.empty) posList
+islandsEnvGen :: Int -> Int -> Int -> Int -> Int -> (Position -> Environment -> Environment) -> EnvGen
+islandsEnvGen varLimit xMin xMax yMin yMax posAdder = EnvGen f
   where
-    posList = FY.shuffle patchesGen $ Set.toList fp
-    fp = fromMaybe (Set.singleton $ Position 1 1) $ randomFootprint fpGen varLimit xMin xMax yMin yMax
-    (fpGen, patchesGen) = split gen
+    f gen = foldr posAdder (Environment $ Map.empty) posList
+      where
+        posList = FY.shuffle patchesGen $ Set.toList fp
+        fp = fromMaybe (Set.singleton $ Position 1 1) $ randomFootprint fpGen varLimit xMin xMax yMin yMax
+        (fpGen, patchesGen) = split gen
 
---
-likeNeighbors :: Position -> Environment -> Environment
-likeNeighbors newPos oldEnv@(Environment map) =
+--initThreshold represents the probability of generating a Close scrutiny patch before neighbor effects
+likeNeighbors :: Float -> Float -> StdGen -> Position -> Environment -> Environment
+likeNeighbors neighborEffect initThreshold gen newPos oldEnv@(Environment map) =
   if (Map.member newPos map)
     then oldEnv
     else newEnv
   where
-    newEnv = undefined
+    newEnv = Environment $ Map.insert newPos newPatch map
+    newPatch = if (randomVal <= newThreshold) then (Patch Close) else (Patch Far)
+    (randomVal, _) = randomR (0, 1) gen
+    newThreshold = min 1 $ max 0 $ foldr patchEffect initThreshold filledNeighbors
+    patchEffect pat currentThreshold = case pat of
+      Patch Close -> currentThreshold + neighborEffect
+      Patch Far -> currentThreshold - neighborEffect
+    filledNeighbors = inBoundsNeighborPatches oldEnv newPos

@@ -3,6 +3,8 @@ module Env where --The simulated world
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 
+import Data.Maybe
+
 --location for a patch (horizontal information only)
 type XCoord = Int
 type YCoord = Int
@@ -86,6 +88,12 @@ neighborsOf pos = nl <*> [pos]
 
 inBoundsNeighborsOf :: Footprint -> Position -> [Position]
 inBoundsNeighborsOf fp pos = filter (inBounds fp) $ neighborsOf pos
+
+inBoundsNeighborPatches :: Environment -> Position -> [Patch]
+inBoundsNeighborPatches env@(Environment map) pos = catMaybes mPatches
+  where
+    mPatches = fmap (\pos -> Map.lookup pos map) candidates
+    candidates = neighborsOf pos
 
 --The "environment" is a colection of patches at different positions
 newtype Environment = Environment {getMap :: (Map.Map Position Patch)}

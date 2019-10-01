@@ -1,6 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed:
+finish CoarseMap in GraphOPRC
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from
@@ -11,7 +12,7 @@
 * create an algorithm that can learn a Q function offline by looking at the histories of other agents
 
 ### Hard Coded Algorithm Improvements:
-* get high sweep first policy working for large environments
+* get high sweep first policy working
 * make an A* cost function that is suitable for use with HighSweep policies by raising costs for moving off of the points where (mod x 3 = 0), make the high sweep policy instance use it
 * add an initial step to the kmeans policy where it has all drones traverse the spanning tree of their initial (10 iteration) assigned territory by making just the first path planning call go to a different function from A*
 * add an initial queue of positions to visit for each drone that represents a traversal of the drone's initial territory by spanning tree. Drones should give up this strategy and generate a new queue if the next place to visit is no longer in its territory
@@ -101,6 +102,7 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * create a random environment generator that splits into a few different categorical types, then variations of a few continuous parameters within categories - make this modular by composing the sub-generators, so that I can train models to specialize on sub generators (9/20/2019)
 * create functionality to test policies on a random assortment of environments (9/25/2019)
 * create PresistentPolicy subclass to Policy that allows for custom resets between one scenario an the next (9/25/2019)
+* create and environment generator that makes clusters of similar patches (10/1/2019)
 
 ### Bugs Fixed
 * get sampleEnvironment in EnvGen working (9/20/2019)

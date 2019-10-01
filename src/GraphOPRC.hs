@@ -313,3 +313,6 @@ instance HasCenter Position where
 instance HasCenter DroneTerritory where
   getCenter = getMean
   moveCenter newMean (DroneTerritory drone _ dirs) = DroneTerritory drone newMean dirs
+
+coarseMap :: Int -> Footprint -> Set.Set Position 
+coarseMap squareDim fp = undefined

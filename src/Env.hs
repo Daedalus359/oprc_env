@@ -5,6 +5,8 @@ import qualified Data.Set as Set
 
 import Data.Maybe
 
+import Control.Monad
+
 --location for a patch (horizontal information only)
 type XCoord = Int
 type YCoord = Int
@@ -94,6 +96,36 @@ inBoundsNeighborPatches env@(Environment map) pos = catMaybes mPatches
   where
     mPatches = fmap (\pos -> Map.lookup pos map) candidates
     candidates = neighborsOf pos
+
+--don't call this with r < 0!
+--all positions (with no redard for bounds) whose Chebyshev distance to pos is less than or equal to r
+chebyshevCluster :: Int -> Position -> [Position]
+chebyshevCluster 0 pos = [pos]
+chebyshevCluster r pos@(Position xc yc) = topSide ++ bottomSide ++ rightSide ++ leftSide ++ (chebyshevCluster (r - 1) pos)
+  where
+    leftSide = fmap (Position xmin) [ymin .. ymax]
+    rightSide = fmap (Position xmax) [ymin .. ymax]
+    topSide = fmap (\x -> Position x ymax) [xmin + 1 .. xmax - 1]
+    bottomSide = fmap (\x -> Position x ymin) [xmin + 1 .. xmax - 1]
+
+    ymax = yc + r
+    ymin = yc - r
+    xmax = xc + r
+    xmin = xc - r
+
+--the same as chebyshevCluster, but it only pads to the right and below the original position, leaving pos in the top left corner
+chebyshevLowerRight :: Int -> Position -> [Position]
+chebyshevLowerRight 0 pos = [pos]
+chebyshevLowerRight r pos@(Position xc yc) = bottomSide ++ rightSide ++ (chebyshevLowerRight (r - 1) pos)
+  where
+    bottomSide = fmap (\x -> Position x ymin) [xmin .. xmax - 1]
+    rightSide = fmap (Position xmax) [ymin .. ymax]
+
+    ymax = yc + r
+    ymin = yc - r
+    xmax = xc + r
+    xmin = xc - r
+
 
 --The "environment" is a colection of patches at different positions
 newtype Environment = Environment {getMap :: (Map.Map Position Patch)}

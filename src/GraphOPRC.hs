@@ -335,14 +335,14 @@ coarseNeighbors squareDim (Position xc yc) = tail $ fmap Position (fmap (+ xc) c
 
 --don't run this on an empty set
 dfsSpanningTree :: Int -> Set.Set Position -> Tree Position
-dfsSpanningTree squareDim set = dfsInternal root visitList neighborF discoveredSet
+dfsSpanningTree squareDim set = dfsInternal (Node root []) root visitList neighborF discoveredSet
   where
     visitList = []
     neighborF = coarseNeighbors squareDim
     discoveredSet = Set.empty
     root = Set.findMin set
 
-dfsInternal :: Position -> [Position] -> (Position -> [Position]) -> Set.Set Position -> Tree Position
-dfsInternal root visitList neighborF discoveredSet = Node root subtree
+dfsInternal :: Tree Position -> Position -> [Position] -> (Position -> [Position]) -> Set.Set Position -> Tree Position
+dfsInternal (Node root tree) current visitList neighborF discoveredSet = Node root subtree
   where
     subtree = undefined

@@ -314,7 +314,7 @@ instance HasCenter DroneTerritory where
   getCenter = getMean
   moveCenter newMean (DroneTerritory drone _ dirs) = DroneTerritory drone newMean dirs
 
-
+--not all of these locations exist in the fine graph, but something in their "chunk" will
 coarseMap :: Int -> Footprint -> Set.Set Position 
 coarseMap squareDim fp = foldr checkAndAdd Set.empty fp
   where
@@ -325,3 +325,12 @@ coarseMap squareDim fp = foldr checkAndAdd Set.empty fp
         else Set.insert (alignedPos pos) set
     alignedPos pos@(Position xc yc) = Position (align xc) (align yc)
     align x = x - (mod x squareDim)
+
+--all of the neighbors in a coarse version of the graph
+coarseNeighbors :: Int -> Position -> [Position]
+coarseNeighbors squareDim (Position xc yc) = tail $ fmap Position (fmap (+ xc) changes) <*> (fmap (+ yc) changes)
+  where
+    changes = [0, (-squareDim), (squareDim)]
+
+
+--dfsSpanningTree

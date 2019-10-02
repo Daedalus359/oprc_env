@@ -1,7 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed:
-finish CoarseMap in GraphOPRC
+finish dfsInternal in GraphOPRC
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from

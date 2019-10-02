@@ -11,6 +11,7 @@ import qualified Data.Sequence as SQ
 import Data.Foldable
 import Data.Monoid
 import Data.Semigroup
+import Data.Tree
 
 import MoveCosts
 import Env
@@ -332,5 +333,16 @@ coarseNeighbors squareDim (Position xc yc) = tail $ fmap Position (fmap (+ xc) c
   where
     changes = [0, (-squareDim), (squareDim)]
 
+--don't run this on an empty set
+dfsSpanningTree :: Int -> Set.Set Position -> Tree Position
+dfsSpanningTree squareDim set = dfsInternal root visitList neighborF discoveredSet
+  where
+    visitList = []
+    neighborF = coarseNeighbors squareDim
+    discoveredSet = Set.empty
+    root = Set.findMin set
 
---dfsSpanningTree
+dfsInternal :: Position -> [Position] -> (Position -> [Position]) -> Set.Set Position -> Tree Position
+dfsInternal root visitList neighborF discoveredSet = Node root subtree
+  where
+    subtree = undefined

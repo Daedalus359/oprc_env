@@ -314,6 +314,14 @@ instance HasCenter DroneTerritory where
   getCenter = getMean
   moveCenter newMean (DroneTerritory drone _ dirs) = DroneTerritory drone newMean dirs
 
---do I need two versions of this for the corner and center based Chebyshev padding?
+
 coarseMap :: Int -> Footprint -> Set.Set Position 
-coarseMap squareDim fp = undefined
+coarseMap squareDim fp = foldr checkAndAdd Set.empty fp
+  where
+    checkAndAdd :: Position -> Set.Set Position -> Set.Set Position
+    checkAndAdd pos set =
+      if (Set.member (alignedPos pos) set)
+        then set
+        else Set.insert (alignedPos pos) set
+    alignedPos pos@(Position xc yc) = Position (align xc) (align yc)
+    align x = x - (mod x squareDim)

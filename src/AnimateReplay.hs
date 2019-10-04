@@ -11,6 +11,8 @@ import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
 import qualified Data.Map.Strict as Map
 
+import Data.Tree
+
 gridScale :: Float  
 gridScale = 24
 
@@ -141,3 +143,16 @@ displayPic = Scale 3 3 $ Pictures
   , toGridPos 1 1 $ patchInfoPic $ FullyObserved (Patch Far), toGridPos 1 1 $ droneFrom High
   , toGridPos 0 1 $ patchInfoPic Unseen
   ]
+
+treeNodePos :: Position -> Picture
+treeNodePos (Position xc yc) = Pictures [circlePic, tuplePic]
+  where
+    circlePic = circle 100
+    tuplePic = Translate (-50) ((-50) * scaleFactor) $ Scale scaleFactor scaleFactor $ Text tupleStr
+    scaleFactor = 2 * (1 / stringSize)
+    stringSize = fromIntegral $ length tupleStr
+    tupleStr = "(" ++ (show xc) ++ ", " ++ (show yc) ++ ")"
+
+--need to compute the width and depth of a tree to arrange and scale everything properly
+drawPosTree :: Tree Position -> Picture
+drawPosTree tree@(Node root subtrees) = undefined

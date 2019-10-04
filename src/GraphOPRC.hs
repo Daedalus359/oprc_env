@@ -333,16 +333,81 @@ coarseNeighbors squareDim (Position xc yc) = tail $ fmap Position (fmap (+ xc) c
   where
     changes = [0, (-squareDim), (squareDim)]
 
+--this specific hop ordering should promote trees with mostly cardinal direction edges
+--although a child node will move diagonally to explore a node that the parent could have explored cardinally
+--above based on the order that foldr evaluates in dfsInternal
+coarseNeighbors2 :: Int -> Position -> [Position]
+coarseNeighbors2 squareDim pos = fmap (hopFrom pos) $ zip xChanges yChanges
+  where
+    yChanges = fmap (* squareDim) yDirs
+    xChanges = fmap (* squareDim) xDirs
+    (xDirs, yDirs) = unzip [ ( 1,  1) --NE
+                           , (-1,  1) --NW
+                           , (-1, -1) --SW
+                           , ( 1, -1) --SE
+                           , ( 1,  0) --E
+                           , ( 0, -1) --S
+                           , (-1,  0) --W
+                           , ( 0,  1) --N
+                           ]
+
+--if it is possible to do so, this will guide the creation of a tree with only cardinal edges
+coarseCardinalNeighbors :: Int -> Position -> [Position]
+coarseCardinalNeighbors squareDim pos = fmap (hopFrom pos) $ zip xChanges yChanges
+  where
+    yChanges = fmap (* squareDim) yDirs
+    xChanges = fmap (* squareDim) xDirs
+    (xDirs, yDirs) = unzip [ ( 1,  0) --E
+                           , ( 0, -1) --S
+                           , (-1,  0) --W
+                           , ( 0,  1) --N
+                           ]
+
 --don't run this on an empty set
 dfsSpanningTree :: Int -> Set.Set Position -> Tree Position
-dfsSpanningTree squareDim set = fst $ dfsInternal (Node root []) root visitList neighborF discoveredSet
+dfsSpanningTree squareDim set = customRootDfsSpanningTree squareDim root set
   where
-    visitList = []
-    neighborF = coarseNeighbors squareDim
-    discoveredSet = Set.empty
     root = Set.findMin set
 
-dfsInternal :: Tree Position -> Position -> [Position] -> (Position -> [Position]) -> Set.Set Position -> (Tree Position, Set.Set Position)
-dfsInternal (Node root tree) current visitList neighborF discoveredSet = (Node root subtree, discoveredBelow)
+--don't feed this a root outside of the bounds set
+customRootDfsSpanningTree :: Int -> Position -> Set.Set Position -> Tree Position
+customRootDfsSpanningTree squareDim root set =
+  if (cardinalSetSize == desiredSetSize) --if the cardinal moves only algorithm found a valid solution
+    then cardinalTree --then keep that solution
+    else fst $ dfsInternal set neighborF root discoveredSet --otherwise find a solution that uses diagonals
+
   where
-    (subtree, discoveredBelow) = undefined
+    cardinalSetSize = Set.size cardinalSet
+    desiredSetSize = Set.size set
+
+    (cardinalTree, cardinalSet) = dfsInternal set cardinalNeighborF root discoveredSet
+
+    neighborF = coarseNeighbors2 squareDim
+    cardinalNeighborF = coarseCardinalNeighbors squareDim
+
+    discoveredSet = Set.empty
+
+--dfsInternal and its fold function are mutually recursive
+dfsInternal :: Set.Set Position -> (Position -> [Position]) -> Position -> Set.Set Position -> (Tree Position, Set.Set Position)
+dfsInternal boundsSet neighborF current inTreeSet = foldr (processNeighbors boundsSet neighborF) (newSeed, newInTreeSet) candidateNeighbors
+  where
+    newInTreeSet = Set.insert current inTreeSet
+    newSeed = (Node current []) --a tree, something for the fold to fill in with child values
+
+    --inBoundsNeighbors = filter (\pos -> Set.member pos boundsSet) candidateNeighbors
+    candidateNeighbors = neighborF current --all of the positions that *might* be reachable from current
+
+--use foldr to pass state around
+--fold over all of the candidate neighbors, assume access to the overall footprint
+processNeighbors :: Set.Set Position -> (Position -> [Position]) -> Position -> (Tree Position, Set.Set Position) -> (Tree Position, Set.Set Position)
+processNeighbors boundsSet neighborF childCandidate status@((Node current subTreeList), inTreeSet) =
+  --is the position boing considered out of bounds? Alternatively, is it already in the tree?
+  if (Set.notMember childCandidate boundsSet || Set.member childCandidate inTreeSet)
+
+    then status --skip the current childCandidate, it does not need to be added to the tree
+
+    --once this evaluates, childCandidate and all of its descendants have been added to the tree
+    else (Node current (newSubTree : subTreeList), newInTreeSet) 
+
+  where
+    (newSubTree, newInTreeSet) = dfsInternal boundsSet neighborF childCandidate inTreeSet --(Set.insert childCandidate inTreeSet)

@@ -1,7 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed:
-finish dfsInternal in GraphOPRC
+* see if I can modify the depth first search algorithm to modify a failed cardinal-directions-only-tree instead of just trying again. Should simply need to add failure checks to all of the recursive calls instead of just the top, and include two neighbor functions to each dfs function
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from
@@ -24,9 +24,9 @@ finish dfsInternal in GraphOPRC
 * make a drawing function that applies a translucent coloring over a particular set of patch positions, meant to represent the territory assigned to a particular drone
 * augment the scenario animation to keep an up to date representation of drone territories on screen
 * create an alternate Doc ann (as in prettyprinter) generating function for Scenario history that shows where a drone was at the moment it get each command
+* finish drawPosTree in my animation code
 
 ### Efficiency / Sofware Engineering Improvements:
-* make a function that can scale down and align a footprint for the lower resolution versions needed for high sweep agent and spanning trees
 * make run-environments serialize and save replays of each scenario for analysis and visualization later
 * get rid of PSQueue in my project in favor of a data structure from stackage snapshot 14.3
 * replace my environment data structure with something like Data.Quadtree
@@ -35,6 +35,7 @@ rewrite all list traversing operations in terms of foldr and see if I get perfor
 * find out if PSQueue uses last in first out for tie breaking, find another implementation if not
 * find a good configuration format and parses for my use case, make one that holds all info for a scenario
 * research linear algebra libraries (linear, others mentioned on the wiki) and make a neural network functionalty for oprc out of it
+* split the animation specific code from the drawing only code, put the latter into DrawOPRC or similar
 
 ### New Environment Features
 * consider adding functionality such as needing to track battery level and periodically return for a swap if the environment isn't rich enough
@@ -103,6 +104,8 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * create functionality to test policies on a random assortment of environments (9/25/2019)
 * create PresistentPolicy subclass to Policy that allows for custom resets between one scenario an the next (9/25/2019)
 * create and environment generator that makes clusters of similar patches (10/1/2019)
+* make a function that can scale down and align a footprint for the lower resolution versions needed for high sweep agent and spanning trees (10/2/2019)
+* make a function that computes spanning trees for variable resolution environments (10/3/2019)
 
 ### Bugs Fixed
 * get sampleEnvironment in EnvGen working (9/20/2019)

@@ -68,3 +68,6 @@ main =
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
   SV.fileNameScenarioWithOutput SV.kmp 6 "./test/environments/generated/clumpedNE=0.15T=0.5.env" 100000 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 7 100000 >>= visualReplay
+
+quickDraw :: (a -> Picture) -> a -> IO ()
+quickDraw f a = display windowDisplay white $ f a

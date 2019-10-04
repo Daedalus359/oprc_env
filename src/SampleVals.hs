@@ -104,6 +104,11 @@ dumpParseFailure2 f possibleVal = do
 footprint :: Env.Footprint
 footprint = Map.keysSet $ toMap env
 
+footprint2 :: Env.Footprint
+footprint2 = Set.fromList $ zipWith Position xs ys
+  where
+    (xs, ys) = unzip [(0, 0), (0, 3), (1,0), (1,1), (1,2), (1,3), (2,3)]
+
 
 --Currently no datatypes defined in MoveCosts
 

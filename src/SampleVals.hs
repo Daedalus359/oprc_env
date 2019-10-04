@@ -76,6 +76,14 @@ parsedWs = (fmap . fmap) (initializeWorldState 2) parseEnv3
 parseEnvFilePath :: String -> IO (Result Env.Environment)
 parseEnvFilePath path = fmap (parseString parseEnvironment mempty) $ readFile path
 
+--this can fail
+envFromFilePath :: String -> IO Env.Environment
+envFromFilePath path = do
+  result <- parseEnvFilePath path
+  case result of
+    Success env -> return env
+    Failure _ -> exitFailure
+
 parseEnvNum :: Integer -> IO (Result Env.Environment)
 parseEnvNum i = fmap (parseString parseEnvironment mempty) $ readFile fileStr
   where fileStr = "./test/environments/" ++ (show i) ++ ".env"

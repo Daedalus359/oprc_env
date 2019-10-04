@@ -1,7 +1,6 @@
 # To Do List
 
 ### Bug Fixes Needed:
-* see if I can modify the depth first search algorithm to modify a failed cardinal-directions-only-tree instead of just trying again. Should simply need to add failure checks to all of the recursive calls instead of just the top, and include two neighbor functions to each dfs function
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from
@@ -44,6 +43,8 @@ rewrite all list traversing operations in terms of foldr and see if I get perfor
 * modify A* to accept a custom cost function
 * implement a random environment parser that accepts a third kind of character, ?, and assigns it high or low with some probability
 * adapt the online density estimation algorithms from Wenhao Luo to use observation filtering with a Kernel to estimate quality of fit of various environment models, then do planning based on that info
+* move core IO functionality out of samplevals
+* see if I can modify the depth first search algorithm to modify a failed cardinal-directions-only-tree instead of just trying again.
 
 ### Completed Items:
 * Write a parser for Drone that turns a digit into a Drone (7/1/2019)

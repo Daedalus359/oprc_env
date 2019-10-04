@@ -364,21 +364,33 @@ coarseCardinalNeighbors squareDim pos = fmap (hopFrom pos) $ zip xChanges yChang
                            ]
 
 --don't run this on an empty set
-dfsSpanningTree :: Int -> Set.Set Position -> Tree Position
-dfsSpanningTree squareDim set = customRootDfsSpanningTree squareDim root set
+dfsSpanningForest :: Int -> Set.Set Position -> Forest Position
+dfsSpanningForest squareDim set = customRootDfsSpanningForest squareDim root set
   where
     root = Set.findMin set
 
 --don't feed this a root outside of the bounds set
-customRootDfsSpanningTree :: Int -> Position -> Set.Set Position -> Tree Position
-customRootDfsSpanningTree squareDim root set =
-  if (cardinalSetSize == desiredSetSize) --if the cardinal moves only algorithm found a valid solution
-    then cardinalTree --then keep that solution
-    else fst $ dfsInternal set neighborF root discoveredSet --otherwise find a solution that uses diagonals
+--only the last of the spanning trees discovered by this algorithm has the specified root
+customRootDfsSpanningForest :: Int -> Position -> Set.Set Position -> Forest Position
+customRootDfsSpanningForest squareDim root set =
+
+  if (null unexplored) --did the first tree span the entire set?
+    then [cardinalTree]
+    else restOfForest ++ [cardinalTree]
+
+
+  --OLD VERSION
+  --if (cardinalSetSize == desiredSetSize) --if the cardinal moves only algorithm found a valid solution
+    --then cardinalTree --then keep that solution
+    --else fst $ dfsInternal set neighborF root discoveredSet --otherwise find a solution that uses diagonals
 
   where
-    cardinalSetSize = Set.size cardinalSet
-    desiredSetSize = Set.size set
+    unexplored = Set.difference set cardinalSet --what was not possible to visit using only cardinal moves from the specified root?
+
+    restOfForest = dfsSpanningForest squareDim unexplored --this gets used only if cardinalTree failed to cover the whole set
+
+    --cardinalSetSize = Set.size cardinalSet
+    --desiredSetSize = Set.size set
 
     (cardinalTree, cardinalSet) = dfsInternal set cardinalNeighborF root discoveredSet
 
@@ -413,18 +425,24 @@ processNeighbors boundsSet neighborF childCandidate status@((Node current subTre
     (newSubTree, newInTreeSet) = dfsInternal boundsSet neighborF childCandidate inTreeSet --(Set.insert childCandidate inTreeSet)
 
 --constructs the coarse map and performs DFS on it, bundling the two functions together
-customRootDfsFromFootprint :: Int -> Footprint -> Position -> Tree Position
-customRootDfsFromFootprint squareDim realFP root = customRootDfsSpanningTree squareDim root coarseFP
+customRootDfsFromFootprint :: Int -> Footprint -> Position -> Forest Position
+customRootDfsFromFootprint squareDim realFP root = customRootDfsSpanningForest squareDim root coarseFP
   where
     coarseFP = coarseMap squareDim realFP
 
 --same as above but with a default root
-minRootDfsFromFootprint :: Int -> Footprint -> Tree Position
-minRootDfsFromFootprint squareDim realFP = customRootDfsSpanningTree squareDim root coarseFP
+minRootDfsFromFootprint :: Int -> Footprint -> Forest Position
+minRootDfsFromFootprint squareDim realFP = customRootDfsSpanningForest squareDim root coarseFP
   where
     root = Set.findMin coarseFP
     coarseFP = coarseMap squareDim realFP
 
+--a testing utility for evaluating the performance of my spanning forest algorithms
+displayForestCustomRoot :: Int -> Footprint -> Position -> IO ()
+displayForestCustomRoot squareDim fp root = putStrLn $ drawForest $ fmap (fmap show) forest
+  where
+    forest = customRootDfsFromFootprint squareDim fp root
+
 --this version should only be run on cardinal spanning trees (i.e. no edges between intercardinal coarse neighbors)
-cardinalCoveragePath :: Tree Position -> Path
+cardinalCoveragePath :: Forest Position -> Path
 cardinalCoveragePath = undefined

@@ -373,10 +373,11 @@ dfsSpanningForest squareDim set = customRootDfsSpanningForest squareDim root set
 --only the last of the spanning trees discovered by this algorithm has the specified root
 customRootDfsSpanningForest :: Int -> Position -> Set.Set Position -> Forest Position
 customRootDfsSpanningForest squareDim root set =
-
-  if (null unexplored) --did the first tree span the entire set?
-    then [cardinalTree]
-    else restOfForest ++ [cardinalTree]
+  if (null set) --is there nothing to do?
+    then [] --prevent an algorithm from being called that would construct an empty Tree
+    else if (null unexplored) --did the first tree span the entire set?
+      then [cardinalTree]
+      else restOfForest ++ [cardinalTree]
 
 
   --OLD VERSION
@@ -435,14 +436,25 @@ minRootDfsFromFootprint :: Int -> Footprint -> Forest Position
 minRootDfsFromFootprint squareDim realFP = customRootDfsSpanningForest squareDim root coarseFP
   where
     root = Set.findMin coarseFP
-    coarseFP = coarseMap squareDim realFP
+    coarseFP = coarseMap squareDim realFP --so what we pass as a root is gauaranteed to be in the set that dfs explores
 
 --a testing utility for evaluating the performance of my spanning forest algorithms
-displayForestCustomRoot :: Int -> Footprint -> Position -> IO ()
-displayForestCustomRoot squareDim fp root = putStrLn $ drawForest $ fmap (fmap show) forest
+displayForestCustomRoot :: Int -> Position -> Footprint -> IO ()
+displayForestCustomRoot squareDim root fp = putStrLn $ drawForest $ fmap (fmap show) forest
   where
     forest = customRootDfsFromFootprint squareDim fp root
 
---this version should only be run on cardinal spanning trees (i.e. no edges between intercardinal coarse neighbors)
+displayForestMinRoot :: Int -> Footprint -> IO ()
+displayForestMinRoot squareDim fp = displayForestCustomRoot squareDim root fp
+  where
+    root = Set.findMin coarseFP
+    coarseFP = coarseMap squareDim fp --just so what we pass as a root is gauaranteed to be in the set that dfs explores
+
+--comes up with a path through each quadrant (squares with side length = 0.5 * squareDim)
+  --so don't run on spanning trees whose squareDim parameter was odd
+--should be run on forests with only cardinal edges
 cardinalCoveragePath :: Forest Position -> Path
-cardinalCoveragePath = undefined
+cardinalCoveragePath forest = foldr treePathAccumulator [] forest
+
+treePathAccumulator :: Tree Position -> Path -> Path
+treePathAccumulator = undefined

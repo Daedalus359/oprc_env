@@ -411,3 +411,20 @@ processNeighbors boundsSet neighborF childCandidate status@((Node current subTre
 
   where
     (newSubTree, newInTreeSet) = dfsInternal boundsSet neighborF childCandidate inTreeSet --(Set.insert childCandidate inTreeSet)
+
+--constructs the coarse map and performs DFS on it, bundling the two functions together
+customRootDfsFromFootprint :: Int -> Footprint -> Position -> Tree Position
+customRootDfsFromFootprint squareDim realFP root = customRootDfsSpanningTree squareDim root coarseFP
+  where
+    coarseFP = coarseMap squareDim realFP
+
+--same as above but with a default root
+minRootDfsFromFootprint :: Int -> Footprint -> Tree Position
+minRootDfsFromFootprint squareDim realFP = customRootDfsSpanningTree squareDim root coarseFP
+  where
+    root = Set.findMin coarseFP
+    coarseFP = coarseMap squareDim realFP
+
+--this version should only be run on cardinal spanning trees (i.e. no edges between intercardinal coarse neighbors)
+cardinalCoveragePath :: Tree Position -> Path
+cardinalCoveragePath = undefined

@@ -52,7 +52,7 @@ data Altitude = High | Low
 type Hop = (Int, Int)
 
 hopFrom :: Position -> Hop -> Position
-hopFrom (Position x y) (dX, dY) = (Position (x + dX) (y + dY))
+hopFrom (Position x y) (dX, dY) = (Position (x + dX) (y + dY)) 
 
 getHop :: Position -> Position -> Hop
 getHop (Position x1 y1) (Position x2 y2) = (x2 - x1, y2 - y1)
@@ -136,6 +136,9 @@ instance Show Environment where
 
 toMap :: Environment -> Map.Map Position Patch
 toMap (Environment map) = map
+
+getFootprint :: Environment -> Footprint
+getFootprint (Environment map) = Map.keysSet map
 
 --The "Footprint" is a description of all points which are in bounds
 type Footprint = Set.Set Position

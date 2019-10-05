@@ -1,7 +1,7 @@
 # To Do List
 
-### Bug Fixes Needed:
-consider whether customRootDfsSpanningForest should reverse its output or otherwise present it in an intelligent order
+### Bug Fixes Needed, Unfinished Implementations:
+finish spanningTreePath and cardinalCoveragePath in GraphOPRC
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from

@@ -457,4 +457,11 @@ cardinalCoveragePath :: Forest Position -> Path
 cardinalCoveragePath forest = foldr treePathAccumulator [] forest
 
 treePathAccumulator :: Tree Position -> Path -> Path
-treePathAccumulator = undefined
+--the order in which the paths are combined should make the front of the forest contribute to the end of the path
+  --that's good because the biggest tree should be the first one made in most cases, and that goes at the end of the forest
+treePathAccumulator newTree prevPath = prevPath ++ (spanningTreePath newTree)
+
+--comes up with a coverage path than traverses a single spanning tree
+--parent and child nodes should be coarse cardinal neighbors
+spanningTreePath :: Tree Position -> Path
+spanningTreePath = undefined

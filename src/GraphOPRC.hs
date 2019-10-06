@@ -471,13 +471,41 @@ spanningTreePath squareDim node@(Node rootCorner _) =
     quadCenter = centerPos squareDim rootCorner
     quadHop = quot squareDim 2 --hopping by (+/-quadHop, +/-quadHop) moves between the center of one quadrant to the center of another
 
---where the real tree following happens
+--where the real tree following starts
 stpInternal :: Int -> Position -> Tree Position -> Path
-stpInternal quadHop currentPos@(Position xc yc) (Node cornerPos children) =
+--case where we just moved into a leaf node, just need to cycle through to the appropriate quadrant from which to return to the parent
+stpInternal quadHop currentPos (Node cornerPos []) = 
+  quadrantPath quadHop currentQuadrant currentPos destQuad
+  where
+    currentQuadrant = whichQuadrant quadHop currentPos cornerPos
+    
+    --given the quadrant we are in, and given the leaf node context, what quadrant should we end in?
+    destQuad = case currentQuadrant of
+      BottomLeft -> TopLeft
+      BottomRight -> BottomLeft
+      TopRight -> BottomRight
+      TopLeft -> TopRight
+--case where there are children to visit. As with all calls to stpInternal, this call should only be made when we have just moved in to the current node. Need to cycle through children in a principled order, moving in, doing a recursive call, and moving back out for each. Need to move between quadrants directly whenever there is no edge to what would otherwise be the next appropriate child to visit. Accomplish all of this with a fold.
+stpInternal quadHop currentPos (Node cornerPos children@(child:others)) =
   undefined
 
 data Quadrant = BottomLeft | BottomRight | TopLeft | TopRight
   deriving (Eq, Show)
+
+--the path to move from the quadrant you are in to the one where you want to be
+quadrantPath :: Int -> Quadrant -> Position -> Quadrant -> Path
+quadrantPath quadHop startQuad startPos endQuad =
+  if (startQuad == endQuad)
+    then []
+    else nextPos : (quadrantPath quadHop nextQuad nextPos endQuad)
+  where
+    nextPos = hopFrom startPos nextHop
+    (nextQuad, nextHop) = cycleQuads startQuad
+    --if you are moving in a square's internal cycle, this tells you where you are going next and the hop that will get you there
+    cycleQuads BottomLeft = (BottomRight, (quadHop, 0))
+    cycleQuads BottomRight = (TopRight, (0, quadHop))
+    cycleQuads TopRight = (TopLeft, ((-quadHop), 0))
+    cycleQuads TopLeft = (BottomLeft, (0, (-quadHop))) 
 
 --given a position at the center of a quadrant, and given the center of the lower left quadrant, what quadrant is the position in?
 whichQuadrant :: Int -> Position -> Position -> Quadrant

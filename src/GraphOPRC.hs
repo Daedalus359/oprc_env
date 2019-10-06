@@ -466,6 +466,14 @@ treePathAccumulator squareDim newTree prevPath = prevPath ++ (spanningTreePath s
 spanningTreePath :: Int -> Tree Position -> Path
 spanningTreePath squareDim node@(Node rootCorner _) =
   --rootCorner is the lower left position in the "territory" (squareDim ^ 2 positions) assigned to it
+  stpInternal quadHop quadCenter node
+  where
+    quadCenter = centerPos squareDim rootCorner
+    quadHop = quot squareDim 2 --hopping by (+/-quadHop, +/-quadHop) moves between the center of one quadrant to the center of another
+
+--where the real tree following happens
+stpInternal :: Int -> Position -> Tree Position -> Path
+stpInternal quadHop currentPos@(Position xc yc) (Node cornerPos children) =
   undefined
 
 --given the lower left coner of a square of size squareDim, find the center of the lower left quadrant

@@ -476,6 +476,22 @@ stpInternal :: Int -> Position -> Tree Position -> Path
 stpInternal quadHop currentPos@(Position xc yc) (Node cornerPos children) =
   undefined
 
+data Quadrant = BottomLeft | BottomRight | TopLeft | TopRight
+  deriving (Eq, Show)
+
+--given a position at the center of a quadrant, and given the center of the lower left quadrant, what quadrant is the position in?
+whichQuadrant :: Int -> Position -> Position -> Quadrant
+whichQuadrant quadHop pos@(Position xc yc) q1Center@(Position q1cx q1cy) =
+  case (dxH, dyH) of
+    (0, 0) -> BottomLeft
+    (0, 1) -> TopLeft
+    (1, 0) -> BottomRight
+    (1, 1) -> TopRight
+  where
+    dxH = quot (xc - q1cx) quadHop
+    dyH = quot (yc - q1cy) quadHop
+    --undefined for all positions that aren't one of the quadrant centers of the square as defined
+
 --given the lower left coner of a square of size squareDim, find the center of the lower left quadrant
 centerPos :: Int -> Position -> Position
 centerPos squareDim cornerPos@(Position xc yc) = hopFrom cornerPos (hopSize, hopSize)

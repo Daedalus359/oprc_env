@@ -453,15 +453,30 @@ displayForestMinRoot squareDim fp = displayForestCustomRoot squareDim root fp
 --comes up with a path through each quadrant (squares with side length = 0.5 * squareDim)
   --so don't run on spanning trees whose squareDim parameter was odd
 --should be run on forests with only cardinal edges
-cardinalCoveragePath :: Forest Position -> Path
-cardinalCoveragePath forest = foldr treePathAccumulator [] forest
+cardinalCoveragePath :: Int -> Forest Position -> Path
+cardinalCoveragePath squareDim forest = foldr (treePathAccumulator squareDim) [] forest
 
-treePathAccumulator :: Tree Position -> Path -> Path
+treePathAccumulator :: Int -> Tree Position -> Path -> Path
 --the order in which the paths are combined should make the front of the forest contribute to the end of the path
   --that's good because the biggest tree should be the first one made in most cases, and that goes at the end of the forest
-treePathAccumulator newTree prevPath = prevPath ++ (spanningTreePath newTree)
+treePathAccumulator squareDim newTree prevPath = prevPath ++ (spanningTreePath squareDim newTree)
 
 --comes up with a coverage path than traverses a single spanning tree
 --parent and child nodes should be coarse cardinal neighbors
-spanningTreePath :: Tree Position -> Path
-spanningTreePath = undefined
+spanningTreePath :: Int -> Tree Position -> Path
+spanningTreePath squareDim node@(Node rootCorner _) =
+  --rootCorner is the lower left position in the "territory" (squareDim ^ 2 positions) assigned to it
+  undefined
+
+--given the lower left coner of a square of size squareDim, find the center of the lower left quadrant
+centerPos :: Int -> Position -> Position
+centerPos squareDim cornerPos@(Position xc yc) = hopFrom cornerPos (hopSize, hopSize)
+  where
+    hopSize = middleHop quadrantDim
+
+    middleHop :: Int -> Int --how far in each of x and y from the corner of a quadrant of a certain size do you move to get from that corner to the center of the quadrant
+    --if the quadrant has even size, bias towards being close to the corner
+    middleHop quadrantDim = d + (min m 1) - 1
+      where (d, m) = divMod quadrantDim 2
+    
+    quadrantDim = quot squareDim 2 --squareDim should really be even for this to work as intended

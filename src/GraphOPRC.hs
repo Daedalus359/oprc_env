@@ -496,11 +496,10 @@ stpInternal quadHop currentPos (Node cornerPos []) =
       BottomRight -> BottomLeft
       TopRight -> BottomRight
       TopLeft -> TopRight
---case where there are children to visit. As with all calls to stpInternal, this call should only be made when we have just moved in to the current node. Need to cycle through children in a principled order, moving in, doing a recursive call, and moving back out for each. Need to move between quadrants directly whenever there is no edge to what would otherwise be the next appropriate child to visit. Accomplish all of this with a fold.
+--case where there are children to visit. As with all calls to stpInternal, this call should only be made when we have just moved in to the current node. Need to cycle through children in a principled order, moving in, doing a recursive call, and moving back out for each child. Need to move between quadrants directly whenever there is no edge to what would otherwise be the next appropriate child to visit. Accomplish all of this with a fold.
 stpInternal quadHop currentPos (Node cornerPos childTrees) =
-  foldr (visitChildren squareDim cornerPos children) [] prioritizedDirections
+  foldr (visitChildren squareDim cornerPos childTrees) [] prioritizedDirections
   where
-    children = roots childTrees
     prioritizedDirections = take 4 $ drop dropNum $ cycle [South, East, North, West]
     dropNum = case (whichQuadrant quadHop currentPos llQuadCenter) of
       BottomLeft -> 0
@@ -510,16 +509,19 @@ stpInternal quadHop currentPos (Node cornerPos childTrees) =
     llQuadCenter = centerPos squareDim cornerPos
     squareDim = 2 * quadHop
 
-visitChildren :: Int -> Position -> [Position] -> CardinalDir -> Path -> Path 
-visitChildren squareDim cornerPos children direction soFar = soFar ++ newPath
+visitChildren :: Int -> Position -> Forest Position -> CardinalDir -> Path -> Path 
+visitChildren squareDim cornerPos childTrees direction soFar = soFar ++ newPath 
   where
-    newPath =
-      if (elem possibleChild children)
-        then undefined
-        else [newPos]
-          where
-            newPos = undefined
-            (_, hop) = cycleQuads quadHop currentQuad
+    newPath = if (elem possibleChild children)
+      then (nextPos : ( recursivePath ++ [newPos])) 
+      else [newPos]
+    recursivePath = stpInternal quadHop nextPos childTree
+    childTree = childTrees !! childIndex
+    childIndex = fromMaybe 0 $ findIndex (\tree -> rootLabel tree == nextPos) childTrees
+    nextPos = coarseCardinalNeighborTo squareDim direction currentPos--where we start when recursion is called
+    newPos = hopFrom currentPos cycleHop --for when we are just moving through the current square
+    children = roots childTrees
+    (_, cycleHop) = cycleQuads quadHop currentQuad
     currentPos = quadPos squareDim cornerPos currentQuad
     quadHop = quot squareDim 2
     currentQuad = case direction of

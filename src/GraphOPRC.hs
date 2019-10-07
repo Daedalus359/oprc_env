@@ -363,6 +363,17 @@ coarseCardinalNeighbors squareDim pos = fmap (hopFrom pos) $ zip xChanges yChang
                            , ( 0,  1) --N
                            ]
 
+--get one of the specific coarse neighbors for a Position
+coarseCardinalNeighborTo :: Int -> CardinalDir -> Position -> Position
+coarseCardinalNeighborTo squareDim dir pos =
+  hopFrom pos coarseHop
+  where
+    coarseHop = case dir of
+      North -> (0, squareDim)
+      South -> (0, (-squareDim))
+      East -> (squareDim, 0)
+      West -> ((-squareDim), 0)
+
 --don't run this on an empty set
 dfsSpanningForest :: Int -> Set.Set Position -> Forest Position
 dfsSpanningForest squareDim set = customRootDfsSpanningForest squareDim root set
@@ -487,7 +498,21 @@ stpInternal quadHop currentPos (Node cornerPos []) =
       TopLeft -> TopRight
 --case where there are children to visit. As with all calls to stpInternal, this call should only be made when we have just moved in to the current node. Need to cycle through children in a principled order, moving in, doing a recursive call, and moving back out for each. Need to move between quadrants directly whenever there is no edge to what would otherwise be the next appropriate child to visit. Accomplish all of this with a fold.
 stpInternal quadHop currentPos (Node cornerPos children@(child:others)) =
-  undefined
+  foldr (visitChildren squareDim cornerPos children) [] prioritizedDirections
+  where
+    prioritizedDirections = take 4 $ drop dropNum $ cycle [South, East, North, West]
+    dropNum = case (whichQuadrant quadHop currentPos llQuadCenter) of
+      BottomLeft -> 0
+      BottomRight -> 1
+      TopRight -> 2
+      TopLeft -> 3
+    llQuadCenter = centerPos squareDim cornerPos
+    squareDim = 2 * quadHop
+
+visitChildren :: Int -> Position -> Forest Position -> CardinalDir -> Path -> Path 
+visitChildren squareDim cornerPos children direction soFar = soFar ++ newPath
+  where
+    newPath = undefined
 
 data Quadrant = BottomLeft | BottomRight | TopLeft | TopRight
   deriving (Eq, Show)

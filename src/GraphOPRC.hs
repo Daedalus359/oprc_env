@@ -497,9 +497,10 @@ stpInternal quadHop currentPos (Node cornerPos []) =
       TopRight -> BottomRight
       TopLeft -> TopRight
 --case where there are children to visit. As with all calls to stpInternal, this call should only be made when we have just moved in to the current node. Need to cycle through children in a principled order, moving in, doing a recursive call, and moving back out for each. Need to move between quadrants directly whenever there is no edge to what would otherwise be the next appropriate child to visit. Accomplish all of this with a fold.
-stpInternal quadHop currentPos (Node cornerPos children@(child:others)) =
+stpInternal quadHop currentPos (Node cornerPos childTrees) =
   foldr (visitChildren squareDim cornerPos children) [] prioritizedDirections
   where
+    children = roots childTrees
     prioritizedDirections = take 4 $ drop dropNum $ cycle [South, East, North, West]
     dropNum = case (whichQuadrant quadHop currentPos llQuadCenter) of
       BottomLeft -> 0
@@ -509,13 +510,23 @@ stpInternal quadHop currentPos (Node cornerPos children@(child:others)) =
     llQuadCenter = centerPos squareDim cornerPos
     squareDim = 2 * quadHop
 
-visitChildren :: Int -> Position -> Forest Position -> CardinalDir -> Path -> Path 
+visitChildren :: Int -> Position -> [Position] -> CardinalDir -> Path -> Path 
 visitChildren squareDim cornerPos children direction soFar = soFar ++ newPath
   where
-    newPath = undefined
+    newPath =
+      if (elem possibleChild children)
+        then undefined
+        else undefined
+    possibleChild = coarseCardinalNeighborTo squareDim direction cornerPos
 
 data Quadrant = BottomLeft | BottomRight | TopLeft | TopRight
   deriving (Eq, Show)
+
+roots :: Forest a -> [a]
+roots trees = foldr treeRootAccum [] trees
+  where
+    treeRootAccum :: Tree a -> [a] -> [a]
+    treeRootAccum (Node aVal children) soFar = aVal : soFar
 
 --the path to move from the quadrant you are in to the one where you want to be
 quadrantPath :: Int -> Quadrant -> Position -> Quadrant -> Path

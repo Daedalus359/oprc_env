@@ -363,6 +363,18 @@ coarseCardinalNeighbors squareDim pos = fmap (hopFrom pos) $ zip xChanges yChang
                            , ( 0,  1) --N
                            ]
 
+--if you are at the center of a quadrant, this moves you to some other quadrant (maybe not the same node / square)
+quadrantNeighborTo :: Int -> CardinalDir -> Position -> Position
+quadrantNeighborTo squareDim dir pos =
+  hopFrom pos coarseHop
+  where
+    quadHop = quot squareDim 2
+    coarseHop = case dir of
+      North -> (0, quadHop)
+      South -> (0, (-quadHop))
+      East -> (quadHop, 0)
+      West -> ((-quadHop), 0)
+
 --get one of the specific coarse neighbors for a Position
 coarseCardinalNeighborTo :: Int -> CardinalDir -> Position -> Position
 coarseCardinalNeighborTo squareDim dir pos =
@@ -517,8 +529,9 @@ visitChildren squareDim cornerPos childTrees direction restOfFold = newPath ++ r
       else [newPos]
     recursivePath = stpInternal quadHop nextPos childTree
     childTree = childTrees !! childIndex
-    childIndex = fromMaybe 0 $ findIndex (\tree -> rootLabel tree == nextPos) childTrees
-    nextPos = coarseCardinalNeighborTo squareDim direction currentPos--where we start when recursion is called
+    childIndex = fromMaybe 0 $ findIndex (\tree -> rootLabel tree == childCorner) childTrees
+    childCorner = coarseCardinalNeighborTo squareDim direction cornerPos
+    nextPos = quadrantNeighborTo squareDim direction currentPos--where we start when recursion is called
     newPos = hopFrom currentPos cycleHop --for when we are just moving through the current square
     children = roots childTrees
     (_, cycleHop) = cycleQuads quadHop currentQuad

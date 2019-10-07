@@ -516,7 +516,16 @@ visitChildren squareDim cornerPos children direction soFar = soFar ++ newPath
     newPath =
       if (elem possibleChild children)
         then undefined
-        else undefined
+        else [newPos]
+          where
+            newPos = undefined
+            (_, hop) = cycleQuads quadHop currentQuad
+    quadHop = quot squareDim 2
+    currentQuad = case direction of
+      South -> BottomLeft
+      East -> BottomRight
+      North -> TopRight
+      West -> TopLeft
     possibleChild = coarseCardinalNeighborTo squareDim direction cornerPos
 
 data Quadrant = BottomLeft | BottomRight | TopLeft | TopRight
@@ -536,12 +545,17 @@ quadrantPath quadHop startQuad startPos endQuad =
     else nextPos : (quadrantPath quadHop nextQuad nextPos endQuad)
   where
     nextPos = hopFrom startPos nextHop
-    (nextQuad, nextHop) = cycleQuads startQuad
-    --if you are moving in a square's internal cycle, this tells you where you are going next and the hop that will get you there
-    cycleQuads BottomLeft = (BottomRight, (quadHop, 0))
-    cycleQuads BottomRight = (TopRight, (0, quadHop))
-    cycleQuads TopRight = (TopLeft, ((-quadHop), 0))
-    cycleQuads TopLeft = (BottomLeft, (0, (-quadHop))) 
+    (nextQuad, nextHop) = cycleQuads quadHop startQuad
+
+
+--if you are moving in a square's internal cycle, this tells you:
+  --1: where you are going next
+  --2: the hop that will get you there
+cycleQuads :: Int -> Quadrant -> (Quadrant, Hop)
+cycleQuads quadHop BottomLeft = (BottomRight, (quadHop, 0))
+cycleQuads quadHop BottomRight = (TopRight, (0, quadHop))
+cycleQuads quadHop TopRight = (TopLeft, ((-quadHop), 0))
+cycleQuads quadHop TopLeft = (BottomLeft, (0, (-quadHop))) 
 
 --given a position at the center of a quadrant, and given the center of the lower left quadrant, what quadrant is the position in?
 whichQuadrant :: Int -> Position -> Position -> Quadrant

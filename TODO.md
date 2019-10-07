@@ -1,7 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed, Unfinished Implementations:
-finish spanningTreePath and cardinalCoveragePath in GraphOPRC
+* run tests on my coverage path function
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from
@@ -108,7 +108,8 @@ Scenario, and make a function that steps this foreward one time step (9/3/2019)
 * create and environment generator that makes clusters of similar patches (10/1/2019)
 * make a function that can scale down and align a footprint for the lower resolution versions needed for high sweep agent and spanning trees (10/2/2019)
 * make a function that computes spanning trees for variable resolution environments (10/3/2019)
-* make a function that computes spanning forests with all cardinal edges for variable resolution environments (10/4/2019)
+* make a function that computes spanning forests with all cardinal edges for variable resolution environments (10/4/2019)\
+* make functions that traverse a cardinal spanning forest to create an initial coverage path (does not yet check if elements of the path are really in bounds)
 
 ### Bugs Fixed
 * get sampleEnvironment in EnvGen working (9/20/2019)

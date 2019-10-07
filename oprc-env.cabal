@@ -40,6 +40,7 @@ library
                         , Scenario
                         , SerializeOPRC
                         , ShapeSweepAgent
+                        , SpanningTreeAgent
   build-depends:          base
                         , ad
                         , containers

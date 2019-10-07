@@ -55,23 +55,30 @@ recreatePathInternal start end pMap partialPath@(front : positions) =
     (Just parent) -> recreatePathInternal start end pMap (parent : partialPath)
     Nothing -> if (front == start) then (Just partialPath) else Nothing
 
+--uses a default penalty value for covering explored ground again
 aStar :: Altitude -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
-aStar droneAlt envInfo hFunc startPos endPos = recreatePath startPos endPos $ aStarInternal droneAlt envInfo fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
+aStar droneAlt envInfo hFunc startPos endPos = aStarCustomPenalty pointlessPenalty droneAlt envInfo hFunc startPos endPos
  where
-   openSet = (Q.singleton startPos 0 :: Q.PSQ Position Int)
-   fMax = initializeETC fp
-   cMax = initializeCFS fp
-   fp = toFootprint envInfo
+   pointlessPenalty = 9
+
+aStarCustomPenalty :: Int -> Altitude -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
+aStarCustomPenalty pointlessPenalty droneAlt envInfo hFunc startPos endPos = 
+  recreatePath startPos endPos $ aStarInternal pointlessPenalty droneAlt envInfo fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
+  where
+    openSet = (Q.singleton startPos 0 :: Q.PSQ Position Int)
+    fMax = initializeETC fp
+    cMax = initializeCFS fp
+    fp = toFootprint envInfo
 
 --continue making recursive calls until endPos can be entered into the ParentMap
-aStarInternal :: Altitude -> EnvironmentInfo -> Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Int -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
-aStarInternal droneAlt envInfo fp h startPos endPos openSet closedSet f c parentMap =
+aStarInternal :: Int -> Altitude -> EnvironmentInfo -> Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Int -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
+aStarInternal pointlessPenalty droneAlt envInfo fp h startPos endPos openSet closedSet f c parentMap =
   case mostPromising of
     Nothing -> parentMap --if the open set is empty, A* should have either found an answer or failed (more likely)
     (Just position) ->
       if (position == endPos)
         then parentMap --A* has succeeded
-        else aStarInternal droneAlt envInfo fp h startPos endPos newOpenSet newClosedSet newF newC newParentMap
+        else aStarInternal pointlessPenalty droneAlt envInfo fp h startPos endPos newOpenSet newClosedSet newF newC newParentMap
           where
             --updates related to the improvedNeighbors
             newF = foldr (\neighbor -> Map.insert neighbor $ h neighbor + (totalCostThroughPos neighbor)) fWithNewNeighbors improvedNeighbors
@@ -117,7 +124,7 @@ aStarInternal droneAlt envInfo fp h startPos endPos openSet closedSet f c parent
             penalty (FullyObserved _) = pointlessPenalty
 
             --tune this!
-            pointlessPenalty = 9
+            
 
             neighborCostsFromPos :: Map.Map Position Int
             neighborCostsFromPos = Map.fromList $ filter (\(p, c) -> not $ Set.member p newClosedSet) $ MoveCosts.inBoundsNeighborsOfWithCosts fp position
@@ -599,6 +606,16 @@ centerPos squareDim cornerPos@(Position xc yc) = hopFrom cornerPos (hopSize, hop
     
     quadrantDim = quot squareDim 2 --squareDim should really be even for this to work as intended
 
+--given the "center" of a quadrant of known size, what is the set of all Positions in that quadrant?
+quadSetFromCenter :: Int -> Position -> Set.Set Position
+quadSetFromCenter quadSize centerPos = Set.fromList $ fmap Position (fmap (+ xc) changes) <*> (fmap (+ yc) changes)
+  where
+    changes = [0 .. (quadSize - 1)]
+    cornerPos@(Position xc yc) = hopFrom centerPos ((-hopSize), (-hopSize)) --just the inverse of what happens in centerPos
+
+    hopSize = halfQuadrant + (min m 1) - 1 
+    (halfQuadrant, m) = divMod quadSize 2 
+
 --given where the corner is, where is the center of the quadrant we want?
 quadPos :: Int -> Position -> Quadrant -> Position
 quadPos squareDim cornerPos quad = hopFrom llCorner hop
@@ -610,3 +627,35 @@ quadPos squareDim cornerPos quad = hopFrom llCorner hop
       TopRight -> (quadHop, quadHop)
     quadHop = quot squareDim 2
     llCorner = centerPos squareDim cornerPos
+
+--given the real footprint and the path built around a coarse cardinal spanning tree, find a path with the following properties
+  --1: all positions are in bounds
+  --2: all positions from the original path that exist in the environment are kept
+  --3: if a position in the original path is out of bounds, the lowest valued in-bounds member of its quadrant is included
+  --4: if a path entries entire quadrant is out of bounds, its entry is skipped
+    --(note that this is possible because the coarse map looks for any element in the 2x2 quadrant squares)
+inBoundsPath :: Int -> Footprint -> Path -> Path
+inBoundsPath quadSize fp origPath = catMaybes undefined
+  where
+    inBoundsLabels = fmap (inBounds fp) origPath
+
+    keepOrFindQuadMember :: Bool -> Position -> Maybe Position
+    keepOrFindQuadMember True original = Just original
+    keepOrFindQuadMember False original = Set.lookupMin commonGround --Maybe Position
+      where
+        --set intersection of the quadrant and the footprint
+        commonGround = Set.intersection quadrantSet fp
+
+        --the points that, if in bounds, would be suitable substitutes for original
+        quadrantSet = quadSetFromCenter quadSize original
+
+customRootInBoundsSpanningTreePath :: Int -> Footprint -> Position -> Path
+customRootInBoundsSpanningTreePath squareDim fp root = inBoundsPath squareDim fp unboundedPath
+  where
+    unboundedPath = customRootSpanningTreeCoveragePath squareDim fp root
+
+minRootInBoundsSpanningTreePath :: Int -> Footprint -> Path
+minRootInBoundsSpanningTreePath squareDim fp = customRootInBoundsSpanningTreePath squareDim fp root
+  where
+    root = Set.findMin coarseFP
+    coarseFP = coarseMap squareDim fp

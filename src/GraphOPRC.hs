@@ -467,6 +467,17 @@ displayForestMinRoot squareDim fp = displayForestCustomRoot squareDim root fp
 cardinalCoveragePath :: Int -> Forest Position -> Path
 cardinalCoveragePath squareDim forest = foldr (treePathAccumulator squareDim) [] forest
 
+minRootSpanningTreeCoveragePath :: Int -> Footprint -> Path
+minRootSpanningTreeCoveragePath squareDim fp = customRootSpanningTreeCoveragePath squareDim fp root
+  where
+    root = Set.findMin coarseFP
+    coarseFP = coarseMap squareDim fp
+
+customRootSpanningTreeCoveragePath :: Int -> Footprint -> Position -> Path
+customRootSpanningTreeCoveragePath squareDim fp root = cardinalCoveragePath squareDim forest
+  where
+    forest = customRootDfsFromFootprint squareDim fp root
+
 treePathAccumulator :: Int -> Tree Position -> Path -> Path
 --the order in which the paths are combined should make the front of the forest contribute to the end of the path
   --that's good because the biggest tree should be the first one made in most cases, and that goes at the end of the forest
@@ -484,21 +495,10 @@ spanningTreePath squareDim node@(Node rootCorner _) =
 
 --where the real tree following starts
 stpInternal :: Int -> Position -> Tree Position -> Path
---case where we just moved into a leaf node, just need to cycle through to the appropriate quadrant from which to return to the parent
-stpInternal quadHop currentPos (Node cornerPos []) = 
-  quadrantPath quadHop currentQuadrant currentPos destQuad
-  where
-    currentQuadrant = whichQuadrant quadHop currentPos cornerPos
-    
-    --given the quadrant we are in, and given the leaf node context, what quadrant should we end in?
-    destQuad = case currentQuadrant of
-      BottomLeft -> TopLeft
-      BottomRight -> BottomLeft
-      TopRight -> BottomRight
-      TopLeft -> TopRight
---case where there are children to visit. As with all calls to stpInternal, this call should only be made when we have just moved in to the current node. Need to cycle through children in a principled order, moving in, doing a recursive call, and moving back out for each child. Need to move between quadrants directly whenever there is no edge to what would otherwise be the next appropriate child to visit. Accomplish all of this with a fold.
+--case where there are 0 or more children to visit. As with all calls to stpInternal, this call should only be made when we have just moved in to the current node. Need to cycle through children in a principled order, moving in, doing a recursive call, and moving back out for each child. Need to move between quadrants directly whenever there is no edge to what would otherwise be the next appropriate child to visit. Accomplish all of this with a fold.
 stpInternal quadHop currentPos (Node cornerPos childTrees) =
-  foldr (visitChildren squareDim cornerPos childTrees) [] prioritizedDirections
+  --init drops the very last element because that always loops around one step too far
+  init $ foldr (visitChildren squareDim cornerPos childTrees) [] prioritizedDirections
   where
     prioritizedDirections = take 4 $ drop dropNum $ cycle [South, East, North, West]
     dropNum = case (whichQuadrant quadHop currentPos llQuadCenter) of
@@ -510,10 +510,10 @@ stpInternal quadHop currentPos (Node cornerPos childTrees) =
     squareDim = 2 * quadHop
 
 visitChildren :: Int -> Position -> Forest Position -> CardinalDir -> Path -> Path 
-visitChildren squareDim cornerPos childTrees direction soFar = soFar ++ newPath 
+visitChildren squareDim cornerPos childTrees direction restOfFold = newPath ++ restOfFold --tricky ordering, see foldr definition
   where
     newPath = if (elem possibleChild children)
-      then (nextPos : ( recursivePath ++ [newPos])) 
+      then (nextPos : ( recursivePath ++ [newPos])) --nextPos moves into the first quadrant of the recursive call, newPos moves it back out
       else [newPos]
     recursivePath = stpInternal quadHop nextPos childTree
     childTree = childTrees !! childIndex

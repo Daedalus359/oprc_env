@@ -520,6 +520,7 @@ visitChildren squareDim cornerPos children direction soFar = soFar ++ newPath
           where
             newPos = undefined
             (_, hop) = cycleQuads quadHop currentQuad
+    currentPos = quadPos squareDim cornerPos currentQuad
     quadHop = quot squareDim 2
     currentQuad = case direction of
       South -> BottomLeft
@@ -582,3 +583,15 @@ centerPos squareDim cornerPos@(Position xc yc) = hopFrom cornerPos (hopSize, hop
       where (d, m) = divMod quadrantDim 2
     
     quadrantDim = quot squareDim 2 --squareDim should really be even for this to work as intended
+
+--given where the corner is, where is the center of the quadrant we want?
+quadPos :: Int -> Position -> Quadrant -> Position
+quadPos squareDim cornerPos quad = hopFrom llCorner hop
+  where
+    hop = case quad of
+      BottomLeft -> (0, 0)
+      BottomRight -> (quadHop, 0)
+      TopLeft -> (0, quadHop)
+      TopRight -> (quadHop, quadHop)
+    quadHop = quot squareDim 2
+    llCorner = centerPos squareDim cornerPos

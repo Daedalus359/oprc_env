@@ -19,6 +19,12 @@ import System.Random
 --this policy explores a spanning tree that minimizes covering old ground
 data LowSpanningTreePolicy = LowSpanningTreePolicy (Map.Map Drone Directions)
 
+initializeLSTP :: WorldView -> LowSpanningTreePolicy
+initializeLSTP wv@(WorldView envInfo enStat) = LowSpanningTreePolicy $ Map.fromSet (const []) dronesList
+  where
+    dronesList :: Set.Set Drone
+    dronesList = Set.fromList $ fmap fst enStat
+
 instance Policy LowSpanningTreePolicy where
   nextMove p@(LowSpanningTreePolicy map) wv@(WorldView envInfo enStat) =
     if (null unassignedDrones)
@@ -29,7 +35,18 @@ instance Policy LowSpanningTreePolicy where
       unassignedDrones = needsCommand enStat
 
       --go through the map and make sure that all drones have a non empty list of actions to perform
-      directionsMap = Map.mapWithKey (supplyDirections envInfo enStat) map
+      directionsMap = Map.mapWithKey lowerIfNeeded $ Map.mapWithKey (supplyDirections envInfo enStat) map
+
+      lowerIfNeeded drone directions =
+        if isHigh
+          then (MoveVertical Descend) : directions
+          else directions
+        where
+          isHigh = case (lookup drone alts) of
+            Just High -> True
+            _ -> False
+
+          alts = fmap (fmap $ getEnvAlt . posFromStat) $ enStat
 
       --are there any drones for which no additional actions have been pre-computed?
       anyDronesLackingDirs = getAny $ foldMap (\dirs -> Any $ null dirs) map

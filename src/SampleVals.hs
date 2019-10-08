@@ -12,6 +12,7 @@ import Policy
 import ShapeSweepAgent
 import GraphOPRC
 import RandomOPRC
+import SpanningTreeAgent
 
 import ParseOPRC
 import Text.Trifecta
@@ -291,3 +292,6 @@ kmp = initializeKMP 10 <$> randGen
 --sample values:
 fromFPBernoulli70 :: Footprint -> EnvGen
 fromFPBernoulli70 fp = EnvGen (\gen -> bernoulliEnv (BernoulliGen 0.7 gen) fp)
+
+lstp :: IO (WorldView -> LowSpanningTreePolicy)
+lstp = return initializeLSTP

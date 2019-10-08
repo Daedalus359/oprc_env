@@ -1,7 +1,8 @@
 # To Do List
 
 ### Bug Fixes Needed, Unfinished Implementations:
-* fix and finish lowSpanningTreePolicy
+* test lowSpanningTreePolicy
+* refactor SV.fileNameScenarioWithOutput to be suitable for use with bind rather than requiring IO input
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from

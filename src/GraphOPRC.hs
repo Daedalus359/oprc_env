@@ -650,7 +650,7 @@ quadPos squareDim cornerPos quad = hopFrom llCorner hop
   --4: if a path entries entire quadrant is out of bounds, its entry is skipped
     --(note that this is possible because the coarse map looks for any element in the 2x2 quadrant squares)
 inBoundsPath :: Int -> Footprint -> Path -> Path
-inBoundsPath quadSize fp origPath = catMaybes undefined
+inBoundsPath quadSize fp origPath = catMaybes $ zipWith keepOrFindQuadMember inBoundsLabels origPath
   where
     inBoundsLabels = fmap (inBounds fp) origPath
 

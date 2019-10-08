@@ -72,6 +72,7 @@ instance Policy LowSweepPolicy where
 
 
 
+--outputs Directions if all of the hops between path elements correspond to atomic movements in the sim
 makeDirections :: Path -> Maybe Directions
 makeDirections [] = Just []
 makeDirections (pos : []) = Just []

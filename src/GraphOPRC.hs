@@ -55,6 +55,14 @@ recreatePathInternal start end pMap partialPath@(front : positions) =
     (Just parent) -> recreatePathInternal start end pMap (parent : partialPath)
     Nothing -> if (front == start) then (Just partialPath) else Nothing
 
+assignPenalty :: Int -> Altitude -> PatchInfo -> Int
+assignPenalty _ _ Unseen = 0
+assignPenalty penaltySize _ (FullyObserved _) = penaltySize
+assignPenalty penaltySize droneAlt (Classified _) =
+  case droneAlt of
+    Low -> 0
+    High -> penaltySize
+
 --uses a default penalty value for covering explored ground again
 aStar :: Altitude -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
 aStar droneAlt envInfo hFunc startPos endPos = aStarCustomPenalty pointlessPenalty droneAlt envInfo hFunc startPos endPos

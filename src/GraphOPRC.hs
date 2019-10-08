@@ -63,15 +63,27 @@ assignPenalty penaltySize droneAlt (Classified _) =
     Low -> 0
     High -> penaltySize
 
+aStarStandardPenalty :: Altitude -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
+aStarStandardPenalty droneAlt envInfo hFunc startPos endPos = aStarCustomPenalty penaltyF envInfo hFunc startPos endPos
+  --recreatePath startPos endPos $ aStarInternal penaltyF envInfo fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
+  where
+    penaltyF = assignPenalty 9 droneAlt
+    --fp = toFootprint envInfo
+    --openSet = (Q.singleton startPos 0 :: Q.PSQ Position Int)
+    --fMax = initializeETC fp
+    --cMax = initializeCFS fp
+
+--once references to this are swapped for the standard penalty variant, refactor to make this the 0 penalty version
 --uses a default penalty value for covering explored ground again
 aStar :: Altitude -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
-aStar droneAlt envInfo hFunc startPos endPos = aStarCustomPenalty pointlessPenalty droneAlt envInfo hFunc startPos endPos
- where
-   pointlessPenalty = 9
+aStar droneAlt envInfo hFunc startPos endPos = aStarStandardPenalty droneAlt envInfo hFunc startPos endPos
+--aStar droneAlt envInfo hFunc startPos endPos = aStarCustomPenalty pointlessPenalty droneAlt envInfo hFunc startPos endPos
+ --where
+   --pointlessPenalty = 9
 
-aStarCustomPenalty :: Int -> Altitude -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
-aStarCustomPenalty pointlessPenalty droneAlt envInfo hFunc startPos endPos = 
-  recreatePath startPos endPos $ aStarInternal pointlessPenalty droneAlt envInfo fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
+aStarCustomPenalty :: (PatchInfo -> Int) -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
+aStarCustomPenalty penaltyF envInfo hFunc startPos endPos = 
+  recreatePath startPos endPos $ aStarInternal penaltyF envInfo fp (hFunc endPos) startPos endPos openSet Set.empty fMax cMax (Map.empty :: ParentMap)
   where
     openSet = (Q.singleton startPos 0 :: Q.PSQ Position Int)
     fMax = initializeETC fp
@@ -79,14 +91,14 @@ aStarCustomPenalty pointlessPenalty droneAlt envInfo hFunc startPos endPos =
     fp = toFootprint envInfo
 
 --continue making recursive calls until endPos can be entered into the ParentMap
-aStarInternal :: Int -> Altitude -> EnvironmentInfo -> Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Int -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
-aStarInternal pointlessPenalty droneAlt envInfo fp h startPos endPos openSet closedSet f c parentMap =
+aStarInternal :: (PatchInfo -> Int) -> EnvironmentInfo -> Footprint -> Heuristic -> Position -> Position -> Q.PSQ Position Int -> Set.Set Position -> EstTotalCost -> CostFromStart -> ParentMap -> ParentMap
+aStarInternal penaltyF envInfo fp h startPos endPos openSet closedSet f c parentMap =
   case mostPromising of
     Nothing -> parentMap --if the open set is empty, A* should have either found an answer or failed (more likely)
     (Just position) ->
       if (position == endPos)
         then parentMap --A* has succeeded
-        else aStarInternal pointlessPenalty droneAlt envInfo fp h startPos endPos newOpenSet newClosedSet newF newC newParentMap
+        else aStarInternal penaltyF envInfo fp h startPos endPos newOpenSet newClosedSet newF newC newParentMap
           where
             --updates related to the improvedNeighbors
             newF = foldr (\neighbor -> Map.insert neighbor $ h neighbor + (totalCostThroughPos neighbor)) fWithNewNeighbors improvedNeighbors
@@ -119,17 +131,9 @@ aStarInternal pointlessPenalty droneAlt envInfo fp h startPos endPos openSet clo
 
             --fix to include more context about what's going on
             penalizeAccum :: Position -> Int -> Map.Map Position Int -> Map.Map Position Int
-            penalizeAccum pos geomCost map = Map.adjust (const $ penalty pi + geomCost) pos map
+            penalizeAccum pos geomCost map = Map.adjust (const $ penaltyF pi + geomCost) pos map
               where
                 pi = fromMaybe Unseen $ Map.lookup pos envInfo
-
-            penalty :: PatchInfo -> Int
-            penalty Unseen = 0
-            penalty (Classified _) =
-              case droneAlt of
-                High -> pointlessPenalty
-                Low -> 0
-            penalty (FullyObserved _) = pointlessPenalty
 
             --tune this!
             

@@ -1,7 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed, Unfinished Implementations:
-* run tests on my coverage path function
+* fix and finish lowSpanningTreePolicy
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from

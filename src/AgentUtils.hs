@@ -14,3 +14,6 @@ makeDirections (pos1 : rest@(pos2 : path)) =
   case (toAction (getHop pos1 pos2)) of
     Nothing -> Nothing
     (Just action) -> fmap ((:) action) $ makeDirections rest
+
+--for agents that move between a high sweeping phase and a low sweeping phase
+data SweepPhase = HighSweep | LowSweep

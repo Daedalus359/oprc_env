@@ -72,8 +72,6 @@ instance Policy LowSweepPolicy where
       else ([], p)
 
 
-data SweepPhase = HighSweep | LowSweep
-
 data HighSweepPolicy = HighSweepPolicy
   {
     getPhase :: SweepPhase

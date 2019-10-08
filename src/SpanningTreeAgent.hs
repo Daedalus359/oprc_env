@@ -108,3 +108,5 @@ toAtomicPathInternal fp startPos (waypoint : more) =
     --Having this behavior in the recursive step makes it easier to combine outputs
     --startPos needs to be included if it is the actual top level start position
     firstStep = fmap tail $ aStarByFootprint fp mkManhattanHeuristic startPos waypoint
+
+data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy SweepPhase (Map.Map Drone Directions)

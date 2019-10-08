@@ -20,7 +20,7 @@ import System.Random
 data LowSpanningTreePolicy = LowSpanningTreePolicy (Map.Map Drone Directions)
 
 initializeLSTP :: WorldView -> LowSpanningTreePolicy
-initializeLSTP wv@(WorldView envInfo enStat) = LowSpanningTreePolicy $ Map.fromSet (const []) dronesList
+initializeLSTP wv@(WorldView envInfo enStat) = LowSpanningTreePolicy $ Map.fromSet (const [MoveVertical Descend, Hover]) dronesList
   where
     dronesList :: Set.Set Drone
     dronesList = Set.fromList $ fmap fst enStat

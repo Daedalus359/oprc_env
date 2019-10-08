@@ -19,7 +19,8 @@ cabal-version:            >=1.10
 
 library
   hs-source-dirs:         src
-  exposed-modules:        AnimateReplay
+  exposed-modules:        AgentUtils
+                        , AnimateReplay
                         , Drone
                         , Ensemble
                         , Env

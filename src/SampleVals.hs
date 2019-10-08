@@ -237,7 +237,7 @@ firstStepsWithOutput = do
   return ()
 
 sampleAStar :: IO (Maybe Path)
-sampleAStar = aStar Low <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))
+sampleAStar = aStarStandardPenalty Low <$> (fmap initializeInfo $ dumpParseFailure $ parseEnvNum 2) <*> (return mkManhattanHeuristic) <*> (return (Position 0 0)) <*> (return (Position 1 1))
 
 threeStepsOfOutput :: (Policy p, Pretty p) => IO (WorldView -> p) -> Int -> Integer -> Integer -> IO ()
 threeStepsOfOutput pF numDrones envNum timeLimit = do

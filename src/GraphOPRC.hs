@@ -73,13 +73,16 @@ aStarStandardPenalty droneAlt envInfo hFunc startPos endPos = aStarCustomPenalty
     --fMax = initializeETC fp
     --cMax = initializeCFS fp
 
---once references to this are swapped for the standard penalty variant, refactor to make this the 0 penalty version
---uses a default penalty value for covering explored ground again
-aStar :: Altitude -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
-aStar droneAlt envInfo hFunc startPos endPos = aStarStandardPenalty droneAlt envInfo hFunc startPos endPos
---aStar droneAlt envInfo hFunc startPos endPos = aStarCustomPenalty pointlessPenalty droneAlt envInfo hFunc startPos endPos
- --where
-   --pointlessPenalty = 9
+--"pure" A* just uses the actual move costs and creates a path to minimize that
+aStar :: EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
+aStar envInfo hFunc startPos endPos = aStarCustomPenalty (const 0) envInfo hFunc startPos endPos
+
+--one that ignores any information about the environment completely by just passing all unknown values
+--a little sloppy
+aStarByFootprint :: Footprint -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
+aStarByFootprint fp hFunc startPos endPos = aStar sampleEnvInfo hFunc startPos endPos
+  where
+    sampleEnvInfo = Map.fromSet (const Unseen) fp
 
 aStarCustomPenalty :: (PatchInfo -> Int) -> EnvironmentInfo -> (Position -> Heuristic) -> Position -> Position -> Maybe Path
 aStarCustomPenalty penaltyF envInfo hFunc startPos endPos = 

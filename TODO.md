@@ -1,7 +1,6 @@
 # To Do List
 
 ### Bug Fixes Needed, Unfinished Implementations:
-* refactor aStar to not directly use so much drone status info like Altitude
 * fix and finish lowSpanningTreePolicy
 
 ### Machine Learning To-Dos:

@@ -52,7 +52,7 @@ instance Policy LowSweepPolicy where
 
                 maybeDirections :: Maybe Directions
                 maybeDirections = maybePath >>= makeDirections
-                maybePath = aStar Low envInfo mkManhattanHeuristic startPos nextPosToVisit
+                maybePath = aStarStandardPenalty Low envInfo mkManhattanHeuristic startPos nextPosToVisit
 
                 startPos :: Position
                 startPos = getEnvPos dronePos
@@ -204,7 +204,7 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
                 Just al@(action : actions) -> al
                 _ -> [Hover] --covers both failed A* (Nothing) and case where start and end position are the same (Just [])
     maybeDirections = maybePath >>= makeDirections
-    maybePath = aStar droneAlt envInfo mkManhattanHeuristic droneGroundPos targetPos
+    maybePath = aStarStandardPenalty droneAlt envInfo mkManhattanHeuristic droneGroundPos targetPos
 
     --finds a position's distance to the closest of the means position from the current drone policy that *don't* correspond to the one being altered
     leastDistMeans :: Position -> Int

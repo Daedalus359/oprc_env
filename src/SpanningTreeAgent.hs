@@ -109,4 +109,6 @@ toAtomicPathInternal fp startPos (waypoint : more) =
     --startPos needs to be included if it is the actual top level start position
     firstStep = fmap tail $ aStarByFootprint fp mkManhattanHeuristic startPos waypoint
 
+data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map DroneTerritory Footprint)
+
 data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy SweepPhase (Map.Map Drone Directions)

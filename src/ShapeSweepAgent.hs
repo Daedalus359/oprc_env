@@ -145,7 +145,7 @@ instance DroneTerritoryMapPolicy KMeansLowPolicy where
 setDirections :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
 setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone mean dirs) fp =
   if (droneIsIdle && outOfDirections)--need new directions only when the drone is idle and there is not a precomputed list of what to do next
-    then DroneTerritory drone mean (fixAlt newDirs) --evaluating newDirs causes A* to run
+    then DroneTerritory drone mean (fixAltLow droneAlt newDirs) --evaluating newDirs causes A* to run
     else dt
 
   where
@@ -173,10 +173,7 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
     droneGroundPos = getEnvPos dronePos
     droneAlt = getEnvAlt dronePos --need altitude info to let A* decide the observational value of slightly longer paths
 
-    fixAlt :: [Action] -> [Action] --this should make sure that the drones always fly low
-    fixAlt al = case droneAlt of
-      Low -> al
-      High -> (MoveVertical Descend) : al
+
 
     --A* and conversion to the datatype we need
     newDirs = case maybeDirections of

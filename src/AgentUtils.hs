@@ -67,6 +67,11 @@ assignDirections dirF wv map = Map.fromAscList listWithDirections
 
     meansSet = Map.keysSet map
 
+--many policies assume that drones always fly low. This provides an extra layer of protection to that assumption at every action assignment step
+fixAltLow :: Altitude -> [Action] -> [Action] --this should make sure that the drones always fly low
+fixAltLow Low al = al
+fixAltLow High al = (MoveVertical Descend) : al
+
 --for agents that move between a high sweeping phase and a low sweeping phase
 data SweepPhase = HighSweep | LowSweep
 

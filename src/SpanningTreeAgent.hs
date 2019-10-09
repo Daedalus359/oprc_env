@@ -131,7 +131,7 @@ instance DroneTerritoryMapPolicy LowKMeansSpanningTreePolicy where
 setDirectionsBySpanningPath :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
 setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone mean dirs) fp =
   if (droneIsIdle && outOfDirections)
-    then undefined
+    then DroneTerritory drone mean (fixAltLow droneAlt newDirs)
     else dt
 
   where
@@ -143,7 +143,12 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
         (action : actions) -> False
         [] -> True
 
-    
+    droneAlt = getEnvAlt dronePos
+    dronePos = posFromStat droneStat
+
+    newDirs = undefined
+
+
 
 --probably makes sense to create a function that explores all high then all low for now
 data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DronePhase Directions)

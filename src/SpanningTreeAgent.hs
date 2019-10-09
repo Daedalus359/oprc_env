@@ -112,8 +112,20 @@ toAtomicPathInternal fp startPos (waypoint : more) =
 data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map DroneTerritory Footprint)
 
 instance Policy LowKMeansSpanningTreePolicy where
-  nextMove p@(LowKMeansSpanningTreePolicy gen map) wv@(WorldView envInfo enStat) = undefined
+  nextMove p@(LowKMeansSpanningTreePolicy gen map) wv@(WorldView envInfo enStat) = applyMoves enStat gen2 directedMap
+
+    where
+      --directedMap must ensure that all drones are either acting or have a list of next actions to draw from
+      directedMap = undefined
+      (gen1, gen2) = split gen
+
+instance DroneTerritoryMapPolicy LowKMeansSpanningTreePolicy where
+  getMap (LowKMeansSpanningTreePolicy gen map) = map
+  fromMap = LowKMeansSpanningTreePolicy
 
 
 --data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DronePhase Directions)
 --data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DroneTerritory Directions) (Map.Map Drone SweepPhase)
+
+-- write code that "cleans up" after KMeans by reassigning individual patches to the drone that will be traversin its center. 
+-- But can I know which drone that will be if I make the alignment of the spanning trees custoizable and adaptive?

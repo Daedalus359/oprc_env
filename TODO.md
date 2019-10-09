@@ -1,7 +1,7 @@
 # To Do List
 
 ### Bug Fixes Needed, Unfinished Implementations:
-* test lowSpanningTreePolicy
+* refactor kmeans to use a custom criteria for incomplete locations so that it is suitable for use with both high and low sweep policies
 * refactor SV.fileNameScenarioWithOutput to be suitable for use with bind rather than requiring IO input
 
 ### Machine Learning To-Dos:

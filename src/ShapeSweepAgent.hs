@@ -137,6 +137,10 @@ instance Policy KMeansLowPolicy where
       reassignedMap = kMeansInternal gen1 envInfo 1 map --reassign territory to each drone
       (gen1, gen2) = split gen
 
+instance DroneTerritoryMapPolicy KMeansLowPolicy where
+  getMap (KMeansLowPolicy gen map) = map
+  fromMap gen map = KMeansLowPolicy gen map
+
 --uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
 assignDirections :: WorldView -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
 assignDirections wv map = Map.fromAscList listWithDirections

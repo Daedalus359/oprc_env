@@ -115,4 +115,5 @@ instance Policy LowKMeansSpanningTreePolicy where
   nextMove p@(LowKMeansSpanningTreePolicy gen map) wv@(WorldView envInfo enStat) = undefined
 
 
-data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DronePhase Directions)
+--data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DronePhase Directions)
+--data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DroneTerritory Directions) (Map.Map Drone SweepPhase)

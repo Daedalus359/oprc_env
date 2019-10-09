@@ -208,30 +208,6 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
     otherMeans = Set.delete dt meansSet
 
 
-applyMoves :: DroneTerritoryMapPolicy p => EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, p)
-applyMoves enStat gen map = (nextActions, policy)
-  where
-    policy = fromMap gen $ Map.fromAscList newMapList
-    (newMapList, nextActions) = foldr (accumulateNextMoves enStat) ([], []) mapList--foldr should preserve ascending nature of mapList
-
-    mapList :: [(DroneTerritory, Footprint)]
-    mapList = Map.toAscList map
-
-accumulateNextMoves :: EnsembleStatus -> (DroneTerritory, Footprint) -> ([(DroneTerritory, Footprint)], NextActions) -> ([(DroneTerritory, Footprint)], NextActions)
-accumulateNextMoves enStat (dt@(DroneTerritory drone mean dirs), fp) (assignmentListSoFar, nextActionsSoFar) =
-  if droneIsIdle --only add to the list of NextActions if a drone is idle. Actions given to non idle drones may be discarded, and non idle drones are not guaranteed to have next actions
-    then ((newDt, fp) : assignmentListSoFar, newActionAssignment : nextActionsSoFar)
-    else ((dt, fp) : assignmentListSoFar, nextActionsSoFar)
-  where
-    --these should only be evauluated when the current drone is idle, which should mean dirs matches the (head : tail) pattern
-    newActionAssignment = (drone, newAction)
-    newAction = head dirs
-    newDt = DroneTerritory drone mean (tail dirs)
-
-    droneStat = fromJust $ lookup drone enStat --the lookup operation should never fail to find the drone's real status
-    droneIsIdle = isUnassigned droneStat --will this drone need a new action assignment during this nextMove step?
-
-
 --OLD
 --only call this after checking that there are moves to apply for each idle drone
 applyMoves2 :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)

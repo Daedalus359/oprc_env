@@ -208,10 +208,10 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
     otherMeans = Set.delete dt meansSet
 
 
-applyMoves :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
+applyMoves :: DroneTerritoryMapPolicy p => EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, p)
 applyMoves enStat gen map = (nextActions, policy)
   where
-    policy = KMeansLowPolicy gen $ Map.fromAscList newMapList
+    policy = fromMap gen $ Map.fromAscList newMapList
     (newMapList, nextActions) = foldr (accumulateNextMoves enStat) ([], []) mapList--foldr should preserve ascending nature of mapList
 
     mapList :: [(DroneTerritory, Footprint)]

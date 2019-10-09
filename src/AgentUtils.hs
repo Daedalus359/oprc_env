@@ -3,6 +3,10 @@ module AgentUtils where
 import Env
 import Drone
 import GraphOPRC
+import Policy
+
+import qualified Data.Map.Strict as Map
+import System.Random
 
 testCompilation = "do it!"
 
@@ -15,5 +19,11 @@ makeDirections (pos1 : rest@(pos2 : path)) =
     Nothing -> Nothing
     (Just action) -> fmap ((:) action) $ makeDirections rest
 
+class Policy p => DroneTerritoryMapPolicy p where
+  getMap :: p -> Map.Map DroneTerritory Footprint
+  fromMap :: StdGen -> Map.Map DroneTerritory Footprint -> p
+
 --for agents that move between a high sweeping phase and a low sweeping phase
 data SweepPhase = HighSweep | LowSweep
+
+data DronePhase = DronePhase SweepPhase DroneTerritory

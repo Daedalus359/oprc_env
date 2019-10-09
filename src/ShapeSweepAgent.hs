@@ -203,6 +203,7 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
 
     otherMeans = Set.delete dt meansSet
 
+
 applyMoves :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
 applyMoves enStat gen map = (nextActions, policy)
   where

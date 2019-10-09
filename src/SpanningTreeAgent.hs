@@ -111,4 +111,8 @@ toAtomicPathInternal fp startPos (waypoint : more) =
 
 data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map DroneTerritory Footprint)
 
-data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy SweepPhase (Map.Map Drone Directions)
+instance Policy LowKMeansSpanningTreePolicy where
+  nextMove p@(LowKMeansSpanningTreePolicy gen map) wv@(WorldView envInfo enStat) = undefined
+
+
+data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DronePhase Directions)

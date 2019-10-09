@@ -2,6 +2,7 @@ module AgentUtils where
 
 import Ensemble
 import Env
+import EnvView
 import Drone
 import GraphOPRC
 import Policy
@@ -9,6 +10,7 @@ import WorldState
 
 import Data.Maybe
 import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
 import System.Random
 
 testCompilation = "do it!"
@@ -48,6 +50,22 @@ accumulateNextMoves enStat (dt@(DroneTerritory drone mean dirs), fp) (assignment
 
     droneStat = fromJust $ lookup drone enStat --the lookup operation should never fail to find the drone's real status
     droneIsIdle = isUnassigned droneStat --will this drone need a new action assignment during this nextMove step?
+
+type DirectionsFunc = WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
+
+--uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
+assignDirections :: DirectionsFunc -> WorldView -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
+assignDirections dirF wv map = Map.fromAscList listWithDirections
+  where
+    listWithDirections :: [(DroneTerritory, Footprint)]
+    listWithDirections = fmap (\(dt, fp) -> (setF dt fp, fp)) mapList --preserves the Ascending property of the keys in this list
+
+    setF = dirF wv meansSet
+
+    mapList :: [(DroneTerritory, Footprint)]
+    mapList = Map.toAscList map
+
+    meansSet = Map.keysSet map
 
 --for agents that move between a high sweeping phase and a low sweeping phase
 data SweepPhase = HighSweep | LowSweep

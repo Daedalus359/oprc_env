@@ -116,15 +116,37 @@ instance Policy LowKMeansSpanningTreePolicy where
 
     where
       --directedMap must ensure that all drones are either acting or have a list of next actions to draw from
-      directedMap = undefined
+      directedMap = assignDirections setDirectionsBySpanningPath wv reassignedMap
+
+      --opportunity to run kMeansInternal here, as in KMeansLowPolicy. Should I be doing this every time?
+      reassignedMap = kMeansInternal incompleteLocations gen1 envInfo 1 map 
       (gen1, gen2) = split gen
 
 instance DroneTerritoryMapPolicy LowKMeansSpanningTreePolicy where
   getMap (LowKMeansSpanningTreePolicy gen map) = map
   fromMap = LowKMeansSpanningTreePolicy
 
+--the second parameter, meansSet, was useful for ShapeSweepAgent to prioritize exploring territory that was far from all other territory means
+  --it is probably useful here as well, but I won't use it for now
+setDirectionsBySpanningPath :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
+setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone mean dirs) fp =
+  if (droneIsIdle && outOfDirections)
+    then undefined
+    else dt
 
---data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DronePhase Directions)
+  where
+    --these 3 definitions determine whether the drone being considered needs a new set of directions at all
+    droneStat = fromJust $ lookup drone enStat
+    droneIsIdle = isUnassigned droneStat
+    outOfDirections =
+      case dirs of
+        (action : actions) -> False
+        [] -> True
+
+    
+
+--probably makes sense to create a function that explores all high then all low for now
+data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DronePhase Directions)
 --data HighFirstSpanningTreePolicy = HighFirstSpanningTreePolicy (Map.Map DroneTerritory Directions) (Map.Map Drone SweepPhase)
 
 -- write code that "cleans up" after KMeans by reassigning individual patches to the drone that will be traversin its center. 

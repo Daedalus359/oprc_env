@@ -133,27 +133,13 @@ instance Policy KMeansLowPolicy where
     applyMoves enStat gen2 directedMap
 
     where
-      directedMap = assignDirections wv reassignedMap --make sure all drones are either acting or have a list of actions to get a new assignment from
+      directedMap = assignDirections setDirections wv reassignedMap --make sure all drones are either acting or have a list of actions to get a new assignment from
       reassignedMap = kMeansInternal incompleteLocations gen1 envInfo 1 map --reassign territory to each drone
       (gen1, gen2) = split gen
 
 instance DroneTerritoryMapPolicy KMeansLowPolicy where
   getMap (KMeansLowPolicy gen map) = map
   fromMap gen map = KMeansLowPolicy gen map
-
---uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
-assignDirections :: WorldView -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
-assignDirections wv map = Map.fromAscList listWithDirections
-  where
-    listWithDirections :: [(DroneTerritory, Footprint)]
-    listWithDirections = fmap (\(dt, fp) -> (setF dt fp, fp)) mapList --preserves the Ascending property of the keys in this list
-
-    setF = setDirections wv meansSet
-
-    mapList :: [(DroneTerritory, Footprint)]
-    mapList = Map.toAscList map
-
-    meansSet = Map.keysSet map
 
 --once this has been applied to all DroneTerritories, every drone will either have a list of directions to follow or will be busy completing a motion
 setDirections :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory

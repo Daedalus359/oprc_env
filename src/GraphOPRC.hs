@@ -194,9 +194,9 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = (*) straightCost
     deltaY = abs $ y1 - y2
     straightCost = cost (undefined :: CardinalDir)
 
---may not make sense to keep the toList stuff around - decide what form I need this in
+--this is suitable for use with low flying drones, as it assigns territory based on the incompleteLocations criteria
 kMeans :: Int -> StdGen -> EnvironmentInfo -> SQ.Seq DroneTerritory -> Map.Map DroneTerritory Footprint
-kMeans iterations gen envInfo droneSeq = kMeansInternal nextGen envInfo iterations initMap
+kMeans iterations gen envInfo droneSeq = kMeansInternal incompleteLocations nextGen envInfo iterations initMap
   where
     --initMap :: HasCenter d => Map.Map d Footprint
     initMap = Map.fromList $ toList $ SQ.zip keys kSplits
@@ -217,9 +217,9 @@ assignAtRandom a (sets, gen) = (SQ.adjust (Set.insert a) i sets, newGen)
     k = SQ.length sets
 
 --don't call with a number of iterations less than zero!
-kMeansInternal :: StdGen -> EnvironmentInfo -> Int -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
-kMeansInternal _ _ 0 map = map
-kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iterations - 1) newMap
+kMeansInternal :: (EnvironmentInfo -> Footprint) -> StdGen -> EnvironmentInfo -> Int -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
+kMeansInternal _ _ _ 0 map = map
+kMeansInternal incompleteF gen envInfo iterations map = kMeansInternal incompleteF nextGen envInfo (iterations - 1) newMap
   where
     --if any means have lost all of their territory, give them a random patch
     newMap = foldr (\(mean, backupTerritory) -> \existing -> Map.insert mean backupTerritory existing) correctedMeans backupAssignments
@@ -246,7 +246,7 @@ kMeansInternal gen envInfo iterations map = kMeansInternal nextGen envInfo (iter
     means = Map.keysSet map --the original keys - all of these should end up with an entry in the final map
     newTerritories = randomElems currentGen placesNeedingObservation --random unexplored locations to assign to means as needed
     (nextGen, currentGen) = split gen
-    placesNeedingObservation = EnvView.incompleteLocations envInfo --the set of locations that have not been explored fully so far
+    placesNeedingObservation = incompleteF envInfo --the set of locations that have not been explored fully so far
 
 randomElems :: StdGen -> Set.Set a -> [a]
 randomElems gen set = fmap (\i -> setList !! i) indices

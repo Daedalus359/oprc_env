@@ -42,5 +42,8 @@ needsExploration envInfo pos = fromMaybe True $ fmap (not . isFullyObserved) $ M
 incompleteLocations :: EnvironmentInfo -> Footprint
 incompleteLocations envInfo = Map.keysSet $ Map.filter (not . isFullyObserved) envInfo
 
+unseenLocations :: EnvironmentInfo -> Footprint
+unseenLocations envInfo = Map.keysSet $ Map.filter (\pi -> pi == Unseen) envInfo
+
 numDronesRunning :: WorldView -> Int
 numDronesRunning (WorldView _ enStat) = length enStat 

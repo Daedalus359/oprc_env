@@ -65,8 +65,9 @@ visualReplay sc = do
     fp = Map.keysSet $ getMap $ getEnv $ getWorldState sc
 
 main :: IO ()
-main = SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
-  --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
+main = 
+  --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 7 100000 >>= visualReplay
   where

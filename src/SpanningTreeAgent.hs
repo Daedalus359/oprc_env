@@ -86,7 +86,7 @@ supplyDirections envInfo enStat drone [] =
   sfPath = customRootInBoundsSpanningTreePath 2 needsVisit closestPos
 
   --fill in all non-atomic gaps in that path with A*, including the path from current drone position to root
-  atomicPath = toAtomicPath (Map.keysSet envInfo) closestPos sfPath --use the full footprint so that it has access to the full bounds
+  atomicPath = toAtomicPath (Map.keysSet envInfo) (fromMaybe closestPos currentGroundPos) sfPath --use the full footprint so that it has access to the full bounds
 
   --convert that path to directions
   newDirections = atomicPath >>= makeDirections
@@ -136,7 +136,7 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
 
   where
     --these 3 definitions determine whether the drone being considered needs a new set of directions at all
-    droneStat = fromJust $ lookup drone enStat
+    droneStat = fromJust $ lookup drone enStat --if the drone is not in the ensemble status, the problem is somewhere else
     droneIsIdle = isUnassigned droneStat
     outOfDirections =
       case dirs of
@@ -145,9 +145,23 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
 
     droneAlt = getEnvAlt dronePos
     dronePos = posFromStat droneStat
+    currentGroundPos = groundPos droneStat
 
-    newDirs = undefined
+    --the real difference from the k means only version. 
+    newDirs = if (null toVisit)
+      then [Hover] --nothing intelligent to do if no unexplored territory has been assigned to this drone
+      else undefined
 
+    --the set of locations that are in this drone's territory AND in the set of non-fully-explored locations in the scenario overall
+    toVisit = Set.intersection fp $ incompleteLocations envInfo
+    minLoc = Set.findMin toVisit --this shouldn't get run if toVisit is empty
+    closestPos = foldr (closerTo currentGroundPos) minLoc toVisit
+
+    --use the above to run cardinal spanning forests and get a coarse path
+    sfPath = customRootInBoundsSpanningTreePath 2 toVisit closestPos
+
+    --refine the coarse path into a fully detailed one, 
+    atomicPath = toAtomicPath (Map.keysSet envInfo) closestPos sfPath
 
 
 --probably makes sense to create a function that explores all high then all low for now

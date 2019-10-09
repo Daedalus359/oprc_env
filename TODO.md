@@ -3,6 +3,7 @@
 ### Bug Fixes Needed, Unfinished Implementations:
 * refactor kmeans to use a custom criteria for incomplete locations so that it is suitable for use with both high and low sweep policies
 * refactor SV.fileNameScenarioWithOutput to be suitable for use with bind rather than requiring IO input
+* figure out why the drone does not descent at the beginning for the single agent spanning forest run now
 
 ### Machine Learning To-Dos:
 * make basic a reward signal what RL based agents can include as a signal to learn from

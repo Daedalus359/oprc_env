@@ -195,8 +195,8 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = (*) straightCost
     straightCost = cost (undefined :: CardinalDir)
 
 --this is suitable for use with low flying drones, as it assigns territory based on the incompleteLocations criteria
-kMeans :: Int -> StdGen -> EnvironmentInfo -> SQ.Seq DroneTerritory -> Map.Map DroneTerritory Footprint
-kMeans iterations gen envInfo droneSeq = kMeansInternal incompleteLocations nextGen envInfo iterations initMap
+kMeansLow :: Int -> StdGen -> EnvironmentInfo -> SQ.Seq DroneTerritory -> Map.Map DroneTerritory Footprint
+kMeansLow iterations gen envInfo droneSeq = kMeansInternal incompleteLocations nextGen envInfo iterations initMap
   where
     --initMap :: HasCenter d => Map.Map d Footprint
     initMap = Map.fromList $ toList $ SQ.zip keys kSplits
@@ -665,12 +665,12 @@ inBoundsPath quadSize fp origPath = catMaybes $ zipWith keepOrFindQuadMember inB
         quadrantSet = quadSetFromCenter quadSize original
 
 customRootInBoundsSpanningTreePath :: Int -> Footprint -> Position -> Path
-customRootInBoundsSpanningTreePath squareDim fp root = inBoundsPath squareDim fp unboundedPath
+customRootInBoundsSpanningTreePath squareDim visitFP root = inBoundsPath squareDim visitFP unboundedPath
   where
-    unboundedPath = customRootSpanningTreeCoveragePath squareDim fp root
+    unboundedPath = customRootSpanningTreeCoveragePath squareDim visitFP root
 
 minRootInBoundsSpanningTreePath :: Int -> Footprint -> Path
-minRootInBoundsSpanningTreePath squareDim fp = customRootInBoundsSpanningTreePath squareDim fp root
+minRootInBoundsSpanningTreePath squareDim visitFP = customRootInBoundsSpanningTreePath squareDim visitFP root
   where
     root = Set.findMin coarseFP
-    coarseFP = coarseMap squareDim fp
+    coarseFP = coarseMap squareDim visitFP

@@ -295,3 +295,6 @@ fromFPBernoulli70 fp = EnvGen (\gen -> bernoulliEnv (BernoulliGen 0.7 gen) fp)
 
 lstp :: IO (WorldView -> LowSpanningTreePolicy)
 lstp = return initializeLSTP
+
+lkmstp :: IO (WorldView -> LowKMeansSpanningTreePolicy)
+lkmstp = initializeLKMSTP 10 <$> newStdGen

@@ -11,6 +11,7 @@ import WorldState
 
 import Data.Maybe
 import Data.Monoid
+import qualified Data.Sequence as SQ
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import System.Random
@@ -83,7 +84,7 @@ supplyDirections envInfo enStat drone [] =
     Just pos -> foldr (closerTo pos) minLoc needsVisit
 
   --pass that footprint to the spanning forest path creation function
-  sfPath = customRootInBoundsSpanningTreePath 2 needsVisit closestPos
+  sfPath = customRootInBoundsSpanningTreePath 2  needsVisit closestPos
 
   --fill in all non-atomic gaps in that path with A*, including the path from current drone position to root
   atomicPath = toAtomicPath (Map.keysSet envInfo) (fromMaybe closestPos currentGroundPos) sfPath --use the full footprint so that it has access to the full bounds
@@ -110,6 +111,16 @@ toAtomicPathInternal fp startPos (waypoint : more) =
     firstStep = fmap tail $ aStarByFootprint fp mkManhattanHeuristic startPos waypoint
 
 data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map DroneTerritory Footprint)
+
+initializeLKMSTP :: Int -> StdGen -> WorldView  -> LowKMeansSpanningTreePolicy
+initializeLKMSTP iterations gen wv@(WorldView envInfo enStat) = LowKMeansSpanningTreePolicy gen2 $ kMeansLow iterations gen1 envInfo dSeq
+  where
+    dSeq = SQ.fromList $ fmap (\(drone, pos) -> DroneTerritory drone pos []) dronesList
+
+    dronesList :: [(Drone, Position)]
+    dronesList = fmap (fmap groundPos) enStat
+
+    (gen1, gen2) = split gen
 
 instance Policy LowKMeansSpanningTreePolicy where
   nextMove p@(LowKMeansSpanningTreePolicy gen map) wv@(WorldView envInfo enStat) = applyMoves enStat gen2 directedMap
@@ -150,7 +161,7 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     --the real difference from the k means only version. 
     newDirs = if (null toVisit)
       then [Hover] --nothing intelligent to do if no unexplored territory has been assigned to this drone
-      else undefined
+      else fromMaybe [Hover] newDirections
 
     --the set of locations that are in this drone's territory AND in the set of non-fully-explored locations in the scenario overall
     toVisit = Set.intersection fp $ incompleteLocations envInfo
@@ -158,10 +169,12 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     closestPos = foldr (closerTo currentGroundPos) minLoc toVisit
 
     --use the above to run cardinal spanning forests and get a coarse path
+    --the big difference from the single agent version is that this uses only patches in the drone's territory as the positions to span
     sfPath = customRootInBoundsSpanningTreePath 2 toVisit closestPos
 
-    --refine the coarse path into a fully detailed one, 
-    atomicPath = toAtomicPath (Map.keysSet envInfo) closestPos sfPath
+    --refine the coarse path into a fully detailed one, then make directions from them
+    atomicPath = toAtomicPath (Map.keysSet envInfo) closestPos sfPath --relies of A*, so this is a maybe value
+    newDirections = atomicPath >>= makeDirections --another maybe value
 
 
 --probably makes sense to create a function that explores all high then all low for now

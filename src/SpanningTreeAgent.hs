@@ -19,6 +19,7 @@ import System.Random
 
 --this policy explores a spanning tree that minimizes covering old ground
 data LowSpanningTreePolicy = LowSpanningTreePolicy (Map.Map Drone Directions)
+  deriving Show
 
 initializeLSTP :: WorldView -> LowSpanningTreePolicy
 initializeLSTP wv@(WorldView envInfo enStat) = LowSpanningTreePolicy $ Map.fromSet (const [MoveVertical Descend, Hover]) dronesList
@@ -70,7 +71,8 @@ supplyDirections envInfo enStat drone [] =
     then [Hover]
     else case newDirections of
       Nothing -> [Hover]
-      Just dirs -> dirs
+      Just dirs@(dir:more) -> dirs
+      Just [] -> [Hover]
   where
   --figure out the footprint of places worth visiting
   needsVisit = incompleteLocations envInfo
@@ -111,6 +113,7 @@ toAtomicPathInternal fp startPos (waypoint : more) =
     firstStep = fmap tail $ aStarByFootprint fp mkManhattanHeuristic startPos waypoint
 
 data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map DroneTerritory Footprint)
+  deriving Show
 
 initializeLKMSTP :: Int -> StdGen -> WorldView  -> LowKMeansSpanningTreePolicy
 initializeLKMSTP iterations gen wv@(WorldView envInfo enStat) = LowKMeansSpanningTreePolicy gen2 $ kMeansLow iterations gen1 envInfo dSeq
@@ -161,7 +164,10 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     --the real difference from the k means only version. 
     newDirs = if (null toVisit)
       then [Hover] --nothing intelligent to do if no unexplored territory has been assigned to this drone
-      else fromMaybe [Hover] newDirections
+      else case newDirections of
+        Nothing -> [Hover]
+        Just [] -> [Hover]
+        Just dirs@(dir:more) -> dirs
 
     --the set of locations that are in this drone's territory AND in the set of non-fully-explored locations in the scenario overall
     toVisit = Set.intersection fp $ incompleteLocations envInfo
@@ -173,7 +179,7 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     sfPath = customRootInBoundsSpanningTreePath 2 toVisit closestPos
 
     --refine the coarse path into a fully detailed one, then make directions from them
-    atomicPath = toAtomicPath (Map.keysSet envInfo) closestPos sfPath --relies of A*, so this is a maybe value
+    atomicPath = toAtomicPath (Map.keysSet envInfo) currentGroundPos sfPath --relies of A*, so this is a maybe value
     newDirections = atomicPath >>= makeDirections --another maybe value
 
 

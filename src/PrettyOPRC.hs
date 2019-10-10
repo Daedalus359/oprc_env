@@ -9,6 +9,7 @@ import GraphOPRC
 import Drone
 import Scenario
 import ShapeSweepAgent
+import SpanningTreeAgent
 
 import qualified Data.Map.Strict as M
 import qualified Data.Set as Set
@@ -81,3 +82,7 @@ instance (Pretty k, Pretty v) => Pretty (M.Map k v) where
 instance Pretty KMeansLowPolicy where
   pretty (KMeansLowPolicy gen map) =
     nest 2 $ vsep [pretty "KMeansLowPolicy: ", pretty "StdGen:" <+> (pretty $ show gen), nest 2 $ vsep [pretty "territory map: ", pretty map]]
+
+instance Pretty LowKMeansSpanningTreePolicy where
+  pretty (LowKMeansSpanningTreePolicy gen map) =
+    nest 2 $ vsep [pretty "KMeansLowSpanningTreePolicy: ", pretty "StdGen:" <+> (pretty $ show gen), nest 2 $ vsep [pretty "territory map: ", pretty map]]

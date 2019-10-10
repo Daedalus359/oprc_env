@@ -216,6 +216,15 @@ fileNameScenarioWithOutput ioPol nDrones path timeLimit = do
   --putDocW 80 (vsep $ fmap pretty $ Scenario.getHist scenario)
   return scenario
 
+fileNameFirstSteps :: (Pretty p, Policy p) => IO (WorldView -> p) -> Int -> String -> Integer -> IO (Scenario p)
+fileNameFirstSteps ioPol nDrones path timeLimit = do
+  putStrLn "Initialization Step:"
+  scenario <- liftA3 (Scenario.mkScenario) ioPol (return nDrones) (dumpParseFailure $ parseEnvFilePath path)
+  putStrLn "One step policy: "
+  putDocW 80 $ pretty $ getPolicy $ stepScenario $ scenario
+  putStrLn "scenario gets spit out below in ghci..."
+  return scenario
+
 firstStepsWithOutput :: IO ()
 firstStepsWithOutput = do
   scenario <- liftA3 (Scenario.mkScenario) (fmap const randPolicy) (return 1) (dumpParseFailure $ parseEnvNum 4)

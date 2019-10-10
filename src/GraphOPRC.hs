@@ -470,6 +470,7 @@ processNeighbors boundsSet neighborF childCandidate status@((Node current subTre
   where
     (newSubTree, newInTreeSet) = dfsInternal boundsSet neighborF childCandidate inTreeSet --(Set.insert childCandidate inTreeSet)
 
+
 --constructs the coarse map and performs DFS on it, bundling the two functions together
 customRootDfsFromFootprint :: Int -> Footprint -> Position -> Forest Position
 customRootDfsFromFootprint squareDim realFP root = customRootDfsSpanningForest squareDim root coarseFP

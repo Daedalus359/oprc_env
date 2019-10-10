@@ -37,7 +37,8 @@ instance Policy LowSpanningTreePolicy where
       unassignedDrones = needsCommand enStat
 
       --go through the map and make sure that all drones have a non empty list of actions to perform
-      directionsMap = Map.mapWithKey lowerIfNeeded $ Map.mapWithKey (supplyDirections envInfo enStat) map
+      directionsMap = Map.mapWithKey lowerIfNeeded $ Map.mapWithKey (supplyDirections Low envInfo enStat) map
+
 
       lowerIfNeeded drone directions =
         if isHigh
@@ -64,9 +65,9 @@ assignMoves enStat map = (nextActions, LowSpanningTreePolicy newMap)
 
 
 --use spanning forest based path generation to give directions to a drone if it lacks them
-supplyDirections :: EnvironmentInfo -> EnsembleStatus -> Drone -> Directions -> Directions
-supplyDirections _ _ _ dirs@(dir : more) = dirs --don't need to add directions if the drone already has some to follow
-supplyDirections envInfo enStat drone [] = 
+supplyDirections :: Altitude -> EnvironmentInfo -> EnsembleStatus -> Drone -> Directions -> Directions
+supplyDirections _ _ _ _ dirs@(dir : more) = dirs --don't need to add directions if the drone already has some to follow
+supplyDirections altitudeMODE envInfo enStat drone [] = 
   if (null needsVisit)
     then [Hover]
     else case newDirections of
@@ -75,7 +76,10 @@ supplyDirections envInfo enStat drone [] =
       Just [] -> [Hover]
   where
   --figure out the footprint of places worth visiting
-  needsVisit = incompleteLocations envInfo
+  needsVisit = 
+    case altitudeMODE of
+      Low -> incompleteLocations envInfo
+      High -> unseenLocations envInfo
   minLoc = Set.findMin needsVisit
 
   --figure out which of those is closest to the drone's current position
@@ -86,7 +90,11 @@ supplyDirections envInfo enStat drone [] =
     Just pos -> foldr (closerTo pos) minLoc needsVisit
 
   --pass that footprint to the spanning forest path creation function
-  sfPath = customRootInBoundsSpanningTreePath 2  needsVisit closestPos
+  coarseness =
+    case altitudeMODE of
+      Low -> 2
+      High -> 6
+  sfPath = customRootInBoundsSpanningTreePath coarseness needsVisit closestPos
 
   --fill in all non-atomic gaps in that path with A*, including the path from current drone position to root
   atomicPath = toAtomicPath (Map.keysSet envInfo) (fromMaybe closestPos currentGroundPos) sfPath --use the full footprint so that it has access to the full bounds
@@ -140,6 +148,8 @@ instance DroneTerritoryMapPolicy LowKMeansSpanningTreePolicy where
   getMap (LowKMeansSpanningTreePolicy gen map) = map
   fromMap = LowKMeansSpanningTreePolicy
 
+data LowWaypointsKMeansSpanningTreePolicy = LowWaypointsKMeansSpanningTreePolicy StdGen 
+
 --the second parameter, meansSet, was useful for ShapeSweepAgent to prioritize exploring territory that was far from all other territory means
   --it is probably useful here as well, but I won't use it for now
 setDirectionsBySpanningPath :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
@@ -168,8 +178,8 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
         Nothing -> [Hover]
         Just [] -> --[Hover]
           case (null sfPath) of
-            False -> [MoveIntercardinal NW]--, MoveIntercardinal SW, MoveIntercardinal SE, MoveIntercardinal NE]
-            True -> [MoveIntercardinal NE]--, MoveIntercardinal SE, MoveIntercardinal SW, MoveIntercardinal NW]
+            False -> [MoveIntercardinal NW] --this rather than hover for easy diagnostics
+            True -> [MoveIntercardinal NE] --this rather than hover for easy diagnostics
             --Nothing -> [MoveCardinal South]
         Just dirs@(dir:more) -> dirs
 

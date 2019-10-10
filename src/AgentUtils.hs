@@ -73,6 +73,6 @@ fixAltLow Low al = al
 fixAltLow High al = (MoveVertical Descend) : al
 
 --for agents that move between a high sweeping phase and a low sweeping phase
-data SweepPhase = HighSweep | LowSweep
+data AltitudePhase = HighSweep | LowSweep
 
-data DronePhase = DronePhase SweepPhase DroneTerritory
+data DronePhase = DronePhase AltitudePhase DroneTerritory

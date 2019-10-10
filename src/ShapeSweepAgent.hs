@@ -74,7 +74,7 @@ instance Policy LowSweepPolicy where
 
 data HighSweepPolicy = HighSweepPolicy
   {
-    getPhase :: SweepPhase
+    getPhase :: AltitudePhase
   , getDirs :: Directions
   }
 

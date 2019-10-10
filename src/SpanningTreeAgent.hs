@@ -162,11 +162,15 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     currentGroundPos = groundPos droneStat
 
     --the real difference from the k means only version. 
-    newDirs = if (null toVisit)
+    newDirs = if (Set.null toVisit)
       then [Hover] --nothing intelligent to do if no unexplored territory has been assigned to this drone
       else case newDirections of
         Nothing -> [Hover]
-        Just [] -> [Hover]
+        Just [] -> --[Hover]
+          case (null sfPath) of
+            False -> [MoveIntercardinal NW]--, MoveIntercardinal SW, MoveIntercardinal SE, MoveIntercardinal NE]
+            True -> [MoveIntercardinal NE]--, MoveIntercardinal SE, MoveIntercardinal SW, MoveIntercardinal NW]
+            --Nothing -> [MoveCardinal South]
         Just dirs@(dir:more) -> dirs
 
     --the set of locations that are in this drone's territory AND in the set of non-fully-explored locations in the scenario overall

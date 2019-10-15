@@ -350,6 +350,16 @@ coarseMap squareDim fp = foldr checkAndAdd Set.empty fp
     alignedPos pos@(Position xc yc) = Position (align xc) (align yc)
     align x = x - (mod x squareDim)
 
+--this version gets rid of any centers whose members aren't all in bounds
+coarseMap2 :: Int -> Footprint -> Set.Set Position
+coarseMap2 squareDim fp = Set.filter allInBoundsMembers $ coarseMap squareDim fp
+  where
+    allInBoundsMembers :: Position -> Bool
+    allInBoundsMembers pos = getAll $ foldMap All boundsList
+      where
+        boundsList = fmap (\x -> Set.member x fp) $ Set.toList $ quadSetFromCenter squareDim pos
+
+
 --given a full footprint and the subset of nodes we want included, produce a fully fleshed out set of in bounds positions that beloong to those nodes
 detailedSet :: Int -> Footprint -> Set.Set Position -> Set.Set Position
 detailedSet squareDim fp centerSet = Set.fromList $ filter (\p -> Set.member p fp) candidateList

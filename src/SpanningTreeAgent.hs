@@ -9,6 +9,7 @@ import GraphOPRC
 import Policy
 import WorldState
 
+import Data.List
 import Data.Maybe
 import Data.Monoid
 import qualified Data.Sequence as SQ
@@ -185,12 +186,37 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
 
     --the set of locations that are in this drone's territory AND in the set of non-fully-explored locations in the scenario overall
     toVisit = Set.intersection fp $ incompleteLocations envInfo
+    tvSize = Set.size toVisit
+
+    --these need new versions!
     minLoc = Set.findMin toVisit --this shouldn't get run if toVisit is empty
     closestPos = foldr (closerTo currentGroundPos) minLoc toVisit
 
+    --coarse version tries to keep the spanning trees as "filled in" with member positions as possible
+    filledCurrentTreeSet = detailedSet 2 fp coarseCurrentTreeSet
+    coarseCurrentTreeSet = Set.fromList $ drop (coarseTVSize - numToTakeC) sortedCTVL
+    numToTakeC = max (quot coarseTVSize 2) $ min 6 coarseTVSize
+    sortedCTVL = sortOn (leastDistMeans otherMeans) ctvList
+    ctvList = Set.toList coarseToVist
+    coarseToVist = coarseMap 2 toVisit
+    coarseTVSize = Set.size coarseToVist
+
+    minLoc3 = Set.findMin coarseCurrentTreeSet
+    closestPos3 = foldr (closerTo currentGroundPos) minLoc3 coarseCurrentTreeSet
+
+    --the subset of elements from toVisit which are farther from other means than the rest
+    currentTreeSet = Set.fromList $ drop (tvSize - numToTake) sortedTVL --we want the positions which have the GREATEST distance to their closest foreign mean
+    numToTake = max (quot tvSize 6) $ min 24 tvSize
+    sortedTVL = sortOn (leastDistMeans otherMeans) tvList
+    tvList = Set.toList toVisit
+    otherMeans = Set.delete dt meansSet
+
+    minLoc2 = Set.findMin currentTreeSet
+    closestPos2 = foldr (closerTo currentGroundPos) minLoc2 currentTreeSet
+
     --use the above to run cardinal spanning forests and get a coarse path
     --the big difference from the single agent version is that this uses only patches in the drone's territory as the positions to span
-    sfPath = customRootInBoundsSpanningTreePath 2 toVisit closestPos
+    sfPath = customRootInBoundsSpanningTreePath 2 filledCurrentTreeSet closestPos3
 
     --refine the coarse path into a fully detailed one, then make directions from them
     atomicPath = toAtomicPath (Map.keysSet envInfo) currentGroundPos sfPath --relies of A*, so this is a maybe value

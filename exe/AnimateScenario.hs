@@ -66,7 +66,7 @@ visualReplay sc = do
 
 main :: IO ()
 main = 
-  SV.fileNameScenarioWithOutput SV.lkmstp 1 filePath 10000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.lkmstp 4 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay

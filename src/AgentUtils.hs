@@ -76,3 +76,12 @@ fixAltLow High al = (MoveVertical Descend) : al
 data AltitudePhase = HighSweep | LowSweep
 
 data DronePhase = DronePhase AltitudePhase DroneTerritory
+
+--finds a position's distance to the closest of the means position from the current drone policy that *don't* correspond to the one being altered
+leastDistMeans :: HasCenter c =>  Set.Set c -> Position -> Int
+leastDistMeans otherMeans p = 
+  if (Set.null otherMeans)
+    then 0
+    else minimum $ distanceFs <*> (pure p)
+  where
+    distanceFs = fmap idealDistance $ Set.toList $ Set.map getCenter otherMeans

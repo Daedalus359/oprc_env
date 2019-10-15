@@ -1,5 +1,6 @@
 module GraphOPRC where
 
+import Control.Monad
 import qualified Data.Map as MapL
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -349,6 +350,13 @@ coarseMap squareDim fp = foldr checkAndAdd Set.empty fp
     alignedPos pos@(Position xc yc) = Position (align xc) (align yc)
     align x = x - (mod x squareDim)
 
+--given a full footprint and the subset of nodes we want included, produce a fully fleshed out set of in bounds positions that beloong to those nodes
+detailedSet :: Int -> Footprint -> Set.Set Position -> Set.Set Position
+detailedSet squareDim fp centerSet = Set.fromList $ filter (\p -> Set.member p fp) candidateList
+  where
+    candidateList = join $ fmap (Set.toList . (quadSetFromCenter squareDim)) setList
+    setList = Set.toList centerSet
+
 --all of the neighbors in a coarse version of the graph
 coarseNeighbors :: Int -> Position -> [Position]
 coarseNeighbors squareDim (Position xc yc) = tail $ fmap Position (fmap (+ xc) changes) <*> (fmap (+ yc) changes)
@@ -379,10 +387,10 @@ coarseCardinalNeighbors squareDim pos = fmap (hopFrom pos) $ zip xChanges yChang
   where
     yChanges = fmap (* squareDim) yDirs
     xChanges = fmap (* squareDim) xDirs
-    (xDirs, yDirs) = unzip [ ( 1,  0) --E
-                           , ( 0, -1) --S
-                           , (-1,  0) --W
+    (xDirs, yDirs) = unzip [ ( 0, -1) --S
                            , ( 0,  1) --N
+                           , (-1,  0) --W
+                           , ( 1,  0) --E
                            ]
 
 --if you are at the center of a quadrant, this moves you to some other quadrant (maybe not the same node / square)

@@ -166,7 +166,7 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
     targetPos =
       if (null otherMeans)
         then backupPos
-        else snd $ Set.findMax $ Set.map (\p -> (leastDistMeans p, p)) fp--as far as possible from all foreign means
+        else snd $ Set.findMax $ Set.map (\p -> (leastDistMeans otherMeans p, p)) fp--as far as possible from all foreign means
       
     dronePos :: DronePosition
     dronePos = posFromStat droneStat
@@ -181,12 +181,6 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
                 _ -> [Hover] --covers both failed A* (Nothing) and case where start and end position are the same (Just [])
     maybeDirections = maybePath >>= makeDirections
     maybePath = aStarStandardPenalty droneAlt envInfo mkManhattanHeuristic droneGroundPos targetPos
-
-    --finds a position's distance to the closest of the means position from the current drone policy that *don't* correspond to the one being altered
-    leastDistMeans :: Position -> Int
-    leastDistMeans p = minimum $ distanceFs <*> (pure p)
-      where
-        distanceFs = fmap idealDistance $ Set.toList $ Set.map getCenter otherMeans
 
     otherMeans = Set.delete dt meansSet
 

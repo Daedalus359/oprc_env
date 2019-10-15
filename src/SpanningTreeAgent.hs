@@ -195,7 +195,7 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     --coarse version tries to keep the spanning trees as "filled in" with member positions as possible
     filledCurrentTreeSet = detailedSet 2 fp coarseCurrentTreeSet
     coarseCurrentTreeSet = Set.fromList $ drop (coarseTVSize - numToTakeC) sortedCTVL
-    numToTakeC = max (quot coarseTVSize 2) $ min 6 coarseTVSize
+    numToTakeC = max (quot coarseTVSize 1) $ min 6 coarseTVSize
     sortedCTVL = sortOn (leastDistMeans otherMeans) ctvList
     ctvList = Set.toList coarseToVist
     coarseToVist = coarseMap 2 toVisit

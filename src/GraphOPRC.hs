@@ -446,7 +446,7 @@ customRootDfsSpanningForest squareDim root set =
     --cardinalSetSize = Set.size cardinalSet
     --desiredSetSize = Set.size set
 
-    (cardinalTree, cardinalSet) = dfsInternal set cardinalNeighborF root discoveredSet
+    (cardinalTree, cardinalSet) = dfsInternal (coarseMap 2 set) cardinalNeighborF root discoveredSet
 
     neighborF = coarseNeighbors2 squareDim
     cardinalNeighborF = coarseCardinalNeighbors squareDim

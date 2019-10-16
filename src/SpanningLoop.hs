@@ -21,29 +21,57 @@ initializeSpanningLoop inBounds toVisit = undefined
   --
   --
 
+--if the new toVisit is a superset of the old one, make loops that cover the new patches and merge with the existing loop
+--if the new toVisit has lost elements, see if I can figure out a way to "fuse shut" the loops
+adaptLoop :: Set.Set Position -> Set.Set Position -> Path -> Path
+adaptLoop = undefined
+
 --the set passed to this function should be all of the NODES that are considered in bounds for a particular graph search application (i.e. already pruned out all non-aligned positions, etc.)
 inSetCardinalNeighbors :: Int -> Set.Set Position -> Position -> Seq.Seq Position
-inSetCardinalNeighbors hopSize inBoundsNodes = undefined
+inSetCardinalNeighbors hopSize inBoundsNodes startPos = 
+  Seq.fromList $ filter (\p -> Set.member p inBoundsNodes) $ hopFrom startPos <$> hops
   where
     hops = cardinalHop hopSize <$> [North, East, South, West]
 
-bfs :: Set.Set Position -> (Position -> Seq.Seq Position) -> Forest Position
-bfs toSpan neighborF = undefined
+--don't call this with an empty set!
+customRootThenMin :: Position -> Set.Set Position -> Position
+customRootThenMin cRoot set =
+  if (Set.member cRoot set)
+    then cRoot
+    else Set.findMin set
+
+bfs :: Set.Set Position -> (Position -> Seq.Seq Position) -> (Set.Set Position -> Position) -> Forest Position
+bfs toSpan neighborF rootF =
+  if (Set.null toSpan)
+    then []
+    else currentTree : (bfs remainingToSpan neighborF rootF)
+  where
+    currentTree = pmTree root $ Map.delete root firstMap 
+    remainingToSpan = Set.difference toSpan $ Map.keysSet firstMap
+    root = rootF toSpan
+    firstMap = bfsInternal neighborF (Map.singleton root root) (Seq.singleton root)
+
 
 --bfsInternal returns the parent map of single spanning tree (not a forest!)
 --the LEFT end of the queue is where you DEQUEUE from
+--the final map will have the root as its own parent, so remove this afterwards
 bfsInternal :: (Position -> Seq.Seq Position) -> Map.Map Position Position -> Seq.Seq Position -> Map.Map Position Position
 bfsInternal neighborF parentMapSoFar queue =
   if (null queue)
     then parentMapSoFar
-    else if (Set.member current alreadyVisitedSet)
-      then bfsInternal neighborF parentMapSoFar restOfQueue --current was added to queue when another instance of current was already in the quque closer to the left end
-      else bfsInternal neighborF newPMap restOfQueue
+    else bfsInternal neighborF newPMap nextQueue
+
   where
+    nextQueue = restOfQueue Seq.>< unvisitedNeighbors
     newPMap = Map.union parentMapSoFar $ foldr (\p -> \newMap -> Map.insert p current newMap) Map.empty unvisitedNeighbors
     unvisitedNeighbors = Seq.filter (\p -> Set.notMember p alreadyVisitedSet) $ neighborF current
     current Seq.:< restOfQueue = Seq.viewl queue
     alreadyVisitedSet = Map.keysSet parentMapSoFar
+
+pmTree :: Position -> Map.Map Position Position -> Tree Position
+pmTree root parentMap = cmTree theChildMap root
+  where
+    theChildMap = (childMap parentMap)
 
 --function that converts a parent map to a child map
 childMap :: Map.Map Position Position -> Map.Map Position (Set.Set Position)

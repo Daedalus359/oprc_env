@@ -36,10 +36,14 @@ bfsInternal :: (Position -> Seq.Seq Position) -> Map.Map Position Position -> Se
 bfsInternal neighborF parentMapSoFar queue =
   if (null queue)
     then parentMapSoFar
-    else undefined
+    else if (Set.member current alreadyVisitedSet)
+      then bfsInternal neighborF parentMapSoFar restOfQueue --current was added to queue when another instance of current was already in the quque closer to the left end
+      else bfsInternal neighborF newPMap restOfQueue
   where
+    newPMap = Map.union parentMapSoFar $ foldr (\p -> \newMap -> Map.insert p current newMap) Map.empty unvisitedNeighbors
+    unvisitedNeighbors = Seq.filter (\p -> Set.notMember p alreadyVisitedSet) $ neighborF current
     current Seq.:< restOfQueue = Seq.viewl queue
-    discoveredSet = Map.keysSet parentMapSoFar
+    alreadyVisitedSet = Map.keysSet parentMapSoFar
 
 --function that converts a parent map to a child map
 childMap :: Map.Map Position Position -> Map.Map Position (Set.Set Position)

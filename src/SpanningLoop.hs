@@ -31,17 +31,33 @@ bfs :: Set.Set Position -> (Position -> Seq.Seq Position) -> Forest Position
 bfs toSpan neighborF = undefined
 
 --bfsInternal returns the parent map of single spanning tree (not a forest!)
+--the LEFT end of the queue is where you DEQUEUE from
 bfsInternal :: (Position -> Seq.Seq Position) -> Map.Map Position Position -> Seq.Seq Position -> Map.Map Position Position
 bfsInternal neighborF parentMapSoFar queue =
   if (null queue)
     then parentMapSoFar
     else undefined
   where
+    current Seq.:< restOfQueue = Seq.viewl queue
     discoveredSet = Map.keysSet parentMapSoFar
 
 --function that converts a parent map to a child map
 childMap :: Map.Map Position Position -> Map.Map Position (Set.Set Position)
-childMap = undefined 
+childMap parentMap = childMapInternal Map.empty parentMap
+
+childMapInternal :: Map.Map Position (Set.Set Position) -> Map.Map Position Position -> Map.Map Position (Set.Set Position)
+childMapInternal cMapSoFar pMap =
+  if (null pMap)
+    then cMapSoFar
+    else childMapInternal nextCMap restOfPMap
+
+  where
+    nextCMap = Map.alter (insertOrSingleton newChild) newParent cMapSoFar
+    ((newChild, newParent), restOfPMap) = Map.deleteFindMin pMap
+
+insertOrSingleton :: Ord a => a -> Maybe (Set.Set a) -> Maybe (Set.Set a)
+insertOrSingleton aVal Nothing = Just $ Set.singleton aVal
+insertOrSingleton aVal (Just setSoFar) = Just $ Set.insert aVal setSoFar
 
 --function that converts a child map and a root into a tree
 cmTree :: Map.Map Position (Set.Set Position) -> Position -> Tree Position

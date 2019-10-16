@@ -42,6 +42,7 @@ library
                         , SerializeOPRC
                         , ShapeSweepAgent
                         , SpanningTreeAgent
+                        , SpanningLoop
   build-depends:          base
                         , ad
                         , containers

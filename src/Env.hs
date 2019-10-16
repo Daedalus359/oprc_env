@@ -126,6 +126,12 @@ chebyshevLowerRight r pos@(Position xc yc) = bottomSide ++ rightSide ++ (chebysh
     xmax = xc + r
     xmin = xc - r
 
+cardinalHop :: Int -> CardinalDir -> Hop
+cardinalHop hopSize dir = case dir of
+  North -> (0, hopSize)
+  South -> (0, - hopSize)
+  East -> (hopSize, 0)
+  West -> (- hopSize, 0)
 
 --The "environment" is a colection of patches at different positions
 newtype Environment = Environment {getMap :: (Map.Map Position Patch)}

@@ -3,8 +3,11 @@ module SpanningLoop where
 import Env
 import GraphOPRC
 
+import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.Sequence as Seq
+
+import Data.Maybe
 import Data.Tree
 
 --create a path with the following properties, in order of priority
@@ -25,8 +28,24 @@ inSetCardinalNeighbors hopSize inBoundsNodes = undefined
     hops = cardinalHop hopSize <$> [North, East, South, West]
 
 bfs :: Set.Set Position -> (Position -> Seq.Seq Position) -> Forest Position
-bfs toSpan neighborF = undefined 
+bfs toSpan neighborF = undefined
 
+--bfsInternal returns the parent map of single spanning tree (not a forest!)
+bfsInternal :: (Position -> Seq.Seq Position) -> Map.Map Position Position -> Seq.Seq Position -> Map.Map Position Position
+bfsInternal neighborF parentMapSoFar queue =
+  if (null queue)
+    then parentMapSoFar
+    else undefined
+  where
+    discoveredSet = Map.keysSet parentMapSoFar
 
+--function that converts a parent map to a child map
+childMap :: Map.Map Position Position -> Map.Map Position (Set.Set Position)
+childMap = undefined 
 
-
+--function that converts a child map and a root into a tree
+cmTree :: Map.Map Position (Set.Set Position) -> Position -> Tree Position
+cmTree childMap root = Node root childForest
+  where
+    childForest = fmap (cmTree childMap) childrenList
+    childrenList = Set.toList $ fromMaybe Set.empty $ Map.lookup root childMap

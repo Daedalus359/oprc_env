@@ -196,7 +196,7 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = (*) straightCost
     straightCost = cost (undefined :: CardinalDir)
 
 --this is suitable for use with low flying drones, as it assigns territory based on the incompleteLocations criteria
-kMeansLow :: Int -> StdGen -> EnvironmentInfo -> SQ.Seq DroneTerritory -> Map.Map DroneTerritory Footprint
+kMeansLow :: HasDroneTerritory d => Int -> StdGen -> EnvironmentInfo -> SQ.Seq d -> Map.Map d Footprint
 kMeansLow iterations gen envInfo droneSeq = kMeansInternal incompleteLocations nextGen envInfo iterations initMap
   where
     --initMap :: HasCenter d => Map.Map d Footprint
@@ -218,7 +218,7 @@ assignAtRandom a (sets, gen) = (SQ.adjust (Set.insert a) i sets, newGen)
     k = SQ.length sets
 
 --don't call with a number of iterations less than zero!
-kMeansInternal :: (EnvironmentInfo -> Footprint) -> StdGen -> EnvironmentInfo -> Int -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
+kMeansInternal :: HasDroneTerritory d => (EnvironmentInfo -> Footprint) -> StdGen -> EnvironmentInfo -> Int -> Map.Map d Footprint -> Map.Map d Footprint
 kMeansInternal _ _ _ 0 map = map
 kMeansInternal incompleteF gen envInfo iterations map = kMeansInternal incompleteF nextGen envInfo (iterations - 1) newMap
   where
@@ -301,18 +301,47 @@ avgPos ftp = Position (f sumX sz) (f sumY sz)
 data DroneTerritory = DroneTerritory
   { getDrone :: Drone
   , getMean :: Position
-  , getDirsDT :: Directions
+  --, getDirsDT :: Directions
   }
   deriving (Eq, Show)
 
-instance Ord DroneTerritory where
-  compare (DroneTerritory d1 _ _) (DroneTerritory d2 _ _) = compare d1 d2
+class (Ord d, HasCenter d) => HasDroneTerritory d where
+  getDT :: d -> DroneTerritory
+  setDT :: d -> DroneTerritory -> d
 
-anyWaiting :: EnsembleStatus -> Set.Set DroneTerritory -> Bool
+instance HasDroneTerritory DroneTerritory where
+  getDT = id
+  setDT = flip const
+
+instance HasDroneTerritory DTDirs where
+  getDT (DTDirs dt dirs) = dt
+  setDT (DTDirs _ dirs) dt = DTDirs dt dirs--it probably makes sense to preserve dirs in case a kMeans gets run while other drones are acting
+
+data DTDirs = DTDirs DroneTerritory Directions
+  deriving (Eq, Show)
+
+class HasCachedDirs c where
+  getCachedDirs :: c -> Directions
+  setCachedDirs :: c -> Directions -> c
+
+instance HasCachedDirs DTDirs where
+  getCachedDirs (DTDirs dt dirs) = dirs
+  setCachedDirs (DTDirs dt _) dirs = (DTDirs dt dirs)
+
+--still has a directions spot to cache A* directions to the next path, should be a very short list in most cases
+data DTPath = DTPath DroneTerritory Path Directions
+
+instance Ord DroneTerritory where
+  compare (DroneTerritory d1 _) (DroneTerritory d2 _) = compare d1 d2
+
+instance Ord DTDirs where
+  compare dtd1 dtd2 = compare (getDT dtd1) (getDT dtd2)
+
+anyWaiting :: EnsembleStatus -> Set.Set DTDirs -> Bool
 anyWaiting enStat territories = getAny $ foldMap (idleAndUndirected enStat) territories
 
-idleAndUndirected :: EnsembleStatus -> DroneTerritory -> Any
-idleAndUndirected enStat dt@(DroneTerritory drone mean dirs) =
+idleAndUndirected :: EnsembleStatus -> DTDirs -> Any
+idleAndUndirected enStat dtd@(DTDirs dt@(DroneTerritory drone mean) dirs) =
   case dirs of
     (action : actions) -> Any False
     [] -> if (idleOrUnlisted enStat dt)
@@ -320,7 +349,7 @@ idleAndUndirected enStat dt@(DroneTerritory drone mean dirs) =
             else Any False
 
 idleOrUnlisted :: EnsembleStatus -> DroneTerritory -> Bool
-idleOrUnlisted enStat (DroneTerritory drone _ _) = (fromMaybe True $ fmap isUnassigned $ lookup drone enStat)
+idleOrUnlisted enStat (DroneTerritory drone _) = (fromMaybe True $ fmap isUnassigned $ lookup drone enStat)
 
 --agents that execute paths based purely on the footprint of the environment
 type Directions = [Action]
@@ -336,7 +365,11 @@ instance HasCenter Position where
 
 instance HasCenter DroneTerritory where
   getCenter = getMean
-  moveCenter newMean (DroneTerritory drone _ dirs) = DroneTerritory drone newMean dirs
+  moveCenter newMean (DroneTerritory drone _) = DroneTerritory drone newMean
+
+instance HasCenter DTDirs where
+  getCenter = getCenter . getDT
+  moveCenter newMean (DTDirs dt dirs) = DTDirs (moveCenter newMean dt) dirs
 
 --not all of these locations exist in the fine graph, but something in their "chunk" will
 coarseMap :: Int -> Footprint -> Set.Set Position 

@@ -24,45 +24,49 @@ makeDirections (pos1 : rest@(pos2 : path)) =
     Nothing -> Nothing
     (Just action) -> fmap ((:) action) $ makeDirections rest
 
-class Policy p => DroneTerritoryMapPolicy p where
-  getMap :: p -> Map.Map DroneTerritory Footprint
-  fromMap :: StdGen -> Map.Map DroneTerritory Footprint -> p
+class Policy p => CachedDirectionsPolicy p where
+  getDirs :: p -> Directions
+  setDirs :: p -> Directions -> p
 
-applyMoves :: DroneTerritoryMapPolicy p => EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, p)
+class Policy p => DroneTerritoryMapPolicy p where
+  getMap :: p -> Map.Map DTDirs Footprint
+  fromMap :: StdGen -> Map.Map DTDirs Footprint -> p
+
+applyMoves :: DroneTerritoryMapPolicy p => EnsembleStatus -> StdGen -> Map.Map DTDirs Footprint -> (NextActions, p)
 applyMoves enStat gen map = (nextActions, policy)
   where
     policy = fromMap gen $ Map.fromAscList newMapList
     (newMapList, nextActions) = foldr (accumulateNextMoves enStat) ([], []) mapList--foldr should preserve ascending nature of mapList
 
-    mapList :: [(DroneTerritory, Footprint)]
+    mapList :: [(DTDirs, Footprint)]
     mapList = Map.toAscList map
 
-accumulateNextMoves :: EnsembleStatus -> (DroneTerritory, Footprint) -> ([(DroneTerritory, Footprint)], NextActions) -> ([(DroneTerritory, Footprint)], NextActions)
-accumulateNextMoves enStat (dt@(DroneTerritory drone mean dirs), fp) (assignmentListSoFar, nextActionsSoFar) =
+accumulateNextMoves :: EnsembleStatus -> (DTDirs, Footprint) -> ([(DTDirs, Footprint)], NextActions) -> ([(DTDirs, Footprint)], NextActions)
+accumulateNextMoves enStat (dtd@(DTDirs dt@(DroneTerritory drone mean) dirs), fp) (assignmentListSoFar, nextActionsSoFar) =
   if droneIsIdle --only add to the list of NextActions if a drone is idle. Actions given to non idle drones may be discarded, and non idle drones are not guaranteed to have next actions
-    then ((newDt, fp) : assignmentListSoFar, newActionAssignment : nextActionsSoFar)
-    else ((dt, fp) : assignmentListSoFar, nextActionsSoFar)
+    then ((newDTD, fp) : assignmentListSoFar, newActionAssignment : nextActionsSoFar)
+    else ((dtd, fp) : assignmentListSoFar, nextActionsSoFar)
   where
     --these should only be evauluated when the current drone is idle, which should mean dirs matches the (head : tail) pattern
     newActionAssignment = (drone, newAction)
     newAction = head dirs
-    newDt = DroneTerritory drone mean (tail dirs)
+    newDTD = DTDirs dt (tail dirs)
 
     droneStat = fromJust $ lookup drone enStat --the lookup operation should never fail to find the drone's real status
     droneIsIdle = isUnassigned droneStat --will this drone need a new action assignment during this nextMove step?
 
-type DirectionsFunc = WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
+type DirectionsFunc = WorldView -> Set.Set DTDirs -> DTDirs -> Footprint -> DTDirs
 
 --uses A* and the current territory assignments to assign what the idle and unassigned drones should do next
-assignDirections :: DirectionsFunc -> WorldView -> Map.Map DroneTerritory Footprint -> Map.Map DroneTerritory Footprint
+assignDirections :: DirectionsFunc -> WorldView -> Map.Map DTDirs Footprint -> Map.Map DTDirs Footprint
 assignDirections dirF wv map = Map.fromAscList listWithDirections
   where
-    listWithDirections :: [(DroneTerritory, Footprint)]
-    listWithDirections = fmap (\(dt, fp) -> (setF dt fp, fp)) mapList --preserves the Ascending property of the keys in this list
+    listWithDirections :: [(DTDirs, Footprint)]
+    listWithDirections = fmap (\(dtd, fp) -> (setF dtd fp, fp)) mapList --preserves the Ascending property of the keys in this list
 
     setF = dirF wv meansSet
 
-    mapList :: [(DroneTerritory, Footprint)]
+    mapList :: [(DTDirs, Footprint)]
     mapList = Map.toAscList map
 
     meansSet = Map.keysSet map

@@ -114,13 +114,13 @@ nearestSweepPos fp pos@(Position x y) =
         1 -> x - 1
         2 -> x + 1
 
-data KMeansLowPolicy = KMeansLowPolicy StdGen (Map.Map DroneTerritory Footprint)
+data KMeansLowPolicy = KMeansLowPolicy StdGen (Map.Map DTDirs Footprint)
   deriving Show
 
 initializeKMP :: Int -> StdGen -> WorldView -> KMeansLowPolicy
 initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen2 $ kMeansLow iterations gen1 envInfo dSeq
   where
-    dSeq = SQ.fromList $ fmap (\(drone, pos) -> DroneTerritory drone pos []) dronesList
+    dSeq = SQ.fromList $ fmap (\(drone, pos) -> DTDirs (DroneTerritory drone pos) []) dronesList
 
     dronesList :: [(Drone, Position)]
     dronesList = fmap (fmap groundPos) enStat
@@ -142,11 +142,11 @@ instance DroneTerritoryMapPolicy KMeansLowPolicy where
   fromMap gen map = KMeansLowPolicy gen map
 
 --once this has been applied to all DroneTerritories, every drone will either have a list of directions to follow or will be busy completing a motion
-setDirections :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
-setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone mean dirs) fp =
+setDirections :: WorldView -> Set.Set DTDirs -> DTDirs -> Footprint -> DTDirs
+setDirections wv@(WorldView envInfo enStat) meansSet dtd@(DTDirs dt@(DroneTerritory drone mean) dirs) fp =
   if (droneIsIdle && outOfDirections)--need new directions only when the drone is idle and there is not a precomputed list of what to do next
-    then DroneTerritory drone mean (fixAltLow droneAlt newDirs) --evaluating newDirs causes A* to run
-    else dt
+    then DTDirs (DroneTerritory drone mean) $ fixAltLow droneAlt newDirs --evaluating newDirs causes A* to run
+    else dtd
 
   where
     outOfDirections = --in this case, there are no more pre-computed actions to assign
@@ -182,28 +182,28 @@ setDirections wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone me
     maybeDirections = maybePath >>= makeDirections
     maybePath = aStarStandardPenalty droneAlt envInfo mkManhattanHeuristic droneGroundPos targetPos
 
-    otherMeans = Set.delete dt meansSet
+    otherMeans = Set.delete dtd meansSet
 
 
 --OLD
 --only call this after checking that there are moves to apply for each idle drone
-applyMoves2 :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
-applyMoves2 enStat gen map = (catMaybes maybeAssignments, newPolicy)
-  where
-    (maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves2 enStat) ([], KMeansLowPolicy gen $ Map.empty) map
+--applyMoves2 :: EnsembleStatus -> StdGen -> Map.Map DroneTerritory Footprint -> (NextActions, KMeansLowPolicy)
+--applyMoves2 enStat gen map = (catMaybes maybeAssignments, newPolicy)
+  --where
+    --(maybeAssignments, newPolicy) = Map.foldrWithKey (accumulateNextMoves2 enStat) ([], KMeansLowPolicy gen $ Map.empty) map
 
-accumulateNextMoves2 :: EnsembleStatus -> DroneTerritory -> Footprint -> ([Maybe (Drone, Action)], KMeansLowPolicy) -> ([Maybe (Drone, Action)], KMeansLowPolicy)
-accumulateNextMoves2 enStat dt fp (na, KMeansLowPolicy gen map) = (newAction : na, KMeansLowPolicy gen $ Map.insert newKey fp map)
-  where
-    (newAction, newKey) = applyMove2 enStat dt
+--accumulateNextMoves2 :: EnsembleStatus -> DroneTerritory -> Footprint -> ([Maybe (Drone, Action)], KMeansLowPolicy) -> ([Maybe (Drone, Action)], KMeansLowPolicy)
+--accumulateNextMoves2 enStat dt fp (na, KMeansLowPolicy gen map) = (newAction : na, KMeansLowPolicy gen $ Map.insert newKey fp map)
+  --where
+    --(newAction, newKey) = applyMove2 enStat dt
 
-applyMove2 :: EnsembleStatus -> DroneTerritory -> (Maybe (Drone, Action), DroneTerritory)
-applyMove2 enStat dt@(DroneTerritory drone mean dirs) =
-  if (idleOrUnlisted enStat dt)
-    then case dirs of --this should not be necessary!
-           (d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
-           [] -> (Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
-    else (Nothing, dt)
+--applyMove2 :: EnsembleStatus -> DroneTerritory -> (Maybe (Drone, Action), DroneTerritory)
+--applyMove2 enStat dt@(DroneTerritory drone mean dirs) =
+  --if (idleOrUnlisted enStat dt)
+    --then case dirs of --this should not be necessary!
+           --(d : ds) -> (Just $ (drone, head dirs), DroneTerritory drone mean $ tail dirs)
+           --[] -> (Just (drone, Hover), DroneTerritory drone mean [])--get rid of this!
+    --else (Nothing, dt)
 
 --hard coding 10 may be a bad idea
 instance PersistentPolicy KMeansLowPolicy where

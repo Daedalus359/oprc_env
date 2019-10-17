@@ -67,8 +67,12 @@ instance Pretty ScenarioReplay where
     nest 2 $ vsep [pretty "ScenarioReplay: ", pretty ws, pretty i, vsep $ fmap pretty moveHist]
 
 instance Pretty DroneTerritory where
-  pretty (DroneTerritory drone mean dirs) =
-    nest 2 $ vsep [pretty "DroneTerritory: ", pretty drone, pretty $ show mean, nest 2 $ vsep $ (:) (pretty "Directions: ") $  fmap pretty dirs]
+  pretty (DroneTerritory drone mean) =
+    nest 2 $ vsep [pretty "DroneTerritory: ", pretty drone, pretty $ show mean]
+
+instance Pretty DTDirs where
+  pretty (DTDirs (DroneTerritory drone mean) dirs) =
+    nest 2 $ vsep [pretty "DTDirs: ", pretty drone, pretty $ show mean, nest 2 $ vsep $ (:) (pretty "Directions: ") $  fmap pretty dirs]
 
 --covers Footprint
 instance Pretty a => Pretty (Set.Set a) where

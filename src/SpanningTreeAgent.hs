@@ -122,13 +122,13 @@ toAtomicPathInternal fp startPos (waypoint : more) =
     --startPos needs to be included if it is the actual top level start position
     firstStep = fmap tail $ aStarByFootprint fp mkManhattanHeuristic startPos waypoint
 
-data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map DroneTerritory Footprint)
+data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map DTDirs Footprint)
   deriving Show
 
 initializeLKMSTP :: Int -> StdGen -> WorldView  -> LowKMeansSpanningTreePolicy
 initializeLKMSTP iterations gen wv@(WorldView envInfo enStat) = LowKMeansSpanningTreePolicy gen2 $ kMeansLow iterations gen1 envInfo dSeq
   where
-    dSeq = SQ.fromList $ fmap (\(drone, pos) -> DroneTerritory drone pos []) dronesList
+    dSeq = SQ.fromList $ fmap (\(drone, pos) -> DTDirs (DroneTerritory drone pos) []) dronesList
 
     dronesList :: [(Drone, Position)]
     dronesList = fmap (fmap groundPos) enStat
@@ -154,13 +154,16 @@ data LowWaypointsKMeansSpanningTreePolicy = LowWaypointsKMeansSpanningTreePolicy
 
 --the second parameter, meansSet, was useful for ShapeSweepAgent to prioritize exploring territory that was far from all other territory means
   --it is probably useful here as well, but I won't use it for now
-setDirectionsBySpanningPath :: WorldView -> Set.Set DroneTerritory -> DroneTerritory -> Footprint -> DroneTerritory
-setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerritory drone mean dirs) fp =
+setDirectionsBySpanningPath :: (HasDroneTerritory d, HasCachedDirs d) => WorldView -> Set.Set d -> d -> Footprint -> d
+setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet hasDT fp =
   if (droneIsIdle && outOfDirections)
-    then DroneTerritory drone mean (fixAltLow droneAlt newDirs)
-    else dt
+    then setCachedDirs hasDT $ fixAltLow droneAlt newDirs
+    else hasDT
 
   where
+    dt@(DroneTerritory drone mean) = getDT hasDT
+    dirs = getCachedDirs hasDT
+
     --these 3 definitions determine whether the drone being considered needs a new set of directions at all
     droneStat = fromJust $ lookup drone enStat --if the drone is not in the ensemble status, the problem is somewhere else
     droneIsIdle = isUnassigned droneStat
@@ -210,7 +213,7 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     numToTake = max (quot tvSize 6) $ min 24 tvSize
     sortedTVL = sortOn (leastDistMeans otherMeans) tvList
     tvList = Set.toList toVisit
-    otherMeans = Set.delete dt meansSet
+    otherMeans = Set.delete dt $ Set.map getDT meansSet
 
     minLoc2 = Set.findMin currentTreeSet
     closestPos2 = foldr (closerTo currentGroundPos) minLoc2 currentTreeSet
@@ -228,6 +231,8 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     --refine the coarse path into a fully detailed one, then make directions from them
     atomicPath = toAtomicPath (Map.keysSet envInfo) currentGroundPos sfPath --relies of A*, so this is a maybe value
     newDirections = atomicPath >>= makeDirections --another maybe value
+
+--data AdaptiveLowBFSPolicy = AdaptiveLowBFSPolicy (Map.Map )
 
 
 --probably makes sense to create a function that explores all high then all low for now

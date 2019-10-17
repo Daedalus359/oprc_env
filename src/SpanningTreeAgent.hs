@@ -7,6 +7,7 @@ import Env
 import EnvView
 import GraphOPRC
 import Policy
+import SpanningLoop
 import WorldState
 
 import Data.List
@@ -195,7 +196,7 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     --coarse version tries to keep the spanning trees as "filled in" with member positions as possible
     filledCurrentTreeSet = detailedSet 2 fp coarseCurrentTreeSet
     coarseCurrentTreeSet = Set.fromList $ drop (coarseTVSize - numToTakeC) sortedCTVL
-    numToTakeC = max (quot coarseTVSize 1) $ min 6 coarseTVSize
+    numToTakeC = max (quot coarseTVSize 2) $ min 6 coarseTVSize
     sortedCTVL = sortOn (leastDistMeans otherMeans) ctvList
     ctvList = Set.toList coarseToVist
     coarseToVist = coarseMap 2 toVisit
@@ -214,9 +215,15 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet dt@(DroneTerr
     minLoc2 = Set.findMin currentTreeSet
     closestPos2 = foldr (closerTo currentGroundPos) minLoc2 currentTreeSet
 
+    boundsFP = toFootprint envInfo
+
     --use the above to run cardinal spanning forests and get a coarse path
     --the big difference from the single agent version is that this uses only patches in the drone's territory as the positions to span
-    sfPath = customRootInBoundsSpanningTreePath 2 filledCurrentTreeSet closestPos3
+    --sfPath = customRootInBoundsSpanningTreePath 2 filledCurrentTreeSet closestPos3
+
+    --sfPath = lowBFSCoarsePath boundsFP filledCurrentTreeSet closestPos3
+    sfPath = lowSmartEdgeBFSCoarsePath boundsFP toVisit closestPos
+    --sfPath = lowSmartEdgeBFSCoarsePath boundsFP filledCurrentTreeSet closestPos3
 
     --refine the coarse path into a fully detailed one, then make directions from them
     atomicPath = toAtomicPath (Map.keysSet envInfo) currentGroundPos sfPath --relies of A*, so this is a maybe value

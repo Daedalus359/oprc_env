@@ -240,6 +240,21 @@ data AdaptiveLowBFSPolicy = AdaptiveLowBFSPolicy (Map.Map DTPath Footprint)
 --this allows the use of A* to check the next path entry before committing to going there on a certain path or at all
 instance Policy AdaptiveLowBFSPolicy where
   nextMove p@(AdaptiveLowBFSPolicy map) wv@(WorldView envInfo enStat) = undefined
+    where
+      --step 6: command the previously computed directions to any idle drone
+
+      --step 5: use A* (with penalties?) to give directions to the next waypoint for any IDLE drone that does not already have directions (after step 4)
+
+      --step 4: if kMeans got run, readjust the keys of this map to contain newly developed paths in light of the new territory shapes and envInfo
+
+      --step 3: run a few iterations of kMeansInternal (IF it was deemed necessary below) to determine the new values on this map
+
+      --step 2: determine if it is a good time to do territory re-assignment
+      anyDroneNeedsTerritory = undefined
+        --only run kMeans if a drone has run out of territory to explore, necessitating a re-plan
+        --once the not-wirth-visiting waypoints have been pruned for this time step, this is a simple matter of checking if both the waypoints and directions are empty and the drone is idle
+
+      --step 1: in light of the most recent envInfo, filter the waypoints list of each drone to just those positions that still merit a visit
 
 
 --probably makes sense to create a function that explores all high then all low for now

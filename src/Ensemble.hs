@@ -1,5 +1,6 @@
 module Ensemble where
 
+import Env
 import Drone
 import qualified Data.Map.Strict as Map
 
@@ -20,4 +21,7 @@ occupiedDrones ((drone, Unassigned _) : ensStat) = occupiedDrones ensStat
 occupiedDrones ((drone, _) : ensStat) = drone : (occupiedDrones ensStat)
 
 allIdle :: EnsembleStatus -> Bool
-allIdle = foldr (\(drone, status) -> (&& isUnassigned status)) True 
+allIdle = foldr (\(drone, status) -> (&& isUnassigned status)) True
+
+findGroundPos :: Drone -> EnsembleStatus -> Maybe Position
+findGroundPos drone enStat = groundPos <$> lookup drone enStat

@@ -265,13 +265,25 @@ instance Policy AdaptiveLowBFSPolicy where
       (kmGen, newPolicyGen) = split gen
       boundsSet = toFootprint envInfo
 
+accumNextActionsAndMap :: WorldView -> DTPath -> Footprint -> (NextActions, Map.Map DTPath Footprint) -> (NextActions, Map.Map DTPath Footprint)
+accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerritory drone mean) path directions) territory (naSoFar, mapSoFar) = (newActionAssignment, Map.insert newDTP territory mapSoFar)
+  where
+    newActionAssignment = undefined
+    newDTP = undefined
+    boundsSet = toFootprint envInfo
+
 refreshWaypoints :: (Ord w, HasWaypoints w, HasDroneTerritory w) => EnsembleStatus -> Footprint -> w -> Footprint -> Map.Map w Footprint -> Map.Map w Footprint
 refreshWaypoints enStat boundsSet wpc territoryFP mapSoFar = Map.insert (setWP wpc newWaypoints) territoryFP mapSoFar
   where
     newWaypoints = lowSmartEdgeBFSCoarsePath boundsSet territoryFP root
 
     --use enStat and the HasDroneTerritory instance to figure out the best root for the BFS tree
-    root = undefined
+    DroneTerritory drone _ = getDT wpc
+    groundPos = findGroundPos drone enStat
+    minPos = Set.findMin territoryFP
+    root = case groundPos of
+      Nothing -> minPos
+      (Just gPos) -> foldr (closerTo gPos) minPos territoryFP 
 
 dtpNeedsNewMoves :: EnsembleStatus -> DTPath -> Bool
 dtpNeedsNewMoves enStat (DTPath (DroneTerritory drone _) path dirs) = (null path) && (null dirs) && isIdle

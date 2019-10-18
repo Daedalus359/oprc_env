@@ -232,29 +232,56 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet hasDT fp =
     atomicPath = toAtomicPath (Map.keysSet envInfo) currentGroundPos sfPath --relies of A*, so this is a maybe value
     newDirections = atomicPath >>= makeDirections --another maybe value
 
-data AdaptiveLowBFSPolicy = AdaptiveLowBFSPolicy (Map.Map DTPath Footprint)
+data AdaptiveLowBFSPolicy = AdaptiveLowBFSPolicy StdGen (Map.Map DTPath Footprint)
 
 --(DTPath dt@(DroneTerritory drone mean) path directions)
 
 --this policy uses BFS to plan approaches, but it saves the resulting plan as a path, rather than directions
 --this allows the use of A* to check the next path entry before committing to going there on a certain path or at all
 instance Policy AdaptiveLowBFSPolicy where
-  nextMove p@(AdaptiveLowBFSPolicy map) wv@(WorldView envInfo enStat) = undefined
+  nextMove p@(AdaptiveLowBFSPolicy gen map) wv@(WorldView envInfo enStat) = (undefined, AdaptiveLowBFSPolicy newPolicyGen undefined)
     where
       --step 6: command the previously computed directions to any idle drone
 
       --step 5: use A* (with penalties?) to give directions to the next waypoint for any IDLE drone that does not already have directions (after step 4)
-
-      --step 4: if kMeans got run, readjust the keys of this map to contain newly developed paths in light of the new territory shapes and envInfo
-
-      --step 3: run a few iterations of kMeansInternal (IF it was deemed necessary below) to determine the new values on this map
+      
+      actionableMap =
+        if anyDroneNeedsTerritory
+          then 
+            --step 4: if kMeans got run, readjust the keys of this map to contain newly developed paths in light of the new territory shapes and envInfo
+            Map.foldrWithKey (refreshWaypoints enStat boundsSet) Map.empty $
+              --step 3: run a few iterations of kMeansInternal (IF it was deemed necessary below) to determine the new values on this map
+              kMeansInternal incompleteLocations kmGen envInfo 4 filteredWaypointsMap --4 is an arbitrary choice for number of kMeans iterations
+          else filteredWaypointsMap
 
       --step 2: determine if it is a good time to do territory re-assignment
-      anyDroneNeedsTerritory = undefined
+      anyDroneNeedsTerritory = getAny $ foldMap (Any . (dtpNeedsNewMoves enStat)) $ Map.keysSet filteredWaypointsMap
         --only run kMeans if a drone has run out of territory to explore, necessitating a re-plan
         --once the not-wirth-visiting waypoints have been pruned for this time step, this is a simple matter of checking if both the waypoints and directions are empty and the drone is idle
 
       --step 1: in light of the most recent envInfo, filter the waypoints list of each drone to just those positions that still merit a visit
+      filteredWaypointsMap = Map.mapKeys (filterObservedWaypoints envInfo) map
+
+      (kmGen, newPolicyGen) = split gen
+      boundsSet = toFootprint envInfo
+
+refreshWaypoints :: (Ord w, HasWaypoints w, HasDroneTerritory w) => EnsembleStatus -> Footprint -> w -> Footprint -> Map.Map w Footprint -> Map.Map w Footprint
+refreshWaypoints enStat boundsSet wpc territoryFP mapSoFar = Map.insert (setWP wpc newWaypoints) territoryFP mapSoFar
+  where
+    newWaypoints = lowSmartEdgeBFSCoarsePath boundsSet territoryFP root
+
+    --use enStat and the HasDroneTerritory instance to figure out the best root for the BFS tree
+    root = undefined
+
+dtpNeedsNewMoves :: EnsembleStatus -> DTPath -> Bool
+dtpNeedsNewMoves enStat (DTPath (DroneTerritory drone _) path dirs) = (null path) && (null dirs) && isIdle
+  where
+    isIdle = fromMaybe True $ fmap isUnassigned $ lookup drone enStat
+
+filterObservedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
+filterObservedWaypoints envInfo w = setWP w $ filter (flip Set.member unseenLocs) $ getWP w
+  where
+    unseenLocs = unseenLocations envInfo
 
 
 --probably makes sense to create a function that explores all high then all low for now

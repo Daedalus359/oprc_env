@@ -330,6 +330,28 @@ instance HasCachedDirs DTDirs where
 
 --still has a directions spot to cache A* directions to the next path, should be a very short list in most cases
 data DTPath = DTPath DroneTerritory Path Directions
+  deriving (Eq, Show)
+
+instance HasCenter DTPath where
+  getCenter (DTPath dt path dirs) = getCenter dt
+  moveCenter newCenter (DTPath dt path dirs) = DTPath (moveCenter newCenter dt) path dirs
+
+
+instance HasDroneTerritory DTPath
+  where
+    getDT (DTPath dt _ _) = dt
+    setDT (DTPath _ path dirs) dt = DTPath dt path dirs 
+
+class HasWaypoints w where
+  getWP :: w -> Path
+  setWP :: w -> Path -> w
+
+instance HasWaypoints DTPath where
+  getWP (DTPath _ path _)  = path
+  setWP (DTPath dt _ dirs) path = DTPath dt path dirs
+
+instance Ord DTPath where
+  compare (DTPath dt1 _ _) (DTPath dt2 _ _) = compare dt1 dt2
 
 instance Ord DroneTerritory where
   compare (DroneTerritory d1 _) (DroneTerritory d2 _) = compare d1 d2

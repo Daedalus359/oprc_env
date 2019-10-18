@@ -232,7 +232,14 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet hasDT fp =
     atomicPath = toAtomicPath (Map.keysSet envInfo) currentGroundPos sfPath --relies of A*, so this is a maybe value
     newDirections = atomicPath >>= makeDirections --another maybe value
 
---data AdaptiveLowBFSPolicy = AdaptiveLowBFSPolicy (Map.Map )
+data AdaptiveLowBFSPolicy = AdaptiveLowBFSPolicy (Map.Map DTPath Footprint)
+
+--(DTPath dt@(DroneTerritory drone mean) path directions)
+
+--this policy uses BFS to plan approaches, but it saves the resulting plan as a path, rather than directions
+--this allows the use of A* to check the next path entry before committing to going there on a certain path or at all
+instance Policy AdaptiveLowBFSPolicy where
+  nextMove p@(AdaptiveLowBFSPolicy map) wv@(WorldView envInfo enStat) = undefined
 
 
 --probably makes sense to create a function that explores all high then all low for now

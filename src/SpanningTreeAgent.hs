@@ -234,16 +234,23 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet hasDT fp =
 
 data AdaptiveLowBFSPolicy = AdaptiveLowBFSPolicy StdGen (Map.Map DTPath Footprint)
 
+initializeALBP :: Int -> StdGen -> WorldView -> AdaptiveLowBFSPolicy
+initializeALBP iterations gen wv@(WorldView envInfo enStat) = AdaptiveLowBFSPolicy polGen $ kMeansLow iterations kmGen envInfo dtpSeq
+  where
+    dtpSeq = SQ.fromList $ fmap (\(drone, pos) -> DTPath (DroneTerritory drone pos) [] []) $ fmap (fmap groundPos) enStat
+    (kmGen, polGen) = split gen
+
 --(DTPath dt@(DroneTerritory drone mean) path directions)
 
 --this policy uses BFS to plan approaches, but it saves the resulting plan as a path, rather than directions
 --this allows the use of A* to check the next path entry before committing to going there on a certain path or at all
 instance Policy AdaptiveLowBFSPolicy where
-  nextMove p@(AdaptiveLowBFSPolicy gen map) wv@(WorldView envInfo enStat) = (undefined, AdaptiveLowBFSPolicy newPolicyGen undefined)
+  nextMove p@(AdaptiveLowBFSPolicy gen map) wv@(WorldView envInfo enStat) = (nas, AdaptiveLowBFSPolicy newPolicyGen newMap)
     where
-      --step 6: command the previously computed directions to any idle drone
 
+      --step 6: command the previously computed directions to any idle drone
       --step 5: use A* (with penalties?) to give directions to the next waypoint for any IDLE drone that does not already have directions (after step 4)
+      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap wv) ([], Map.empty) actionableMap
       
       actionableMap =
         if anyDroneNeedsTerritory
@@ -260,21 +267,41 @@ instance Policy AdaptiveLowBFSPolicy where
         --once the not-wirth-visiting waypoints have been pruned for this time step, this is a simple matter of checking if both the waypoints and directions are empty and the drone is idle
 
       --step 1: in light of the most recent envInfo, filter the waypoints list of each drone to just those positions that still merit a visit
-      filteredWaypointsMap = Map.mapKeys (filterObservedWaypoints envInfo) map
+      filteredWaypointsMap = Map.mapKeys (removeCompletedWaypoints envInfo) map
 
       (kmGen, newPolicyGen) = split gen
       boundsSet = toFootprint envInfo
 
 accumNextActionsAndMap :: WorldView -> DTPath -> Footprint -> (NextActions, Map.Map DTPath Footprint) -> (NextActions, Map.Map DTPath Footprint)
-accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerritory drone mean) path directions) territory (naSoFar, mapSoFar) = (newActionAssignment, Map.insert newDTP territory mapSoFar)
+accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerritory drone mean) path directions) territory (naSoFar, mapSoFar) =
+  (newActionAssignments, Map.insert newDTP territory mapSoFar)
   where
-    newActionAssignment = undefined
-    newDTP = undefined
+    (newActionAssignments, newDTP) =
+      if isIdle
+        then ((drone, head atLeastOneDirection) : naSoFar, DTPath dt adjustedPath (tail atLeastOneDirection))
+        else (naSoFar, DTPath dt adjustedPath filledDirections)
+
+    atLeastOneDirection = if (null filledDirections) then [Hover] else filledDirections
+
+    (filledDirections, adjustedPath) =
+      if (null directions)
+        then
+          if (null path)
+            then (fixAltLow currentAltitude [], path)
+            else (fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarStandardPenalty Low envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)--is this always going to work?
+        else (directions, path)
+
+    currentAltitude = getEnvAlt currentDronePos
+    currentGroundPos = getEnvPos currentDronePos
+    currentDronePos = fromJust $ fmap posFromStat droneStat --this should be run with a map that has already accounted for drone dropout
     boundsSet = toFootprint envInfo
+    isIdle = fromMaybe True $ fmap isUnassigned droneStat
+    droneStat = lookup drone enStat -- a maybe value
 
 refreshWaypoints :: (Ord w, HasWaypoints w, HasDroneTerritory w) => EnsembleStatus -> Footprint -> w -> Footprint -> Map.Map w Footprint -> Map.Map w Footprint
 refreshWaypoints enStat boundsSet wpc territoryFP mapSoFar = Map.insert (setWP wpc newWaypoints) territoryFP mapSoFar
   where
+    --newWaypoints = fromMaybe [] $  toAtomicPath boundsSet (fromJust groundPos) coarseWPs
     newWaypoints = lowSmartEdgeBFSCoarsePath boundsSet territoryFP root
 
     --use enStat and the HasDroneTerritory instance to figure out the best root for the BFS tree
@@ -290,10 +317,10 @@ dtpNeedsNewMoves enStat (DTPath (DroneTerritory drone _) path dirs) = (null path
   where
     isIdle = fromMaybe True $ fmap isUnassigned $ lookup drone enStat
 
-filterObservedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
-filterObservedWaypoints envInfo w = setWP w $ filter (flip Set.member unseenLocs) $ getWP w
+removeCompletedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
+removeCompletedWaypoints envInfo w = setWP w $ filter (flip Set.member incompleteLocs) $ getWP w
   where
-    unseenLocs = unseenLocations envInfo
+    incompleteLocs = incompleteLocations envInfo
 
 
 --probably makes sense to create a function that explores all high then all low for now

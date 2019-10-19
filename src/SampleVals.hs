@@ -307,3 +307,6 @@ lstp = return initializeLSTP
 
 lkmstp :: IO (WorldView -> LowKMeansSpanningTreePolicy)
 lkmstp = initializeLKMSTP 10 <$> newStdGen
+
+albp :: IO (WorldView -> AdaptiveLowBFSPolicy)
+albp = initializeALBP 10 <$> newStdGen

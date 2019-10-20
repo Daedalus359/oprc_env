@@ -225,8 +225,18 @@ kMeansInternal incompleteF gen envInfo iterations map = kMeansInternal incomplet
     --if any means have lost all of their territory, give them a random patch
     newMap = foldr (\(mean, backupTerritory) -> \existing -> Map.insert mean backupTerritory existing) correctedMeans backupAssignments
       where
-        backupAssignments = zipWith littleTup newTerritories $ Set.toList leftOutMeans --a random location assigned to each of the original means that did not turn into something with territory
+        --backupAssignments = zipWith littleTup newTerritories $ Set.toList leftOutMeans --a random location assigned to each of the original means that did not turn into something with territory
+        backupAssignments = catMaybes $ fmap closestWVPos $ Set.toList leftOutMeans
         littleTup pos mean = (moveCenter pos mean, Set.singleton pos)
+
+    closestWVPos mean =
+      if (null placesNeedingObservation)
+        then Nothing
+        else Just (mean, Set.singleton newPatch)
+      where
+        --can probably do better than closerTo by accounting for how many patches belong to the drone that currently owns this territory and travel time
+        newPatch = foldr (closerTo currentMean) minPNOPos placesNeedingObservation --this should not fail usually
+        DroneTerritory drone currentMean = getDT mean
 
     --now that reassignments have been made, correct the mean value assigned to each footprint.
     correctedMeans = Map.fromAscList $ fmap recenter $ Map.toAscList reassignedMap
@@ -248,6 +258,7 @@ kMeansInternal incompleteF gen envInfo iterations map = kMeansInternal incomplet
     newTerritories = randomElems currentGen placesNeedingObservation --random unexplored locations to assign to means as needed
     (nextGen, currentGen) = split gen
     placesNeedingObservation = incompleteF envInfo --the set of locations that have not been explored fully so far
+    minPNOPos = Set.findMin placesNeedingObservation
 
 randomElems :: StdGen -> Set.Set a -> [a]
 randomElems gen set = fmap (\i -> setList !! i) indices
@@ -415,7 +426,7 @@ coarseMap2 squareDim fp = Set.filter allInBoundsMembers $ coarseMap squareDim fp
         boundsList = fmap (\x -> Set.member x fp) $ Set.toList $ quadSetFromCenter squareDim pos
 
 
---given a full footprint and the subset of nodes we want included, produce a fully fleshed out set of in bounds positions that beloong to those nodes
+--given a full footprint and the subset of nodes we want included, produce a fully fleshed out set of in bounds positions that belong to those nodes
 detailedSet :: Int -> Footprint -> Set.Set Position -> Set.Set Position
 detailedSet squareDim fp centerSet = Set.fromList $ filter (\p -> Set.member p fp) candidateList
   where

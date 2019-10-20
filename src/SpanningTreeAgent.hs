@@ -268,6 +268,7 @@ instance Policy AdaptiveLowBFSPolicy where
 
       --step 1: in light of the most recent envInfo, filter the waypoints list of each drone to just those positions that still merit a visit
       filteredWaypointsMap = Map.mapKeys (removeCompletedWaypoints envInfo) map
+        --Map.mapKeys id map
 
       (kmGen, newPolicyGen) = split gen
       boundsSet = toFootprint envInfo
@@ -279,7 +280,7 @@ accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerrit
     (newActionAssignments, newDTP) =
       if isIdle
         then ((drone, head atLeastOneDirection) : naSoFar, DTPath dt adjustedPath (tail atLeastOneDirection))
-        else (naSoFar, DTPath dt adjustedPath filledDirections)
+        else (naSoFar, dtp)--don't compute new directions at all if not idle
 
     atLeastOneDirection = if (null filledDirections) then [Hover] else filledDirections
 
@@ -289,6 +290,7 @@ accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerrit
           if (null path)
             then (fixAltLow currentAltitude [], path)
             else (fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarStandardPenalty Low envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)--is this always going to work?
+              --(fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStar envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
         else (directions, path)
 
     currentAltitude = getEnvAlt currentDronePos

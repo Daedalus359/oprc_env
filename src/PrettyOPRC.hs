@@ -74,6 +74,10 @@ instance Pretty DTDirs where
   pretty (DTDirs (DroneTerritory drone mean) dirs) =
     nest 2 $ vsep [pretty "DTDirs: ", pretty drone, pretty $ show mean, nest 2 $ vsep $ (:) (pretty "Directions: ") $  fmap pretty dirs]
 
+instance Pretty DTPath where
+  pretty (DTPath (DroneTerritory drone mean) path dirs) =
+    nest 2 $ vsep [pretty "DTPath: ", pretty drone, pretty "territory mean: " <+> (pretty $ show mean), nest 2 $ vsep $ (:) (pretty "Directions: ") $  fmap pretty dirs, nest 2 $ vsep $ (:) (pretty "Path") $ fmap pretty path]
+
 --covers Footprint
 instance Pretty a => Pretty (Set.Set a) where
   pretty set = vsep $ fmap pretty $ Set.toList set
@@ -90,3 +94,7 @@ instance Pretty KMeansLowPolicy where
 instance Pretty LowKMeansSpanningTreePolicy where
   pretty (LowKMeansSpanningTreePolicy gen map) =
     nest 2 $ vsep [pretty "KMeansLowSpanningTreePolicy: ", pretty "StdGen:" <+> (pretty $ show gen), nest 2 $ vsep [pretty "territory map: ", pretty map]]
+
+instance Pretty AdaptiveLowBFSPolicy where
+  pretty (AdaptiveLowBFSPolicy gen map) =
+    nest 2 $ vsep [pretty "AdaptiveLowBFSPolicy: ", pretty "StdGen:" <+> (pretty $ show gen), nest 2 $ vsep [pretty "territory map: ", pretty map]]

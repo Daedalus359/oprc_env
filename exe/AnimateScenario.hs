@@ -66,13 +66,14 @@ visualReplay sc = do
 
 main :: IO ()
 main =
-  SV.fileNameScenarioWithOutput SV.albp 2 filePath 20000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.albp 6 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 7 100000 >>= visualReplay
   where
+    --filePath = "./test/environments/9.env"
     filePath = "./test/environments/generated/clumpedNE=0.15T=0.5.env"
     --filePath = "./test/environments/spanningTreeTester.env"
     --filePath = "./test/environments/tinySpanningTreeTester.env"

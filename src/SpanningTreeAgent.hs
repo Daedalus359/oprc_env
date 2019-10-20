@@ -290,7 +290,8 @@ accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerrit
           if (null path)
             then (fixAltLow currentAltitude [], path)
             else --(fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarStandardPenalty Low envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)--is this always going to work?
-              (fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStar envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
+              --(fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStar envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
+              (fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarCustomPenalty (assignPenalty 3 Low) envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
         else (directions, path)
 
     currentAltitude = getEnvAlt currentDronePos

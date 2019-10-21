@@ -74,6 +74,15 @@ customRootThenMin cRoot set =
     then cRoot
     else Set.findMin set
 
+customRootThenClosest :: Position -> Set.Set Position -> Position
+customRootThenClosest cRoot set =
+  if (Set.member cRoot set)
+    then cRoot
+    else foldr (closerTo cRoot) minPos set
+  where
+    minPos = Set.findMin set
+
+
 bfs :: Set.Set Position -> (Position -> Seq.Seq Position) -> (Set.Set Position -> Position) -> Forest Position
 bfs toSpan neighborF rootF =
   if (Set.null toSpan)
@@ -136,7 +145,7 @@ cmTree childMap root = Node root childForest
 lowBFSSpanningTree :: Footprint -> Position -> Forest Position
 lowBFSSpanningTree fp root = bfs toSpan neighborF rootF
   where
-    rootF = customRootThenMin root
+    rootF = customRootThenClosest root
     neighborF = inSetCardinalNeighbors 2 toSpan
     toSpan = coarseMap 2 fp
 
@@ -148,7 +157,7 @@ lowBFSCoarsePath boundsFp visitFp root = inBoundsPath 1 boundsFp $ cardinalCover
 smartEdgeBFSForestLow :: Footprint -> Footprint -> Position -> Forest Position
 smartEdgeBFSForestLow boundsFP visitSet root = bfs toSpanCoarse neighborF rootF
   where
-    rootF = customRootThenMin root
+    rootF = customRootThenClosest root
     neighborF = achievableLowNeighbors boundsFP toSpanCoarse
     toSpanCoarse = coarseMap 2 visitSet
 

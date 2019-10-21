@@ -70,7 +70,7 @@ instance Steppable RandomScenario where
       newEnStat = if (dropADrone && (length enStat >= 2)) --don't ever drop the last drone because this is just to show adaptability
         then (tail $ shuffle shuffleGen enStat)
         else enStat
-      dropADrone = roll <= 0.001 --hard coded probability
+      dropADrone = roll <= 0.002 --hard coded probability
       (roll, nextGen) = randomR (0.0 :: Float, 1.0) rollGen
       (shuffleGen, rollGen) = split gen
   getTimeS (RandomScenario _ (Scenario _ _ time _)) = time

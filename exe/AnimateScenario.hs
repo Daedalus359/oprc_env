@@ -65,10 +65,39 @@ visualReplay sc = do
     fp = Map.keysSet $ getMap $ getEnv $ getWorldState sc
 
 --re-do visualReplay but where it just takes a replay directly
+visualReplay2 :: ScenarioReplay -> IO ()
+visualReplay2 replay@(ScenarioReplay ws _ _) = do
+                    putStrLn "Number of Patches"
+                    print (Set.size fp)
+                    simulate windowDisplay white defaultFramerate initModel drawF updateF
+  where
+    updateF = (AR.updateFunc speedupFactor)
+    drawF = (AR.drawReplay2 scaleFactor edgeRelief (fromIntegral windowWidth) (fromIntegral windowHeight) offset)
+
+    offset = fpWidth + 1
+    initModel = (0, replay)
+
+    scaleFactor = min horizontalScaleFactor vertScaleFactor
+
+    horizontalScaleFactor = horizontalRoom / (2 * (fromIntegral fpWidth) + 1) --map is displayed twice horizontally + 1 column of blank space
+    horizontalRoom = ((fromIntegral windowWidth) - (2 * edgeRelief)) / 24
+
+    vertScaleFactor = verticalRoom / (fromIntegral fpHeight)
+    verticalRoom = ((fromIntegral windowHeight) - (2 * edgeRelief)) / 24
+    fpHeight = maxy - miny + 1
+
+    (miny, maxy) = Set.foldr (\(Position _ y) -> \(minSF, maxSF) -> (min minSF y, max maxSF y)) (sampleY, sampleY) fp
+
+    fpWidth = maxx - minx + 1
+    (Position maxx sampleY) = Set.findMax fp
+    (Position minx _) = Set.findMin fp
+
+    fp = Map.keysSet $ getMap $ getEnv $ ws
+
 
 main :: IO ()
 main =
-  SV.fileNameScenarioDropout SV.albp 2 filePath 20000 >>= visualReplay
+  createReplayWithDropout nDrones <$> SV.fileNameScenarioDropout SV.albp nDrones filePath 20000 >>= visualReplay2
   --SV.fileNameScenarioWithOutput SV.albp 2 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
@@ -81,6 +110,8 @@ main =
     filePath = "./test/environments/spanningTreeTester.env"
     --filePath = "./test/environments/tinySpanningTreeTester.env"
     --filePath = "./test/environments/reallyTinySpanningTreeTester.env"
+
+    nDrones = 2
 
 quickDraw :: (a -> Picture) -> a -> IO ()
 quickDraw f a = display windowDisplay white $ f a

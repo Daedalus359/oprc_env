@@ -64,9 +64,12 @@ visualReplay sc = do
 
     fp = Map.keysSet $ getMap $ getEnv $ getWorldState sc
 
+--re-do visualReplay but where it just takes a replay directly
+
 main :: IO ()
 main =
-  SV.fileNameScenarioWithOutput SV.albp 2 filePath 20000 >>= visualReplay
+  SV.fileNameScenarioDropout SV.albp 2 filePath 20000 >>= visualReplay
+  --SV.fileNameScenarioWithOutput SV.albp 2 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay

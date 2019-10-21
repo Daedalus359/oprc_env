@@ -218,8 +218,13 @@ fileNameScenarioWithOutput ioPol nDrones path timeLimit = do
 
 fileNameScenarioDropout :: Policy p => IO (WorldView -> p) -> Int -> String -> Integer -> IO (Scenario p)
 fileNameScenarioDropout ioPol nDrones path timeLimit = do
+  gen <- newStdGen
   putStrLn "Running scenario with dropout..."
-  (finished, randomScenario) <- liftA2 (Scenario.fullSteppableRun timeLimit nDrones) (ioPol) (dumpParseFailure $ parseEnvFilePath path)
+  (finished, randomScenario) <- liftA2 (Scenario.fullSteppableRun timeLimit nDrones gen) (ioPol) (dumpParseFailure $ parseEnvFilePath path)
+  if finished
+    then putStrLn "scenario was completed successfully"
+    else putStrLn "scenario was NOT finished"
+  putStrLn $ "final time: " ++ (show $ getTime $ rsScenario randomScenario)
   return $ rsScenario randomScenario
 
 

@@ -46,9 +46,15 @@ type MoveHistory = [Snapshot]
 
 class Steppable s where
   step :: (Policy p) => s p -> s p
+  getTimeS :: (Policy p) => s p -> Integer
+  isTerminalS :: (Policy p) => s p -> Bool
+  mkSteppable :: (Policy p) => (WorldView -> p) -> Int -> Environment -> StdGen -> s p
 
 instance Steppable Scenario where
   step = stepScenario
+  getTimeS = getTime
+  isTerminalS (Scenario _ ws _ _) = isTerminal ws
+  mkSteppable policyF nd env gen = mkScenario policyF nd env --don't really need the gen, this is clumsy
 
 instance Steppable RandomScenario where
   step (RandomScenario gen scenario@(Scenario pol ws@(WorldState env info enStat) time hist)) = RandomScenario nextGen newScen
@@ -61,12 +67,15 @@ instance Steppable RandomScenario where
       newWs = updateState nextMoves droppedWs
 
       droppedWs = WorldState env info newEnStat
-      newEnStat = if dropADrone
+      newEnStat = if (dropADrone && (length enStat >= 2)) --don't ever drop the last drone because this is just to show adaptability
         then (tail $ shuffle shuffleGen enStat)
         else enStat
       dropADrone = roll <= 0.001 --hard coded probability
       (roll, nextGen) = randomR (0.0 :: Float, 1.0) rollGen
       (shuffleGen, rollGen) = split gen
+  getTimeS (RandomScenario _ (Scenario _ _ time _)) = time
+  isTerminalS (RandomScenario _ scenario) = isTerminalS scenario
+  mkSteppable = mkRandomScenario
 
 
 --advance the current scenario one time step
@@ -107,8 +116,18 @@ fullRun timeLimit numDrones policyF environment = runScenario timeLimit scenario
   where
     scenario = mkScenario policyF numDrones environment
 
-fullSteppableRun :: (Policy p, Steppable s) => Integer -> Int -> (WorldView -> p) -> Environment -> (Bool, s p)
-fullSteppableRun = undefined
+runSteppable :: (Policy p, Steppable s) => Integer -> s p -> (Bool, s p)
+runSteppable timeLimit s = case (overTime || finished) of
+  False -> runSteppable timeLimit $ step s
+  True -> (finished, s)
+  where
+    overTime = getTimeS s >= timeLimit
+    finished = isTerminalS s
+
+fullSteppableRun :: (Policy p, Steppable s) => Integer -> Int -> StdGen -> (WorldView -> p) -> Environment -> (Bool, s p)
+fullSteppableRun timeLimit numDrone gen policyF environment = runSteppable timeLimit s
+  where
+    s = mkSteppable policyF numDrone environment gen
 
 --in this case, the moveHistory is what is coming next
 data ScenarioReplay = ScenarioReplay WorldState Integer MoveHistory
@@ -118,6 +137,11 @@ createReplay :: Scenario p -> ScenarioReplay
 createReplay sc@(Scenario _ ws@(WorldState env info ensembleStat) _ hist) = ScenarioReplay startWS 0 (reverse hist)
   where
     startWS = initializeWorldState (length ensembleStat) env
+
+createReplayWithDropout :: Int -> Scenario p -> ScenarioReplay
+createReplayWithDropout nDrones sc@(Scenario _ ws@(WorldState env info ensembleStat) _ hist) = ScenarioReplay startWS 0 (reverse hist)
+  where
+    startWS = initializeWorldState nDrones env
 
 --move the replay foreward one time step and get the new worldstate that resulted from that
 advanceReplay :: ScenarioReplay -> ScenarioReplay

@@ -267,11 +267,19 @@ instance Policy AdaptiveLowBFSPolicy where
         --once the not-wirth-visiting waypoints have been pruned for this time step, this is a simple matter of checking if both the waypoints and directions are empty and the drone is idle
 
       --step 1: in light of the most recent envInfo, filter the waypoints list of each drone to just those positions that still merit a visit
-      filteredWaypointsMap = Map.mapKeys (removeCompletedWaypoints envInfo) map
+      filteredWaypointsMap = Map.mapKeys (removeCompletedWaypoints envInfo) currentDronesMap
         --Map.mapKeys id map
+
+      --step 0: check the existing map entries with the current ensembleStatus in case a drone has dropped out
+      currentDronesMap = Map.filterWithKey (droneInSet aliveDrones) map
+      aliveDrones = Set.fromList $ fmap fst enStat
 
       (kmGen, newPolicyGen) = split gen
       boundsSet = toFootprint envInfo
+
+droneInSet :: HasDroneTerritory h => Set.Set Drone -> h -> v -> Bool
+droneInSet droneSet h _ = (Set.member drone droneSet)
+  where DroneTerritory drone _ = getDT h
 
 accumNextActionsAndMap :: WorldView -> DTPath -> Footprint -> (NextActions, Map.Map DTPath Footprint) -> (NextActions, Map.Map DTPath Footprint)
 accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerritory drone mean) path directions) territory (naSoFar, mapSoFar) =

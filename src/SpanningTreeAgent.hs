@@ -125,7 +125,7 @@ toAtomicPathInternal fp startPos (waypoint : more) =
 data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map DTDirs Footprint)
   deriving Show
 
-initializeLKMSTP :: Int -> StdGen -> WorldView  -> LowKMeansSpanningTreePolicy
+initializeLKMSTP :: Int -> StdGen -> WorldView -> LowKMeansSpanningTreePolicy
 initializeLKMSTP iterations gen wv@(WorldView envInfo enStat) = LowKMeansSpanningTreePolicy gen2 $ kMeansLow iterations gen1 envInfo dSeq
   where
     dSeq = SQ.fromList $ fmap (\(drone, pos) -> DTDirs (DroneTerritory drone pos) []) dronesList

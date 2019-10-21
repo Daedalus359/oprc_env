@@ -13,8 +13,6 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import System.Random
 
-testCompilation = "do it!"
-
 --outputs Directions if all of the hops between path elements correspond to atomic movements in the sim
 makeDirections :: Path -> Maybe Directions
 makeDirections [] = Just []

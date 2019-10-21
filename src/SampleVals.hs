@@ -5,6 +5,7 @@ import Drone
 import Ensemble
 import EnvGen
 import EnvView
+import HierarchicalPolicy
 import WorldState
 import Scenario
 import RandomAgent
@@ -342,3 +343,8 @@ lkmstp = initializeLKMSTP 10 <$> newStdGen
 
 albp :: IO (WorldView -> AdaptiveLowBFSPolicy)
 albp = initializeALBP 10 <$> newStdGen
+
+
+--useless except for testing, should be more or less the same as albp but packaged differently
+dumbHFSP :: IO (WorldView -> HighFirstBFSPolicy)
+dumbHFSP = initializeLowImmediately 10 <$> newStdGen

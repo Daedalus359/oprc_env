@@ -27,6 +27,7 @@ library
                         , EnvGen
                         , EnvView
                         , FisherYatesShuffle
+                        , HierarchicalPolicy
                         , MoveCosts
                         , SampleVals
                         , WorldState

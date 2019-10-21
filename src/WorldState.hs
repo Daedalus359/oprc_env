@@ -11,6 +11,7 @@ import Control.Monad --join
 import qualified Data.Map.Strict as Map --unionWith
 import qualified Data.Set as Set
 import Data.Monoid
+import System.Random
 
 --everything, including a description of the partial infomation available to an agent
 data WorldState =
@@ -40,6 +41,10 @@ updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState en
   where
     updateEnsemble nextActions = (stepEnsemble $ Map.keysSet $ toMap env). (assignEnsemble nextActions)
     newStatus = (updateEnsemble nextActions ensembleStatus)
+
+--a version of updateState in which drone dropout can occur
+updateStateDrop :: Float -> NextActions -> (StdGen, WorldState) -> (StdGen, WorldState)
+updateStateDrop dropoutProb nextActions (gen, ws@(WorldState env view ensembleStatus)) = undefined
 
 toView :: WorldState -> WorldView
 toView (WorldState env info status) = WorldView info status

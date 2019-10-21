@@ -3,9 +3,11 @@ module Scenario where
 import qualified Data.Map.Strict as Map --unionWith
 import qualified Data.Set as Set
 import Data.Monoid
+import System.Random
 
 import Env
 import EnvView
+import FisherYatesShuffle
 import WorldState
 import Drone
 import Policy
@@ -21,11 +23,16 @@ data Scenario p =
   }
   deriving (Eq, Show)
 
+data RandomScenario p = RandomScenario StdGen (Scenario p)
+
 mkScenario :: (Policy p) => (WorldView -> p) -> Int -> Environment -> Scenario p
 mkScenario policyF numDrones env = Scenario (policyF wv) ws 0 []
   where
     wv = toView ws
     ws = initializeWorldState numDrones env
+
+mkRandomScenario :: (Policy p) => (WorldView -> p) -> Int -> Environment -> StdGen -> RandomScenario p
+mkRandomScenario pf nd env gen = RandomScenario gen $ mkScenario pf nd env
 
 data Snapshot = 
   Snapshot {
@@ -36,6 +43,31 @@ data Snapshot =
 
 --ideally, a History will contain minimal information required to recreate the entire sequence of events, given the Environment and other info in the Scenario
 type MoveHistory = [Snapshot]
+
+class Steppable s where
+  step :: s -> s
+
+instance Policy p => Steppable (Scenario p) where
+  step = stepScenario
+
+instance Policy p => Steppable (RandomScenario p) where
+  step (RandomScenario gen scenario@(Scenario pol ws@(WorldState env info enStat) time hist)) = RandomScenario nextGen newScen
+    where
+      newScen = Scenario nextPol newWs (time + 1) newHist
+      newHist = case nextMoves of
+        [] -> hist
+        na@(move : moves) -> (Snapshot na time) : hist
+      (nextMoves, nextPol) = nextMove pol (toView droppedWs)
+      newWs = updateState nextMoves droppedWs
+
+      droppedWs = WorldState env info newEnStat
+      newEnStat = if dropADrone
+        then (tail $ shuffle shuffleGen enStat)
+        else enStat
+      dropADrone = roll <= 0.001 --hard coded probability
+      (roll, nextGen) = randomR (0.0 :: Float, 1.0) rollGen
+      (shuffleGen, rollGen) = split gen
+
 
 --advance the current scenario one time step
 stepScenario :: (Policy p) => Scenario p -> Scenario p

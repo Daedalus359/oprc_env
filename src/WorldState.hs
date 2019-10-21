@@ -3,6 +3,7 @@ module WorldState where
 import Drone
 import Env
 import EnvView
+import FisherYatesShuffle
 import MoveCosts
 import Ensemble
 
@@ -41,10 +42,6 @@ updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState en
   where
     updateEnsemble nextActions = (stepEnsemble $ Map.keysSet $ toMap env). (assignEnsemble nextActions)
     newStatus = (updateEnsemble nextActions ensembleStatus)
-
---a version of updateState in which drone dropout can occur
-updateStateDrop :: Float -> NextActions -> (StdGen, WorldState) -> (StdGen, WorldState)
-updateStateDrop dropoutProb nextActions (gen, ws@(WorldState env view ensembleStatus)) = undefined
 
 toView :: WorldState -> WorldView
 toView (WorldState env info status) = WorldView info status

@@ -66,7 +66,7 @@ visualReplay sc = do
 
 main :: IO ()
 main =
-  SV.fileNameScenarioWithOutput SV.albp 4 filePath 20000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.albp 2 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
@@ -75,9 +75,9 @@ main =
   where
     --filePath = "./test/environments/9.env"
     --filePath = "./test/environments/generated/clumpedNE=0.15T=0.5.env"
-    --filePath = "./test/environments/spanningTreeTester.env"
+    filePath = "./test/environments/spanningTreeTester.env"
     --filePath = "./test/environments/tinySpanningTreeTester.env"
-    filePath = "./test/environments/reallyTinySpanningTreeTester.env"
+    --filePath = "./test/environments/reallyTinySpanningTreeTester.env"
 
 quickDraw :: (a -> Picture) -> a -> IO ()
 quickDraw f a = display windowDisplay white $ f a

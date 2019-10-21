@@ -216,6 +216,13 @@ fileNameScenarioWithOutput ioPol nDrones path timeLimit = do
   --putDocW 80 (vsep $ fmap pretty $ Scenario.getHist scenario)
   return scenario
 
+fileNameScenarioDropout :: Policy p => IO (WorldView -> p) -> Int -> String -> Integer -> IO (Scenario p)
+fileNameScenarioDropout ioPol nDrones path timeLimit = do
+  putStrLn "Running scenario with dropout..."
+  (finished, randomScenario) <- liftA2 (Scenario.fullSteppableRun timeLimit nDrones) (ioPol) (dumpParseFailure $ parseEnvFilePath path)
+  return $ rsScenario randomScenario
+
+
 fileNameFirstSteps :: (Pretty p, Policy p) => IO (WorldView -> p) -> Int -> String -> Integer -> IO (Scenario p)
 fileNameFirstSteps ioPol nDrones path timeLimit = do
   putStrLn "Initialization Step:"

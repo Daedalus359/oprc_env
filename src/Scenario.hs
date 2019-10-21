@@ -23,7 +23,7 @@ data Scenario p =
   }
   deriving (Eq, Show)
 
-data RandomScenario p = RandomScenario StdGen (Scenario p)
+data RandomScenario p = RandomScenario {rsGen :: StdGen, rsScenario :: (Scenario p)}
 
 mkScenario :: (Policy p) => (WorldView -> p) -> Int -> Environment -> Scenario p
 mkScenario policyF numDrones env = Scenario (policyF wv) ws 0 []
@@ -45,12 +45,12 @@ data Snapshot =
 type MoveHistory = [Snapshot]
 
 class Steppable s where
-  step :: s -> s
+  step :: (Policy p) => s p -> s p
 
-instance Policy p => Steppable (Scenario p) where
+instance Steppable Scenario where
   step = stepScenario
 
-instance Policy p => Steppable (RandomScenario p) where
+instance Steppable RandomScenario where
   step (RandomScenario gen scenario@(Scenario pol ws@(WorldState env info enStat) time hist)) = RandomScenario nextGen newScen
     where
       newScen = Scenario nextPol newWs (time + 1) newHist
@@ -106,6 +106,9 @@ fullRun :: (Policy p) => Integer -> Int -> (WorldView -> p) -> Environment -> (B
 fullRun timeLimit numDrones policyF environment = runScenario timeLimit scenario
   where
     scenario = mkScenario policyF numDrones environment
+
+fullSteppableRun :: (Policy p, Steppable s) => Integer -> Int -> (WorldView -> p) -> Environment -> (Bool, s p)
+fullSteppableRun = undefined
 
 --in this case, the moveHistory is what is coming next
 data ScenarioReplay = ScenarioReplay WorldState Integer MoveHistory

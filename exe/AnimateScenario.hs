@@ -31,7 +31,7 @@ defaultFramerate = 60
 
 --turns a number of seconds elapsed into a number of sim timesteps elapsed
 speedupFactor :: Float
-speedupFactor = 100
+speedupFactor = 200
 
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
 visualReplay :: Scenario p -> IO ()
@@ -106,12 +106,12 @@ main =
   --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 7 100000 >>= visualReplay
   where
     --filePath = "./test/environments/9.env"
-    --filePath = "./test/environments/generated/clumpedNE=0.15T=0.5.env"
-    filePath = "./test/environments/spanningTreeTester.env"
+    filePath = "./test/environments/generated/clumpedNE=0.15T=0.5.env"
+    --filePath = "./test/environments/spanningTreeTester.env"
     --filePath = "./test/environments/tinySpanningTreeTester.env"
     --filePath = "./test/environments/reallyTinySpanningTreeTester.env"
 
-    nDrones = 2
+    nDrones = 6
 
 quickDraw :: (a -> Picture) -> a -> IO ()
 quickDraw f a = display windowDisplay white $ f a

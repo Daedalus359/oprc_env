@@ -118,7 +118,7 @@ data KMeansLowPolicy = KMeansLowPolicy StdGen (Map.Map DTDirs Footprint)
   deriving Show
 
 initializeKMP :: Int -> StdGen -> WorldView -> KMeansLowPolicy
-initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen2 $ kMeansLow iterations gen1 envInfo dSeq
+initializeKMP iterations gen wv@(WorldView envInfo enStat) = KMeansLowPolicy gen2 $ kMeansAlt Low iterations gen1 envInfo dSeq
   where
     dSeq = SQ.fromList $ fmap (\(drone, pos) -> DTDirs (DroneTerritory drone pos) []) dronesList
 

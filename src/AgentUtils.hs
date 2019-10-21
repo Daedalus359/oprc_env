@@ -74,6 +74,12 @@ fixAltLow :: Altitude -> [Action] -> [Action] --this should make sure that the d
 fixAltLow Low al = al
 fixAltLow High al = (MoveVertical Descend) : al
 
+fixAlt :: Altitude -> Altitude -> [Action] -> [Action]
+fixAlt Low Low al = al
+fixAlt High High al = al
+fixAlt Low High al = (MoveVertical Descend) : al
+fixAlt High Low al = (MoveVertical Ascend) : al
+
 --for agents that move between a high sweeping phase and a low sweeping phase
 data AltitudePhase = HighSweep | LowSweep
 

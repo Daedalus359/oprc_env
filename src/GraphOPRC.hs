@@ -196,9 +196,12 @@ manhattanDistance pos1@(Position x1 y1) pos2@(Position x2 y2) = (*) straightCost
     straightCost = cost (undefined :: CardinalDir)
 
 --this is suitable for use with low flying drones, as it assigns territory based on the incompleteLocations criteria
-kMeansLow :: HasDroneTerritory d => Int -> StdGen -> EnvironmentInfo -> SQ.Seq d -> Map.Map d Footprint
-kMeansLow iterations gen envInfo droneSeq = kMeansInternal incompleteLocations nextGen envInfo iterations initMap
+kMeansAlt :: HasDroneTerritory d => Altitude -> Int -> StdGen -> EnvironmentInfo -> SQ.Seq d -> Map.Map d Footprint
+kMeansAlt alt iterations gen envInfo droneSeq = kMeansInternal keepInF nextGen envInfo iterations initMap
   where
+    keepInF = case alt of
+      Low -> incompleteLocations
+      High -> unseenLocations
     --initMap :: HasCenter d => Map.Map d Footprint
     initMap = Map.fromList $ toList $ SQ.zip keys kSplits
 

@@ -348,3 +348,6 @@ albp = initializeALBP 10 <$> newStdGen
 --useless except for testing, should be more or less the same as albp but packaged differently
 dumbHFSP :: IO (WorldView -> HighFirstBFSPolicy)
 dumbHFSP = initializeLowImmediately 10 <$> newStdGen
+
+hfsp :: IO (WorldView -> HighFirstBFSPolicy)
+hfsp = initializeHFBFSP 10 <$> newStdGen

@@ -126,7 +126,7 @@ data LowKMeansSpanningTreePolicy = LowKMeansSpanningTreePolicy StdGen (Map.Map D
   deriving Show
 
 initializeLKMSTP :: Int -> StdGen -> WorldView -> LowKMeansSpanningTreePolicy
-initializeLKMSTP iterations gen wv@(WorldView envInfo enStat) = LowKMeansSpanningTreePolicy gen2 $ kMeansLow iterations gen1 envInfo dSeq
+initializeLKMSTP iterations gen wv@(WorldView envInfo enStat) = LowKMeansSpanningTreePolicy gen2 $ kMeansAlt Low iterations gen1 envInfo dSeq
   where
     dSeq = SQ.fromList $ fmap (\(drone, pos) -> DTDirs (DroneTerritory drone pos) []) dronesList
 
@@ -157,7 +157,7 @@ data LowWaypointsKMeansSpanningTreePolicy = LowWaypointsKMeansSpanningTreePolicy
 setDirectionsBySpanningPath :: (HasDroneTerritory d, HasCachedDirs d) => WorldView -> Set.Set d -> d -> Footprint -> d
 setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet hasDT fp =
   if (droneIsIdle && outOfDirections)
-    then setCachedDirs hasDT $ fixAltLow droneAlt newDirs
+    then setCachedDirs hasDT $ fixAlt Low droneAlt newDirs
     else hasDT
 
   where
@@ -235,7 +235,7 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet hasDT fp =
 data AdaptiveLowBFSPolicy = AdaptiveLowBFSPolicy StdGen (Map.Map DTPath Footprint)
 
 initializeALBP :: Int -> StdGen -> WorldView -> AdaptiveLowBFSPolicy
-initializeALBP iterations gen wv@(WorldView envInfo enStat) = AdaptiveLowBFSPolicy polGen $ kMeansLow iterations kmGen envInfo dtpSeq
+initializeALBP iterations gen wv@(WorldView envInfo enStat) = AdaptiveLowBFSPolicy polGen $ kMeansAlt Low iterations kmGen envInfo dtpSeq
   where
     dtpSeq = SQ.fromList $ fmap (\(drone, pos) -> DTPath (DroneTerritory drone pos) [] []) $ fmap (fmap groundPos) enStat
     (kmGen, polGen) = split gen
@@ -250,7 +250,7 @@ instance Policy AdaptiveLowBFSPolicy where
 
       --step 6: command the previously computed directions to any idle drone
       --step 5: use A* (with penalties?) to give directions to the next waypoint for any IDLE drone that does not already have directions (after step 4)
-      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap wv) ([], Map.empty) actionableMap
+      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap Low wv) ([], Map.empty) actionableMap
       
       actionableMap =
         if anyDroneNeedsTerritory
@@ -281,8 +281,8 @@ droneInSet :: HasDroneTerritory h => Set.Set Drone -> h -> v -> Bool
 droneInSet droneSet h _ = (Set.member drone droneSet)
   where DroneTerritory drone _ = getDT h
 
-accumNextActionsAndMap :: WorldView -> DTPath -> Footprint -> (NextActions, Map.Map DTPath Footprint) -> (NextActions, Map.Map DTPath Footprint)
-accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerritory drone mean) path directions) territory (naSoFar, mapSoFar) =
+accumNextActionsAndMap :: Altitude -> WorldView -> DTPath -> Footprint -> (NextActions, Map.Map DTPath Footprint) -> (NextActions, Map.Map DTPath Footprint)
+accumNextActionsAndMap desiredAlt wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerritory drone mean) path directions) territory (naSoFar, mapSoFar) =
   (newActionAssignments, Map.insert newDTP territory mapSoFar)
   where
     (newActionAssignments, newDTP) =
@@ -296,10 +296,10 @@ accumNextActionsAndMap wv@(WorldView envInfo enStat) dtp@(DTPath dt@(DroneTerrit
       if (null directions)
         then
           if (null path)
-            then (fixAltLow currentAltitude [], path)
-            else --(fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarStandardPenalty Low envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)--is this always going to work?
-              --(fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStar envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
-              (fixAltLow currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarCustomPenalty (assignPenalty 3 Low) envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
+            then (fixAlt desiredAlt currentAltitude [], path)
+            else --(fixAlt desiredAlt currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarStandardPenalty Low envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)--is this always going to work?
+              --(fixAlt desiredAlt currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStar envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
+              (fixAlt desiredAlt currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarCustomPenalty (assignPenalty 3 Low) envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
         else (directions, path)
 
     currentAltitude = getEnvAlt currentDronePos
@@ -327,7 +327,6 @@ dtpNeedsNewMoves :: EnsembleStatus -> DTPath -> Bool
 dtpNeedsNewMoves enStat (DTPath (DroneTerritory drone _) path dirs) = (null path) && (null dirs) && isIdle
   where
     isIdle = fromMaybe True $ fmap isUnassigned $ lookup drone enStat
-
 removeCompletedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
 removeCompletedWaypoints envInfo w = setWP w $ filter (flip Set.member incompleteLocs) $ getWP w
   where

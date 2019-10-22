@@ -201,7 +201,7 @@ kMeansAlt alt iterations gen envInfo droneSeq = kMeansInternal keepInF nextGen e
   where
     keepInF = case alt of
       Low -> incompleteLocations
-      High -> unseenLocations
+      High -> coarseQuadrantCentersFullNodes 3 . (unseenLocations)--this is probably too specific
     --initMap :: HasCenter d => Map.Map d Footprint
     initMap = Map.fromList $ toList $ SQ.zip keys kSplits
 
@@ -419,6 +419,23 @@ coarseMap squareDim fp = foldr checkAndAdd Set.empty fp
 
     alignedPos pos = align squareDim pos
 
+coarseMapWithOffset :: Int -> Int -> Int -> Footprint -> Set.Set Position
+coarseMapWithOffset squareDim xOffset yOffset boundsFP = foldr checkAndAdd Set.empty boundsFP
+  where
+    checkAndAdd pos set =
+      if (Set.member (alignedPos pos) set)
+        then set
+        else Set.insert (alignedPos pos) set
+
+    alignedPos pos = hopFrom (align squareDim pos) (xOffset, yOffset)
+
+
+coarseQuadrantCenters :: Int -> Footprint -> Set.Set Position
+coarseQuadrantCenters quadSize boundsFP = coarseMapWithOffset quadSize os os boundsFP
+  where
+    os = middleHop quadSize
+
+
 --takes a position and gives back the node corner that "owns" it
 align :: Int -> Position -> Position
 align squareDim (Position xc yc) = Position (f xc) (f yc)
@@ -427,20 +444,34 @@ align squareDim (Position xc yc) = Position (f xc) (f yc)
 
 
 --this version gets rid of any centers whose members aren't all in bounds
-coarseMap2 :: Int -> Footprint -> Set.Set Position
-coarseMap2 squareDim fp = Set.filter allInBoundsMembers $ coarseMap squareDim fp
+coarseMapFullNodes :: Int -> Footprint -> Set.Set Position
+coarseMapFullNodes squareDim fp = Set.filter allInBoundsMembers $ coarseMap squareDim fp
   where
     allInBoundsMembers :: Position -> Bool
     allInBoundsMembers pos = getAll $ foldMap All boundsList
       where
-        boundsList = fmap (\x -> Set.member x fp) $ Set.toList $ quadSetFromCenter squareDim pos
+        boundsList = fmap (\x -> Set.member x fp) $ Set.toList $ nodeSetFromCorner squareDim pos
+
+coarseQuadrantCentersFullNodes :: Int -> Footprint -> Set.Set Position
+coarseQuadrantCentersFullNodes quadSize fp = Set.filter allInBoundsMembers $ coarseQuadrantCenters quadSize fp
+  where
+    allInBoundsMembers :: Position -> Bool
+    allInBoundsMembers pos = getAll $ foldMap All boundsList
+      where
+        boundsList = fmap (\x -> Set.member x fp) $ Set.toList $ quadSetFromCenter quadSize pos
 
 
 --given a full footprint and the subset of nodes we want included, produce a fully fleshed out set of in bounds positions that belong to those nodes
-detailedSet :: Int -> Footprint -> Set.Set Position -> Set.Set Position
-detailedSet squareDim fp centerSet = Set.fromList $ filter (\p -> Set.member p fp) candidateList
+detailedSetFromNodeCorners :: Int -> Footprint -> Set.Set Position -> Set.Set Position
+detailedSetFromNodeCorners squareDim fp cornerSet = Set.fromList $ filter (\p -> Set.member p fp) candidateList
   where
-    candidateList = join $ fmap (Set.toList . (quadSetFromCenter squareDim)) setList
+    candidateList = join $ fmap (Set.toList . (nodeSetFromCorner squareDim)) setList
+    setList = Set.toList cornerSet
+
+detailedSetFromQuadCenters :: Int -> Footprint -> Set.Set Position -> Set.Set Position
+detailedSetFromQuadCenters quadSize fp centerSet = Set.fromList $ filter (\p -> Set.member p fp) candidateList
+  where
+    candidateList = join $ fmap (Set.toList . (quadSetFromCenter quadSize)) setList
     setList = Set.toList centerSet
 
 --all of the neighbors in a coarse version of the graph
@@ -708,13 +739,14 @@ centerPos :: Int -> Position -> Position
 centerPos squareDim cornerPos@(Position xc yc) = hopFrom cornerPos (hopSize, hopSize)
   where
     hopSize = middleHop quadrantDim
+    quadrantDim = quot squareDim 2 
 
-    middleHop :: Int -> Int --how far in each of x and y from the corner of a quadrant of a certain size do you move to get from that corner to the center of the quadrant
-    --if the quadrant has even size, bias towards being close to the corner
-    middleHop quadrantDim = d + (min m 1) - 1
-      where (d, m) = divMod quadrantDim 2
-    
-    quadrantDim = quot squareDim 2 --squareDim should really be even for this to work as intended
+
+middleHop :: Int -> Int --how far in each of x and y from the corner of a quadrant of a certain size do you move to get from that corner to the center of the quadrant
+--if the quadrant has even size, bias towards being close to the corner
+middleHop quadrantDim = d + (min m 1) - 1
+  where
+    (d, m) = divMod quadrantDim 2
 
 --given the "center" of a quadrant of known size, what is the set of all Positions in that quadrant?
 quadSetFromCenter :: Int -> Position -> Set.Set Position
@@ -724,7 +756,13 @@ quadSetFromCenter quadSize centerPos = Set.fromList $ fmap Position (fmap (+ xc)
     cornerPos@(Position xc yc) = hopFrom centerPos ((-hopSize), (-hopSize)) --just the inverse of what happens in centerPos
 
     hopSize = halfQuadrant + (min m 1) - 1 
-    (halfQuadrant, m) = divMod quadSize 2 
+    (halfQuadrant, m) = divMod quadSize 2
+
+nodeSetFromCorner :: Int -> Position -> Set.Set Position
+nodeSetFromCorner squareDim cornerPos = Set.fromList $ hopFrom cornerPos <$> hops
+  where
+    hops = (,) <$> hopSizes <*> hopSizes
+    hopSizes = [0 .. (max 0 $ squareDim - 1)]
 
 --given where the corner is, where is the center of the quadrant we want?
 quadPos :: Int -> Position -> Quadrant -> Position

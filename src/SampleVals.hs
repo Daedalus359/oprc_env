@@ -269,7 +269,7 @@ threeStepsOfOutput pF numDrones envNum timeLimit = do
   twoStep <- return $ stepScenario oneStep
   (_, sc10) <- return $ runScenario 10 twoStep
   (finished15, sc12) <- return $ runScenario 12 sc10
-  (finished100, sc300) <- return $ runScenario 300 oneStep
+  (finished10000, sc10000) <- return $ runScenario 10000 sc12
 
   putStrLn "Unstepped time: "
   print (Scenario.getTime scenario)
@@ -297,6 +297,9 @@ threeStepsOfOutput pF numDrones envNum timeLimit = do
   print (Scenario.getTime sc12)
   putDocW 80 (pretty $ Scenario.getPolicy sc12)
 
+  print (Scenario.getTime sc10000)
+  putDocW 80 (pretty $ Scenario.getPolicy sc10000)
+
 
 
   --worldView <- return $ toView $ Scenario.getWorldState scenario
@@ -311,10 +314,6 @@ threeStepsOfOutput pF numDrones envNum timeLimit = do
   --putStrLn "One step WorldState"
   --putDocW 80 (pretty $ Scenario.getWorldState oneStep)
   --putStrLn ""
-
-  if finished100
-    then putStrLn "Scenario finished within 300 steps"
-    else putStrLn "Scenario did not finish within 300 steps"
 
   return ()
 

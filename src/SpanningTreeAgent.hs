@@ -197,7 +197,7 @@ setDirectionsBySpanningPath wv@(WorldView envInfo enStat) meansSet hasDT fp =
     closestPos = foldr (closerTo currentGroundPos) minLoc toVisit
 
     --coarse version tries to keep the spanning trees as "filled in" with member positions as possible
-    filledCurrentTreeSet = detailedSet 2 fp coarseCurrentTreeSet
+    filledCurrentTreeSet = detailedSetFromNodeCorners 2 fp coarseCurrentTreeSet
     coarseCurrentTreeSet = Set.fromList $ drop (coarseTVSize - numToTakeC) sortedCTVL
     numToTakeC = max (quot coarseTVSize 2) $ min 6 coarseTVSize
     sortedCTVL = sortOn (leastDistMeans otherMeans) ctvList
@@ -258,7 +258,7 @@ instance Policy AdaptiveLowBFSPolicy where
             --step 4: if kMeans got run, readjust the keys of this map to contain newly developed paths in light of the new territory shapes and envInfo
             Map.foldrWithKey (refreshWaypoints lowSmartEdgeBFSCoarsePath enStat boundsSet) Map.empty $
               --step 3: run a few iterations of kMeansInternal (IF it was deemed necessary below) to determine the new values on this map
-              fmap (detailedSet 2 (incompleteLocations envInfo)) $ kMeansInternal ((coarseMap 2) . incompleteLocations) kmGen envInfo 4 filteredWaypointsMap --4 is an arbitrary choice for number of kMeans iterations
+              fmap (detailedSetFromQuadCenters 1 (incompleteLocations envInfo)) $ kMeansInternal ((coarseQuadrantCenters 1) . incompleteLocations) kmGen envInfo 4 filteredWaypointsMap --4 is an arbitrary choice for number of kMeans iterations
           else filteredWaypointsMap
 
       --step 2: determine if it is a good time to do territory re-assignment

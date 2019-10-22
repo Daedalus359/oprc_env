@@ -1,11 +1,13 @@
 module PrettyOPRC where
 
+import AgentUtils
 import Data.Text.Prettyprint.Doc
 import WorldState
 import Env
 import EnvView
 import Ensemble
 import GraphOPRC
+import HierarchicalPolicy
 import Drone
 import Scenario
 import ShapeSweepAgent
@@ -98,3 +100,10 @@ instance Pretty LowKMeansSpanningTreePolicy where
 instance Pretty AdaptiveLowBFSPolicy where
   pretty (AdaptiveLowBFSPolicy gen map) =
     nest 2 $ vsep [pretty "AdaptiveLowBFSPolicy: ", pretty "StdGen:" <+> (pretty $ show gen), nest 2 $ vsep [pretty "territory map: ", pretty map]]
+
+instance Pretty AltitudePhase where
+  pretty ap = pretty "AltitudePhase:" <+> (pretty $ show ap)
+
+instance Pretty HighFirstBFSPolicy where
+  pretty (HighFirstBFSPolicy ap gen map) =
+    nest 2 $ vsep [pretty "HighFirstBFSPolicy: ", pretty ap, pretty "StdGen:" <+> (pretty $ show gen), nest 2 $ vsep [pretty "territory map: ", pretty map] ]

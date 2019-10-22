@@ -416,8 +416,15 @@ coarseMap squareDim fp = foldr checkAndAdd Set.empty fp
       if (Set.member (alignedPos pos) set)
         then set
         else Set.insert (alignedPos pos) set
-    alignedPos pos@(Position xc yc) = Position (align xc) (align yc)
-    align x = x - (mod x squareDim)
+
+    alignedPos pos = align squareDim pos
+
+--takes a position and gives back the node corner that "owns" it
+align :: Int -> Position -> Position
+align squareDim (Position xc yc) = Position (f xc) (f yc)
+  where
+    f x = x - (mod x squareDim)
+
 
 --this version gets rid of any centers whose members aren't all in bounds
 coarseMap2 :: Int -> Footprint -> Set.Set Position

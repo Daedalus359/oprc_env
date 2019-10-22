@@ -27,7 +27,7 @@ instance Policy HighFirstBFSPolicy where
 
   nextMove (HighFirstBFSPolicy HighSweep gen map) wv@(WorldView envInfo enStat) =  --the real novelty of this policy
     if (null toDo)
-      then nextMove (HighFirstBFSPolicy LowSweep gen map) wv
+      then nextMove (HighFirstBFSPolicy LowSweep gen blankMap) wv
       else (nas, HighFirstBFSPolicy HighSweep newPolicyGen newMap)
     where
       (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap High wv) ([], Map.empty) actionableMap
@@ -36,7 +36,7 @@ instance Policy HighFirstBFSPolicy where
         if anyDroneNeedsTerritory
           then
             Map.foldrWithKey (refreshWaypoints highSmartEdgeBFSCoarsePath enStat boundsSet) Map.empty $
-              fmap (detailedSet 6 (incompleteLocations envInfo)) $ kMeansInternal ((coarseMap 2) . unseenLocations) kmGen envInfo 4 filteredWaypointsMap
+              fmap (detailedSet 6 (incompleteLocations envInfo)) $ kMeansInternal ((coarseMap 6) . unseenLocations) kmGen envInfo 4 filteredWaypointsMap
           else filteredWaypointsMap
 
       anyDroneNeedsTerritory = getAny $ foldMap (Any . (dtpNeedsNewMoves enStat)) $ Map.keysSet filteredWaypointsMap
@@ -46,14 +46,19 @@ instance Policy HighFirstBFSPolicy where
       currentDronesMap = Map.filterWithKey (droneInSet aliveDrones) map
       aliveDrones = Set.fromList $ fmap fst enStat
 
-      toDo = unseenLocations envInfo --what is still worth vising from the standpoint of a high policy
+      
       boundsSet = toFootprint envInfo
       (kmGen, newPolicyGen) = split gen
 
+      toDo = unseenLocations envInfo --what is still worth vising from the standpoint of a high policy
+      blankSlate (DTPath dt _ _) = DTPath dt [] []
+      blankMap = Map.fromSet (const Set.empty) $ Set.map blankSlate $ Map.keysSet map
+
+
 removeObservedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
-removeObservedWaypoints envInfo w = setWP w $ filter (flip Set.member unseenLocs) $ getWP w
+removeObservedWaypoints envInfo w = setWP w $ filter (\wp -> Set.member (align 6 wp) unseenLocs) $ getWP w
   where
-    unseenLocs = unseenLocations envInfo
+    unseenLocs = coarseMap 6 $ unseenLocations envInfo
 
 --the HighFirstBFSPolicy that is functionally identical to the given ALBP
 fromALBP :: AdaptiveLowBFSPolicy -> HighFirstBFSPolicy

@@ -738,19 +738,29 @@ quadPos squareDim cornerPos quad = hopFrom llCorner hop
   --4: if a path entries entire quadrant is out of bounds, its entry is skipped
     --(note that this is possible because the coarse map looks for any element in the 2x2 quadrant squares)
 inBoundsPath :: Int -> Footprint -> Path -> Path
-inBoundsPath quadSize fp origPath = catMaybes $ zipWith keepOrFindQuadMember inBoundsLabels origPath
+inBoundsPath quadSize fp origPath = join $ zipWith keepOrFindQuadMember inBoundsLabels origPath
   where
     inBoundsLabels = fmap (inBounds fp) origPath
 
-    keepOrFindQuadMember :: Bool -> Position -> Maybe Position
-    keepOrFindQuadMember True original = Just original
-    keepOrFindQuadMember False original = Set.lookupMin commonGround --Maybe Position
+    keepOrFindQuadMember :: Bool -> Position -> [Position]
+    keepOrFindQuadMember True original = [original]
+    keepOrFindQuadMember False original = coarseQuadVisitList quadSize original commonGround
       where
         --set intersection of the quadrant and the footprint
         commonGround = Set.intersection quadrantSet fp
 
         --the points that, if in bounds, would be suitable substitutes for original
         quadrantSet = quadSetFromCenter quadSize original
+
+coarseQuadVisitList :: Int -> Position -> Footprint -> [Position]
+coarseQuadVisitList quadSize original commonGround = 
+  if (null commonGround)
+    then []
+    else newAddition : (coarseQuadVisitList quadSize original newCommonGround)
+  where
+    newCommonGround = Set.difference commonGround (quadSetFromCenter quadSize newAddition)
+    newAddition = foldr (closerTo original) minPos commonGround
+    minPos = Set.findMin commonGround --should be find because it only gets evaluated when commonground is not null
 
 customRootInBoundsSpanningTreePath :: Int -> Footprint -> Position -> Path
 customRootInBoundsSpanningTreePath squareDim visitFP root = inBoundsPath squareDim visitFP unboundedPath

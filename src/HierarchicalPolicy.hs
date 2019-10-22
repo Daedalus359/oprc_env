@@ -6,6 +6,7 @@ import Env
 import EnvView
 import GraphOPRC
 import Policy
+import SpanningLoop
 import SpanningTreeAgent
 
 
@@ -34,7 +35,7 @@ instance Policy HighFirstBFSPolicy where
       actionableMap =
         if anyDroneNeedsTerritory
           then
-            Map.foldrWithKey (refreshWaypoints enStat boundsSet) Map.empty $
+            Map.foldrWithKey (refreshWaypoints highSmartEdgeBFSCoarsePath enStat boundsSet) Map.empty $
               fmap (detailedSet 6 (incompleteLocations envInfo)) $ kMeansInternal ((coarseMap 2) . unseenLocations) kmGen envInfo 4 filteredWaypointsMap
           else filteredWaypointsMap
 

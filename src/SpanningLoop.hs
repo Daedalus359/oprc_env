@@ -47,6 +47,11 @@ achievableLowNeighbors boundsSet visitSet startPos = Seq.fromList reachableWorth
     legalMoves = filter (neighborCanReceiveFrom 2 boundsSet startPos) startPosOutgoingDirs
     startPosOutgoingDirs = whichSidesLow boundsSet startPos--which directions can the start position support leaving from?
 
+inBoundsCoarseCardinalNeighbors :: Int -> Footprint -> Set.Set Position -> Position -> Seq.Seq Position
+inBoundsCoarseCardinalNeighbors squareDim boundsSet visitSet startPos = Seq.fromList $ filter (flip Set.member visitSet) neighborCandidates
+  where
+    neighborCandidates = hopFrom startPos <$> (cardinalHop 6 <$> [North, East, South, West])
+
 neighborCanReceiveFrom :: Int -> Footprint -> Position -> CardinalDir -> Bool
 neighborCanReceiveFrom hopSize boundsFP startPos dir = elem sideNeeded $ whichSidesLow boundsFP neighborPos
   where
@@ -161,7 +166,22 @@ smartEdgeBFSForestLow boundsFP visitSet root = bfs toSpanCoarse neighborF rootF
     neighborF = achievableLowNeighbors boundsFP toSpanCoarse
     toSpanCoarse = coarseMap 2 visitSet
 
+type CoarsePathF = Footprint -> Footprint -> Position -> Path
+
 lowSmartEdgeBFSCoarsePath :: Footprint -> Footprint -> Position -> Path
 lowSmartEdgeBFSCoarsePath boundsFP visitFP root = inBoundsPath 1 boundsFP $ cardinalCoveragePath 2 forest
   where
     forest = smartEdgeBFSForestLow boundsFP visitFP root
+
+--this is not as smart a neighborF compared to the low version - something to work on
+smartEdgeBFSForestHigh :: Footprint -> Footprint -> Position -> Forest Position
+smartEdgeBFSForestHigh boundsFP visitSet root = bfs toSpanCoarse neighborF rootF
+  where
+    rootF = customRootThenClosest root
+    neighborF = inBoundsCoarseCardinalNeighbors 6 boundsFP toSpanCoarse
+    toSpanCoarse = coarseMap 6 visitSet
+
+highSmartEdgeBFSCoarsePath :: CoarsePathF
+highSmartEdgeBFSCoarsePath boundsFP visitFP root = inBoundsPath 3 boundsFP $ cardinalCoveragePath 6 forest
+  where
+    forest = smartEdgeBFSForestHigh boundsFP visitFP root

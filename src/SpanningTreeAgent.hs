@@ -256,7 +256,7 @@ instance Policy AdaptiveLowBFSPolicy where
         if anyDroneNeedsTerritory
           then 
             --step 4: if kMeans got run, readjust the keys of this map to contain newly developed paths in light of the new territory shapes and envInfo
-            Map.foldrWithKey (refreshWaypoints enStat boundsSet) Map.empty $
+            Map.foldrWithKey (refreshWaypoints lowSmartEdgeBFSCoarsePath enStat boundsSet) Map.empty $
               --step 3: run a few iterations of kMeansInternal (IF it was deemed necessary below) to determine the new values on this map
               fmap (detailedSet 2 (incompleteLocations envInfo)) $ kMeansInternal ((coarseMap 2) . incompleteLocations) kmGen envInfo 4 filteredWaypointsMap --4 is an arbitrary choice for number of kMeans iterations
           else filteredWaypointsMap
@@ -309,11 +309,13 @@ accumNextActionsAndMap desiredAlt wv@(WorldView envInfo enStat) dtp@(DTPath dt@(
     isIdle = fromMaybe True $ fmap isUnassigned droneStat
     droneStat = lookup drone enStat -- a maybe value
 
-refreshWaypoints :: (Ord w, HasWaypoints w, HasDroneTerritory w) => EnsembleStatus -> Footprint -> w -> Footprint -> Map.Map w Footprint -> Map.Map w Footprint
-refreshWaypoints enStat boundsSet wpc territoryFP mapSoFar = Map.insert (setWP wpc newWaypoints) territoryFP mapSoFar
+refreshWaypoints :: (Ord w, HasWaypoints w, HasDroneTerritory w) => CoarsePathF -> EnsembleStatus -> Footprint -> w -> Footprint -> Map.Map w Footprint -> Map.Map w Footprint
+refreshWaypoints cpf enStat boundsSet wpc territoryFP mapSoFar = Map.insert (setWP wpc newWaypoints) territoryFP mapSoFar
   where
     --newWaypoints = fromMaybe [] $  toAtomicPath boundsSet (fromJust groundPos) coarseWPs
-    newWaypoints = lowSmartEdgeBFSCoarsePath boundsSet territoryFP root
+    newWaypoints = cpf boundsSet territoryFP root
+
+
 
     --use enStat and the HasDroneTerritory instance to figure out the best root for the BFS tree
     DroneTerritory drone _ = getDT wpc

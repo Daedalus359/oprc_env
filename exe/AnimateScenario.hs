@@ -61,7 +61,6 @@ visualReplay sc = do
     fpWidth = maxx - minx + 1
     (Position maxx sampleY) = Set.findMax fp
     (Position minx _) = Set.findMin fp
-
     fp = Map.keysSet $ getMap $ getEnv $ getWorldState sc
 
 --re-do visualReplay but where it just takes a replay directly
@@ -98,7 +97,7 @@ visualReplay2 replay@(ScenarioReplay ws _ _) = do
 main :: IO ()
 main =
   --createReplayWithDropout nDrones <$> SV.fileNameScenarioDropout SV.albp nDrones filePath 20000 >>= visualReplay2
-  SV.fileNameScenarioWithOutput SV.hfsp 6 filePath 25000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.hfsp 3 filePath 25000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.albp 6 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
@@ -106,7 +105,8 @@ main =
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 7 100000 >>= visualReplay
   where
-    filePath = "./test/environments/generated/2019-10-23 20:24:12.230291522 UTC/testMixed3.env"
+    --filePath = "./test/environments/generated/2019-10-23 20:24:12.230291522 UTC/testMixed3.env"
+    filePath = "./test/environments/generated/clumpedNE=0.25T=0.3.env"
     --filePath = "./test/environments/bigEasyGrid.env"
     --filePath = "./test/environments/9.env"
     --filePath = "./test/environments/generated/clumpedNE=0.15T=0.5.env"

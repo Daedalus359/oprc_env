@@ -69,9 +69,9 @@ writeClumpedEnv neighborEffect initThreshold = writeCustomEnv ("clumpedNE=" ++ (
     eg = islandsEnvGen varLimit xMin xMax yMin yMax posAdder
     varLimit = 6
     xMin = 0
-    xMax = 25
+    xMax = 50
     yMin = 0
-    yMax = 45
+    yMax = 90
     posAdder = likeNeighbors neighborEffect initThreshold
 
 

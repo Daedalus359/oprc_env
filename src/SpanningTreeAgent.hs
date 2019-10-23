@@ -290,17 +290,18 @@ accumNextActionsAndMap desiredAlt wv@(WorldView envInfo enStat) dtp@(DTPath dt@(
         then ((drone, head atLeastOneDirection) : naSoFar, DTPath dt adjustedPath (tail atLeastOneDirection))
         else (naSoFar, dtp)--don't compute new directions at all if not idle
 
-    atLeastOneDirection = if (null filledDirections) then [Hover] else filledDirections
+    atLeastOneDirection = if (null filledDirections) then [MoveIntercardinal NE, MoveIntercardinal SW] else filledDirections
 
     (filledDirections, adjustedPath) =
       if (null directions)
         then
           if (null path)
-            then (fixAlt desiredAlt currentAltitude [], path)
+            then (fixAlt desiredAlt currentAltitude [MoveCardinal West, MoveCardinal East], path)
             else --(fixAlt desiredAlt currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarStandardPenalty Low envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)--is this always going to work?
               --(fixAlt desiredAlt currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStar envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
-              (fixAlt desiredAlt currentAltitude $ fromMaybe [] $ (=<<) makeDirections $ aStarCustomPenalty (assignPenalty 3 Low) envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
+              (fixAlt desiredAlt currentAltitude $ fromMaybe [MoveCardinal North, MoveCardinal South] $ (=<<) makeDirections $ aStarCustomPenalty (assignPenalty 3 Low) envInfo mkManhattanHeuristic currentGroundPos (head path), tail path)
         else (directions, path)
+
 
     currentAltitude = getEnvAlt currentDronePos
     currentGroundPos = getEnvPos currentDronePos

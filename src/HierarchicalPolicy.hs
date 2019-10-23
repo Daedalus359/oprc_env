@@ -29,7 +29,7 @@ instance Policy HighFirstBFSPolicy where
       then nextMove (HighFirstBFSPolicy LowSweep gen kMeansResetMap) wv
       else (nas, HighFirstBFSPolicy HighSweep newPolicyGen newMap)
     where
-      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap High wv) ([], Map.empty) actionableMap
+      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap High wv) ([], Map.empty) $ Map.mapKeys (removeObservedWaypoints envInfo) actionableMap
 
       actionableMap =
         if anyDroneNeedsTerritory
@@ -57,8 +57,9 @@ instance Policy HighFirstBFSPolicy where
 
 
 removeObservedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
-removeObservedWaypoints envInfo w = setWP w $ dropWhile (const False) $ getWP w
---removeObservedWaypoints envInfo w = setWP w $ dropWhile (not . (highWaypointQuadrantHasUnobserved envInfo)) $ getWP w
+
+removeObservedWaypoints envInfo w = setWP w $ dropWhile (not . (highWaypointQuadrantHasUnobserved envInfo)) $ getWP w
+--removeObservedWaypoints envInfo w = setWP w $ dropWhile (const False) $ getWP w
 
 -- removeObservedWaypoints envInfo w = setWP w $ filter (highWaypointQuadrantObserved envInfo) $ getWP w
 

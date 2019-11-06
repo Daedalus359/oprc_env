@@ -71,7 +71,7 @@ main :: IO ()
 main = 
   --SV.manualControl SV.worldState >>
   --SV.dumpParseFailure2 SV.manualControl (SV.liftToWS 1 $ SV.parseEnvNum 4) >> 
-  BE.mainWith myCircle >>
+  --BE.mainWith myCircle >>
   -- SV.fullScenarioWithOutput SV.randFiltPolicy 4 6 10000 >>
   -- SV.firstStepsWithOutput >> 
   --SV.threeStepsOfOutput SV.lsPolicy 1 2 5 >> 
@@ -81,7 +81,9 @@ main =
 
   --fmap show (fmap averageRunTime ((SV.dumpParseFailure $ SV.parseEnvNum 7) >>= (randAgentRunTimes 5 1 1000000))) >>= putStrLn >>
 
-  SV.threeStepsOfOutput SV.kmp 3 9 5 >> 
+  --SV.threeStepsOfOutput SV.kmp 3 9 5 >>
+
+  SV.fullScenarioWithOutput SV.hfsp 3 7 5000 >>
 
   --encodeEnv <$> (hole <$> newStdGen <*> (newBernoulliEnv <$> newStdGen <*> return 6 <*> return 0 <*> return 25 <*> return 0 <*> return 45 <*> return 0.27) <*> (return $ Env.Position 12 20) <*> return 5) >>= (writeFile "./test/environments/generated/withHole.env") >>
   return ()

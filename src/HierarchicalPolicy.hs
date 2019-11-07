@@ -25,23 +25,23 @@ instance Policy HighFirstBFSPolicy where
       (nextMoves, nextLowPol) = nextMove (toALBP pol) wv
 
   nextMove (HighFirstBFSPolicy HighSweep gen map) wv@(WorldView envInfo enStat) =  --the real novelty of this policy
-    if (null toDo)
+    if (not anythingToDo)
       then nextMove (HighFirstBFSPolicy LowSweep gen kMeansResetMap) wv
       else (nas, HighFirstBFSPolicy HighSweep newPolicyGen newMap)
     where
-      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap High wv) ([], Map.empty) $ Map.mapKeys (removeObservedWaypoints envInfo) actionableMap
+      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap High wv) ([], Map.empty) $ Map.mapKeys (removeObservedWaypoints toDo) actionableMap
 
       actionableMap =
         if anyDroneNeedsTerritory
           then
             Map.foldrWithKey (refreshWaypoints highSmartEdgeBFSCoarsePath enStat boundsSet) Map.empty $
-              fmap (detailedSetFromNodeCorners 6 (unseenLocations envInfo)) $ kMeansInternal ((coarseMap 6) . unseenLocations) kmGen envInfo 4 filteredWaypointsMap
+              fmap (detailedSetFromNodeCorners 6 toDo) $ kMeansInternal (coarseMap 6 . unseenLocations) kmGen envInfo 4 filteredWaypointsMap
           else filteredWaypointsMap
 
       anyDroneNeedsTerritory = getAny $ foldMap (Any . (dtpNeedsNewMoves enStat)) $ Map.keysSet filteredWaypointsMap
 
       --currently this does nothing because filtering waypoints is the wrong approach. 
-      filteredWaypointsMap = Map.mapKeys (removeObservedWaypoints envInfo) currentDronesMap
+      filteredWaypointsMap = Map.mapKeys (removeObservedWaypoints toDo) currentDronesMap
 
       currentDronesMap = Map.filterWithKey (droneInSet aliveDrones) map
       aliveDrones = Set.fromList $ fmap fst enStat
@@ -50,25 +50,30 @@ instance Policy HighFirstBFSPolicy where
       boundsSet = toFootprint envInfo
       (kmGen, newPolicyGen) = split gen
 
-      toDo = detailedSetFromQuadCenters 3 (unseenLocations envInfo) $ coarseQuadrantCenters 3 (unseenLocations envInfo)--unseenLocations envInfo --what is still worth vising from the standpoint of a high policy
+      anythingToDo = hasUnseenLocations envInfo
+      toDo = unseenLocations envInfo --what is still worth vising from the standpoint of a high policy
       blankSlate (DTPath dt _ _) = DTPath dt [] []
       blankMap = Map.fromSet (const Set.empty) $ Set.map blankSlate $ Map.keysSet map
       kMeansResetMap = fmap (detailedSetFromQuadCenters 2 (incompleteLocations envInfo)) $ kMeansInternal ((coarseQuadrantCenters 2) . incompleteLocations) kmGen envInfo 10 blankMap--ok to use kmGen in two places because only one gets run
 
 
-removeObservedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
+removeObservedWaypoints2 :: HasWaypoints w => EnvironmentInfo -> w -> w
+removeObservedWaypoints2 envInfo w = setWP w $ dropWhile (not . (highWaypointQuadrantHasUnobserved2 envInfo)) $ getWP w
 
-removeObservedWaypoints envInfo w = setWP w $ dropWhile (not . (highWaypointQuadrantHasUnobserved envInfo)) $ getWP w
---removeObservedWaypoints envInfo w = setWP w $ dropWhile (const False) $ getWP w
+removeObservedWaypoints :: HasWaypoints w => Footprint -> w -> w
+removeObservedWaypoints unseenLocs w = setWP w $ dropWhile (not . (highWaypointQuadrantHasUnobserved unseenLocs)) $ getWP w
 
--- removeObservedWaypoints envInfo w = setWP w $ filter (highWaypointQuadrantObserved envInfo) $ getWP w
-
-highWaypointQuadrantHasUnobserved :: EnvironmentInfo -> Position -> Bool
-highWaypointQuadrantHasUnobserved envInfo quadCenter =
+highWaypointQuadrantHasUnobserved2 :: EnvironmentInfo -> Position -> Bool
+highWaypointQuadrantHasUnobserved2 envInfo quadCenter =
   getAny $ foldMap (Any . (\pos -> Set.member pos (unseenLocations envInfo))) quadSet
   where
     quadSet = quadSetFromCenter 3 quadCenter
 
+highWaypointQuadrantHasUnobserved :: Footprint -> Position -> Bool
+highWaypointQuadrantHasUnobserved unseenLocs quadCenter =
+  getAny $ foldMap (Any . (\pos -> Set.member pos unseenLocs)) quadSet
+  where
+    quadSet = quadSetFromCenter 3 quadCenter
 
 --the HighFirstBFSPolicy that is functionally identical to the given ALBP
 fromALBP :: AdaptiveLowBFSPolicy -> HighFirstBFSPolicy

@@ -263,6 +263,8 @@ kMeansInternal incompleteF gen envInfo iterations map = kMeansInternal incomplet
     placesNeedingObservation = incompleteF envInfo --the set of locations that have not been explored fully so far
     minPNOPos = Set.findMin placesNeedingObservation
 
+--kmiByFootprint
+
 randomElems :: StdGen -> Set.Set a -> [a]
 randomElems gen set = fmap (\i -> setList !! i) indices
   where
@@ -759,9 +761,9 @@ quadSetFromCenter quadSize centerPos = Set.fromList $ fmap Position (fmap (+ xc)
     (halfQuadrant, m) = divMod quadSize 2
 
 nodeSetFromCorner :: Int -> Position -> Set.Set Position
-nodeSetFromCorner squareDim cornerPos = Set.fromList $ hopFrom cornerPos <$> hops
+nodeSetFromCorner squareDim cornerPos = Set.map (hopFrom cornerPos) hops
   where
-    hops = (,) <$> hopSizes <*> hopSizes
+    hops = Set.fromList $ (,) <$> hopSizes <*> hopSizes
     hopSizes = [0 .. (max 0 $ squareDim - 1)]
 
 --given where the corner is, where is the center of the quadrant we want?

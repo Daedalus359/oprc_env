@@ -7,6 +7,7 @@ import Ensemble
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import Data.Maybe
+import Data.Monoid
 
 --given a patch of land, what do we know about it?
 data PatchInfo =
@@ -46,4 +47,8 @@ unseenLocations :: EnvironmentInfo -> Footprint
 unseenLocations envInfo = Map.keysSet $ Map.filter (\pi -> pi == Unseen) envInfo
 
 numDronesRunning :: WorldView -> Int
-numDronesRunning (WorldView _ enStat) = length enStat 
+numDronesRunning (WorldView _ enStat) = length enStat
+
+--is there at least one loation in this environment that is unseen?
+hasUnseenLocations :: EnvironmentInfo -> Bool
+hasUnseenLocations envInfo = getAny $ foldMap (Any . (== Unseen)) envInfo

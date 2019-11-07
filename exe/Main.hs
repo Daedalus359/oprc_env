@@ -83,7 +83,7 @@ main =
 
   --SV.threeStepsOfOutput SV.kmp 3 9 5 >>
 
-  SV.fullScenarioWithOutput SV.hfsp 3 7 5000 >>
+  SV.fileNameScenarioWithOutput SV.hfsp 3 "./test/environments/generated/clumpedNE=0.25T=0.3.env" 25000 >>
 
   --encodeEnv <$> (hole <$> newStdGen <*> (newBernoulliEnv <$> newStdGen <*> return 6 <*> return 0 <*> return 25 <*> return 0 <*> return 45 <*> return 0.27) <*> (return $ Env.Position 12 20) <*> return 5) >>= (writeFile "./test/environments/generated/withHole.env") >>
   return ()

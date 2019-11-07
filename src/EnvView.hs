@@ -43,6 +43,7 @@ needsExploration envInfo pos = fromMaybe True $ fmap (not . isFullyObserved) $ M
 incompleteLocations :: EnvironmentInfo -> Footprint
 incompleteLocations envInfo = Map.keysSet $ Map.filter (not . isFullyObserved) envInfo
 
+--filtering and then getting the keysSet as separate steps could be inefficient
 unseenLocations :: EnvironmentInfo -> Footprint
 unseenLocations envInfo = Map.keysSet $ Map.filter (\pi -> pi == Unseen) envInfo
 

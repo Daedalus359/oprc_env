@@ -35,7 +35,7 @@ instance Policy HighFirstBFSPolicy where
         if anyDroneNeedsTerritory
           then
             Map.foldrWithKey (refreshWaypoints highSmartEdgeBFSCoarsePath enStat boundsSet) Map.empty $
-              fmap (detailedSetFromNodeCorners 6 toDo) $ kMeansInternal (coarseMap 6 . unseenLocations) kmGen envInfo 4 filteredWaypointsMap
+              fmap (detailedSetFromNodeCorners 6 toDo) $ kmiByFootprint kmGen (coarseMap 6 toDo) 4 filteredWaypointsMap
           else filteredWaypointsMap
 
       anyDroneNeedsTerritory = getAny $ foldMap (Any . (dtpNeedsNewMoves enStat)) $ Map.keysSet filteredWaypointsMap

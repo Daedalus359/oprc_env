@@ -178,4 +178,4 @@ isTerminal :: WorldState -> Bool
 isTerminal ws = isCompleteInfo (getInfo ws)
 
 isCompleteInfo :: EnvironmentInfo -> Bool
-isCompleteInfo envInfo = getAll $ foldMap (All . EnvView.isFullyObserved) $ Map.elems envInfo
+isCompleteInfo envInfo = getAll $ foldMap (All . EnvView.isFullyObserved) envInfo

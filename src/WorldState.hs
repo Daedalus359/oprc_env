@@ -40,7 +40,7 @@ type NextActions = [(Drone, Action)]
 updateState :: NextActions -> WorldState -> WorldState
 updateState nextActions ws@(WorldState env view ensembleStatus) = (WorldState env (observe $ WorldState env view newStatus)) newStatus
   where
-    updateEnsemble nextActions = (stepEnsemble $ Map.keysSet $ toMap env). (assignEnsemble nextActions)
+    updateEnsemble nextActions = (stepEnsemble $ Map.keysSet $ toMap env) . (assignEnsemble nextActions)
     newStatus = (updateEnsemble nextActions ensembleStatus)
 
 toView :: WorldState -> WorldView
@@ -48,15 +48,26 @@ toView (WorldState env info status) = WorldView info status
 
 --Applies the newly commanded actions to the ensembleStatus
 --TODO: replace futile actions (e.g. Ascending when already high) with hover
-assignEnsemble :: NextActions -> EnsembleStatus -> EnsembleStatus
-assignEnsemble _ [] = []
+assignEnsemble2 :: NextActions -> EnsembleStatus -> EnsembleStatus
+assignEnsemble2 _ [] = []
 --when a drone is unassigned, check to see if we can 
-assignEnsemble nextActions ((drone, droneStat@(Unassigned pos)) : ensStat) =
+assignEnsemble2 nextActions ((drone, droneStat@(Unassigned pos)) : ensStat) =
   (drone, newStatus) : (assignEnsemble nextActions ensStat)
     where newStatus = (fromMaybe droneStat $ fmap toAssigned (lookup drone nextActions))
           toAssigned = (\a -> Assigned a pos)
 --when a drone has a status other than Unassigned, it just continues on its commanded action
-assignEnsemble nextActions (ds : ensStat) = ds : (assignEnsemble nextActions ensStat)
+assignEnsemble2 nextActions (ds : ensStat) = ds : (assignEnsemble nextActions ensStat)
+
+assignEnsemble :: NextActions -> EnsembleStatus -> EnsembleStatus
+assignEnsemble nextActions enStat = assignDrone <$> enStat
+  where
+    assignDrone entry@(drone, droneStat) =
+      case droneStat of
+        (Unassigned pos) -> (drone, newStatus)
+          where
+            newStatus = (fromMaybe droneStat $ fmap (\a -> Assigned a pos) (lookup drone nextActions))
+        _ -> entry --if the above case did not match, do nothing
+
 
 --Advances each drone 1 time step according to its current status. Should run right after assignEnsemble.
 stepEnsemble :: Footprint -> EnsembleStatus -> EnsembleStatus

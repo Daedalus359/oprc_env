@@ -223,7 +223,13 @@ assignAtRandom a (sets, gen) = (SQ.adjust (Set.insert a) i sets, newGen)
 --don't call with a number of iterations less than zero!
 kMeansInternal :: HasDroneTerritory d => (EnvironmentInfo -> Footprint) -> StdGen -> EnvironmentInfo -> Int -> Map.Map d Footprint -> Map.Map d Footprint
 kMeansInternal _ _ _ 0 map = map
-kMeansInternal incompleteF gen envInfo iterations map = kMeansInternal incompleteF nextGen envInfo (iterations - 1) newMap
+kMeansInternal incompleteF gen envInfo iterations map = kmiByFootprint gen placesNeedingObservation iterations map
+  where
+    placesNeedingObservation = incompleteF envInfo --the set of locations that have not been explored fully so far
+
+kmiByFootprint :: HasDroneTerritory d => StdGen -> Footprint -> Int -> Map.Map d Footprint -> Map.Map d Footprint
+kmiByFootprint _ _ 0 map = map
+kmiByFootprint gen placesNeedingObservation iterations map = kmiByFootprint nextGen placesNeedingObservation (iterations - 1) newMap
   where
     --if any means have lost all of their territory, give them a random patch
     newMap = foldr (\(mean, backupTerritory) -> \existing -> Map.insert mean backupTerritory existing) correctedMeans backupAssignments
@@ -260,10 +266,7 @@ kMeansInternal incompleteF gen envInfo iterations map = kMeansInternal incomplet
     means = Map.keysSet map --the original keys - all of these should end up with an entry in the final map
     newTerritories = randomElems currentGen placesNeedingObservation --random unexplored locations to assign to means as needed
     (nextGen, currentGen) = split gen
-    placesNeedingObservation = incompleteF envInfo --the set of locations that have not been explored fully so far
     minPNOPos = Set.findMin placesNeedingObservation
-
---kmiByFootprint
 
 randomElems :: StdGen -> Set.Set a -> [a]
 randomElems gen set = fmap (\i -> setList !! i) indices

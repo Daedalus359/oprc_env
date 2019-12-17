@@ -30,14 +30,16 @@ drawReplay2 scaleFactor edgeRelief width height offset (f, sr) = alignCorners $ 
     cornerAtZero = Translate (gridScale / 2) (gridScale / 2)
 
 drawReplay :: Int -> ScenarioReplay -> Picture
-drawReplay offset sr@(ScenarioReplay ws time _) = Pictures [drawWorldState offset ws, Text $ show time]
+drawReplay offset sr@(ScenarioReplay ws time _) = Pictures [drawWorldState offset ws, Translate (-0.5 * gridScale) (-0.75 * gridScale) $ drawTime time]
+--drawReplay offset sr@(ScenarioReplay ws time _) = Pictures [drawWorldState offset ws, Text $ show time]
+
 
 updateFunc :: Float -> ViewPort -> Float -> SimState -> SimState
 updateFunc speedupFactor _ dt (t, sr) = (newTime, advanceUntilTime (round newTime) sr)
   where newTime = t + (dt * speedupFactor)
 
 drawTime :: Integer -> Picture
-drawTime t = Scale 0.2 0.2 $ Text $ timeString
+drawTime t = Scale 0.05 0.05 $ Text $ timeString
   where timeString = "Time: " ++ (show t)
 
 frameBarPic :: Picture

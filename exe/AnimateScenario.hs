@@ -31,7 +31,7 @@ defaultFramerate = 60
 
 --turns a number of seconds elapsed into a number of sim timesteps elapsed
 speedupFactor :: Float
-speedupFactor = 200
+speedupFactor = 10
 
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
 visualReplay :: Scenario p -> IO ()
@@ -96,8 +96,7 @@ visualReplay2 replay@(ScenarioReplay ws _ _) = do
 
 main :: IO ()
 main =
-
-  createReplayWithDropout nDrones <$> SV.fileNameScenarioDropout SV.hfsp nDrones filePath 20000 >>= visualReplay2
+  --createReplayWithDropout nDrones <$> SV.fileNameScenarioDropout SV.hfsp nDrones filePath 20000 >>= visualReplay2
   --SV.fileNameScenarioWithOutput SV.hfsp 3 filePath 25000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.albp 6 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
@@ -105,6 +104,7 @@ main =
   --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 7 100000 >>= visualReplay
+  SV.fullScenarioWithOutput (SV.albp) 1 8 500 >>= visualReplay
   where
     --filePath = "./test/environments/generated/2019-10-23 20:24:12.230291522 UTC/testMixed3.env"
     filePath = "./test/environments/generated/clumpedNE=0.25T=0.3.env"

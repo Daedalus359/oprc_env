@@ -23,14 +23,15 @@ type SimState = (Float, ScenarioReplay)
 --drawingFunc :: Float -> Picture
 
 drawReplay2 :: Float -> Float -> Float -> Float -> Int -> SimState -> Picture
-drawReplay2 scaleFactor edgeRelief width height offset (f, sr) = alignCorners $ scale $ cornerAtZero $ drawReplay offset sr
+drawReplay2 scaleFactor edgeRelief width height offset (f, sr@(ScenarioReplay ws time _)) = Pictures [alignCorners $ scale $ cornerAtZero $ drawReplay offset sr, Translate (-0.5 * width) (-0.5 * height) $ Scale 10 10 $ drawTime time]
   where
     alignCorners = Translate (width * (-0.5) + edgeRelief) (height * (-0.5) + edgeRelief)
     scale = Scale scaleFactor scaleFactor
     cornerAtZero = Translate (gridScale / 2) (gridScale / 2)
 
 drawReplay :: Int -> ScenarioReplay -> Picture
-drawReplay offset sr@(ScenarioReplay ws time _) = Pictures [drawWorldState offset ws, Translate (-0.5 * gridScale) (-0.75 * gridScale) $ drawTime time]
+drawReplay offset sr@(ScenarioReplay ws time _) = drawWorldState offset ws
+--drawReplay offset sr@(ScenarioReplay ws time _) = Pictures [drawWorldState offset ws, Translate (-0.5 * gridScale) (-0.75 * gridScale) $ drawTime time]
 --drawReplay offset sr@(ScenarioReplay ws time _) = Pictures [drawWorldState offset ws, Text $ show time]
 
 

@@ -172,7 +172,7 @@ initializeWorldState i env = WorldState env info enStat
     info = EnvView.initializeInfo env
     minPosition = Set.findMin . Map.keysSet . getMap $ env--this might fail for empty environments? --type of this is Position
     enStat = fmap numberDrone [1 .. i]
-    numberDrone n = (DroneID n, Unassigned (DronePos minPosition High))
+    numberDrone n = (DroneID n, Unassigned (DronePos minPosition Low))
 
 isTerminal :: WorldState -> Bool
 isTerminal ws = isCompleteInfo (getInfo ws)

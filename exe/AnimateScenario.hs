@@ -104,7 +104,8 @@ main =
   --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 7 100000 >>= visualReplay
-  SV.fullScenarioWithOutput SV.hfsp 1 4 110 >>= visualReplay
+  --SV.fullScenarioWithOutput SV.hfsp 1 4 110 >>= visualReplay
+  SV.fullScenarioWithOutput (return $ const $ LowSweepPolicy []) 1 4 110 >>= visualReplay
   where
     --filePath = "./test/environments/generated/2019-10-23 20:24:12.230291522 UTC/testMixed3.env"
     filePath = "./test/environments/generated/clumpedNE=0.25T=0.3.env"

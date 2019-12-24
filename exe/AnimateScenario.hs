@@ -31,7 +31,7 @@ defaultFramerate = 60
 
 --turns a number of seconds elapsed into a number of sim timesteps elapsed
 speedupFactor :: Float
-speedupFactor = 2
+speedupFactor = 0.5
 
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
 visualReplay :: Scenario p -> IO ()
@@ -103,7 +103,7 @@ main =
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
-  SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 12 100000 >>= visualReplay
+  SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 14 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.hfsp 1 12 110 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const $ LowSweepPolicy []) 1 11 110 >>= visualReplay
   where

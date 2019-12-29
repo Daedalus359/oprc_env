@@ -4,6 +4,8 @@ import RandomAgent
 import Scenario
 import Env
 import EnvGen
+import EnvView
+import Policy
 
 import System.Random as Random
 import Control.Monad
@@ -34,3 +36,17 @@ newBernoulliEnv gen varLimit xMin xMax yMin yMax threshold = bernoulliEnv bg def
     definitelySet = fromMaybe Set.empty $ randomFootprint gen3 varLimit xMin xMax yMin yMax
     bg = BernoulliGen threshold gen2
     (gen2, gen3) = split gen
+
+averageAgentPerformance :: (Policy p) => Int -> Integer -> (WorldView -> p) -> [Environment] -> IO (Maybe Integer) 
+averageAgentPerformance numDrones timeLimit policyF environments = fmap averageRunTime $ (fmap $ fmap pullTime) $ traverse singleEnvEater environments
+  where
+    --singleEnvEater :: Environment -> IO (Bool, Scenario p)
+    singleEnvEater env = fullRun timeLimit numDrones <$> ((pure :: a -> IO a) policyF) <*> (pure env)
+
+
+
+--fullSteppableRun to create a (Bool, s p)
+
+pullTime :: (Steppable s, Policy p) => (Bool, s p) -> Maybe Integer
+pullTime (False, _) = Nothing
+pullTime (True, stp) = Just $ getTimeS stp

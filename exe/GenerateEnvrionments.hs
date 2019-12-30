@@ -41,13 +41,13 @@ main = foldr writeFilesAccum makeDateDir [1 .. numEnvs]
     ioEnv = (\gen -> sampleEnvironment gen eg) <$> newStdGen
 
     eg :: EnvGen
-    eg = MixedGen [(33.0, fstGen), (67.0, sndGen)]
+    eg = MixedGen [(100.0, fstGen), (0.0, sndGen)]
 
     fstGen :: EnvGen
-    fstGen = mkEGBernoulli 0.1 6 0 90 0 45
+    fstGen = mkEGBernoulli 0.8 6 0 50 0 50
 
     sndGen :: EnvGen
-    sndGen = mkEGBernoulli 0.9 6 0 45 0 90
+    sndGen = mkEGBernoulli 0.2 6 0 50 0 50
 
 writeCustomEnv :: String -> EnvGen -> IO ()
 writeCustomEnv suffix envGen = envString >>= (writeCommand suffix)

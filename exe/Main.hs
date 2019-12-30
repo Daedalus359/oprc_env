@@ -1,7 +1,3 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE TypeFamilies              #-}
-
 module Main where
 
 --oprc imports
@@ -26,6 +22,8 @@ import qualified Data.Map.Strict as Map
 --diagrams imports
 import qualified Diagrams.Prelude as D
 import qualified Diagrams.Backend.SVG.CmdLine as BE
+
+import Control.Monad
 
 --general utilities
 import Util (nTimes)
@@ -83,7 +81,37 @@ main =
 
   --SV.threeStepsOfOutput SV.kmp 3 9 5 >>
 
-  SV.fileNameScenarioWithOutput SV.hfsp 3 "./test/environments/generated/clumpedNE=0.25T=0.3.env" 25000 >>
+  --SV.fileNameScenarioWithOutput SV.hfsp 3 "./test/environments/generated/clumpedNE=0.25T=0.3.env" 25000 >>
+
+  putStrLn "Average Performance of ..." >>
+
+  --putStrLn "Low Sweep Policy, Simple Environment" >>
+  --averageAgentPerformance 2 100 (const SV.lsPolicy) [SV.env] >>= print >>
+
+  --putStrLn "Low Sweep Policy, Simple Square Environment" >>
+  --simpleSquareEnv >>= 
+    --averageAgentPerformance 4 100000 (const SV.lsPolicy) >>= print >>
+
+  --putStrLn "Clustering Low Policy, Simple Square Environment" >>
+    --join ((averageAgentPerformance 4 100000) <$> SV.kmp <*> simpleSquareEnv) >>= print >>
+
+  --putStrLn "Low Spanning Tree Policy, Simple Square Environment" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.lstp  <*> simpleSquareEnv) >>= print >>
+
+  putStrLn "CLSTP, Simple Square Environment" >>
+  join ((averageAgentPerformance 4 100000) <$> SV.lkmstp  <*> simpleSquareEnv) >>= print >>
+
+  putStrLn "ALBP, Simple Square Environment" >>
+  join ((averageAgentPerformance 4 100000) <$> SV.albp  <*> simpleSquareEnv) >>= print >>
+
+  putStrLn "HSTP, Simple Square Environment" >> 
+  join ((averageAgentPerformance 4 100000) <$> SV.hfsp  <*> simpleSquareEnv) >>= print >>
+
+  --putStrLn "High Sweep Policy, Simple Square Environment" >>
+  --simpleSquareEnv >>=
+    --averageAgentPerformance 4 100000 (const SV.hsfp) >>= print >>
 
   --encodeEnv <$> (hole <$> newStdGen <*> (newBernoulliEnv <$> newStdGen <*> return 6 <*> return 0 <*> return 25 <*> return 0 <*> return 45 <*> return 0.27) <*> (return $ Env.Position 12 20) <*> return 5) >>= (writeFile "./test/environments/generated/withHole.env") >>
   return ()
+  where
+    simpleSquareEnv = (sequenceA [SV.envFromFilePath "./test/environments/simpleLargeSquare"])

@@ -1,5 +1,6 @@
 module SampleVals where
 
+import AgentUtils
 import Env
 import Drone
 import Ensemble
@@ -84,7 +85,10 @@ envFromFilePath path = do
   result <- parseEnvFilePath path
   case result of
     Success env -> return env
-    Failure _ -> exitFailure
+    Failure _ -> do
+      putStrLn "Failed to load an environment:"
+      putStrLn path
+      exitFailure
 
 parseEnvNum :: Integer -> IO (Result Env.Environment)
 parseEnvNum i = fmap (parseString parseEnvironment mempty) $ readFile fileStr
@@ -350,3 +354,6 @@ dumbHFSP = initializeLowImmediately 10 <$> newStdGen
 
 hfsp :: IO (WorldView -> HighFirstBFSPolicy)
 hfsp = initializeHFBFSP 10 <$> newStdGen
+
+hsfp :: HighSweepPolicy
+hsfp = HighSweepPolicy HighSweep []

@@ -129,6 +129,9 @@ fullSteppableRun timeLimit numDrone gen policyF environment = runSteppable timeL
   where
     s = mkSteppable policyF numDrone environment gen
 
+fullRandomScenarioRun :: (Policy p) => Integer -> Int -> StdGen -> (WorldView -> p) -> Environment -> (Bool, RandomScenario p)
+fullRandomScenarioRun = fullSteppableRun
+
 --in this case, the moveHistory is what is coming next
 data ScenarioReplay = ScenarioReplay WorldState Integer MoveHistory
   deriving Show

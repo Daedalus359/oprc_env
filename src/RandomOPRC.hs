@@ -11,6 +11,7 @@ import System.Random as Random
 import Control.Monad
 import Data.Maybe
 import qualified Data.Set as Set
+import Control.Applicative
 
 randPolicy :: IO (RandomPolicy)
 randPolicy = fmap RandomPolicy newStdGen
@@ -37,11 +38,22 @@ newBernoulliEnv gen varLimit xMin xMax yMin yMax threshold = bernoulliEnv bg def
     bg = BernoulliGen threshold gen2
     (gen2, gen3) = split gen
 
+--gets the average performance of an agent type on a list of environments
+--runs the agent in Scenarios (no dropout) on those environments
 averageAgentPerformance :: (Policy p) => Int -> Integer -> (WorldView -> p) -> [Environment] -> IO (Maybe Integer) 
 averageAgentPerformance numDrones timeLimit policyF environments = fmap averageRunTime $ (fmap $ fmap pullTime) $ traverse singleEnvEater environments
   where
     --singleEnvEater :: Environment -> IO (Bool, Scenario p)
     singleEnvEater env = fullRun timeLimit numDrones <$> ((pure :: a -> IO a) policyF) <*> (pure env)
+
+--variant fo averageAgentPerformance that does use dropout
+avgAgentPerfDropout :: (Policy p) => Int -> Integer -> (WorldView -> p) -> [Environment] -> IO (Maybe Integer)
+avgAgentPerfDropout numDrones timeLimit policyF environments = fmap averageRunTime $ (fmap $ fmap pullTime) $ traverse singleEnvEater environments
+  where
+    singleEnvEater env = fullRandomScenarioRun timeLimit numDrones <$> randGen <*> ((pure :: a -> IO a) policyF) <*> (pure env)
+
+comparePolicies :: (Policy p) => ((WorldView -> p) -> [Environment] -> IO (Maybe Integer)) -> [WorldView -> p] -> [Environment] -> IO [Maybe Integer]
+comparePolicies batchAverager policyFList environments = sequenceA $ liftA2 batchAverager policyFList $ pure environments
 
 
 

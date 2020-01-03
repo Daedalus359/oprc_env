@@ -98,20 +98,85 @@ main =
   --putStrLn "Low Spanning Tree Policy, Simple Square Environment" >>
   --join ((averageAgentPerformance 4 100000) <$> SV.lstp  <*> simpleSquareEnv) >>= print >>
 
-  putStrLn "CLSTP, Simple Square Environment" >>
-  join ((averageAgentPerformance 4 100000) <$> SV.lkmstp  <*> simpleSquareEnv) >>= print >>
+  --putStrLn "CLSTP, Simple Square Environment" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.lkmstp  <*> simpleSquareEnv) >>= print >>
 
-  putStrLn "ALBP, Simple Square Environment" >>
-  join ((averageAgentPerformance 4 100000) <$> SV.albp  <*> simpleSquareEnv) >>= print >>
+  --putStrLn "ALBP, Simple Square Environment" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.albp  <*> simpleSquareEnv) >>= print >>
 
-  putStrLn "HSTP, Simple Square Environment" >> 
-  join ((averageAgentPerformance 4 100000) <$> SV.hfsp  <*> simpleSquareEnv) >>= print >>
+  --putStrLn "HSTP, Simple Square Environment" >> 
+  --join ((averageAgentPerformance 4 100000) <$> SV.hfsp  <*> simpleSquareEnv) >>= print >>
 
-  --putStrLn "High Sweep Policy, Simple Square Environment" >>
-  --simpleSquareEnv >>=
-    --averageAgentPerformance 4 100000 (const SV.hsfp) >>= print >>
+  ----------------
+  --80% HS COMPLEX, high80Env
+  ----------------
+
+  --putStrLn "Low Sweep Policy, 80% HS Complex Env" >> 
+  --high80Env >>= averageAgentPerformance 4 100000 (const SV.lsPolicy) >>= print >>
+
+  --putStrLn "Clustering Low Policy, 80% HS Complex Env" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.kmp <*> high80Env) >>= print >>
+
+  --putStrLn "Low Spanning Tree Policy, 80% HS Complex" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.lstp  <*> high80Env) >>= print >>
+
+  --putStrLn "CLSTP, 80% HS Complex" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.lkmstp  <*> high80Env) >>= print >>
+
+  --putStrLn "ALBP, 80% HS COmplex" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.albp  <*> high80Env) >>= print >>
+
+  --putStrLn "HSTP, 80% HS Complex" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.hfsp  <*> high80Env) >>= print >>
+
+  ----------------
+  --20% HS COMPLEX, high20Env
+  ----------------
+
+  --putStrLn "Low Sweep Policy, 20% HS Complex Env" >> 
+  --high20Env >>= averageAgentPerformance 4 100000 (const SV.lsPolicy) >>= print >>
+
+  --putStrLn "Clustering Low Policy, 20% HS Complex Env" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.kmp <*> high20Env) >>= print >>
+
+  --putStrLn "Low Spanning Tree Policy, 20% HS Complex" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.lstp  <*> high20Env) >>= print >>
+
+  --putStrLn "CLSTP, 20% HS Complex" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.lkmstp  <*> high20Env) >>= print >>
+
+  --putStrLn "ALBP, 20% HS COmplex" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.albp  <*> high20Env) >>= print >>
+
+  --putStrLn "HSTP, 80% HS Complex" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.hfsp  <*> high20Env) >>= print >>
+
+  ----------------
+  --20% HS CLUSTERED, high20Clumped
+  ----------------
+
+  putStrLn "Low Sweep Policy, Clumped Environment" >> 
+  high20Clumped >>= averageAgentPerformance 4 100000 (const SV.lsPolicy) >>= print >>
+
+  putStrLn "Clustering Low Policy, Clumped Environment" >>
+  join ((averageAgentPerformance 4 100000) <$> SV.kmp <*> high20Clumped) >>= print >>
+
+  putStrLn "Low Spanning Tree Policy, Clumped Environment" >>
+  join ((averageAgentPerformance 4 100000) <$> SV.lstp  <*> high20Clumped) >>= print >>
+
+  putStrLn "CLSTP, Clumped Environment" >>
+  join ((averageAgentPerformance 4 100000) <$> SV.lkmstp  <*> high20Clumped) >>= print >>
+
+  putStrLn "ALBP, Clumped Environment" >>
+  join ((averageAgentPerformance 4 100000) <$> SV.albp  <*> high20Clumped) >>= print >>
+
+  putStrLn "HSTP, Clumped Environment" >>
+  join ((averageAgentPerformance 4 100000) <$> SV.hfsp  <*> high20Clumped) >>= print >>
 
   --encodeEnv <$> (hole <$> newStdGen <*> (newBernoulliEnv <$> newStdGen <*> return 6 <*> return 0 <*> return 25 <*> return 0 <*> return 45 <*> return 0.27) <*> (return $ Env.Position 12 20) <*> return 5) >>= (writeFile "./test/environments/generated/withHole.env") >>
   return ()
   where
     simpleSquareEnv = (sequenceA [SV.envFromFilePath "./test/environments/simpleLargeSquare"])
+    high80Env = (sequenceA [SV.envFromFilePath "./test/environments/high80low20complex.env"])
+    high20Env = (sequenceA [SV.envFromFilePath "./test/environments/high20low80complex.env"])
+    high20Clumped = (sequenceA [SV.envFromFilePath "./test/environments/high20Clumped"])

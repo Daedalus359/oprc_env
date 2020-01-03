@@ -155,23 +155,45 @@ main =
   --20% HS CLUSTERED, high20Clumped
   ----------------
 
-  putStrLn "Low Sweep Policy, Clumped Environment" >> 
-  high20Clumped >>= averageAgentPerformance 4 100000 (const SV.lsPolicy) >>= print >>
+  --putStrLn "Low Sweep Policy, Clumped Environment" >> 
+  --high20Clumped >>= averageAgentPerformance 4 100000 (const SV.lsPolicy) >>= print >>
 
-  putStrLn "Clustering Low Policy, Clumped Environment" >>
-  join ((averageAgentPerformance 4 100000) <$> SV.kmp <*> high20Clumped) >>= print >>
+  --putStrLn "Clustering Low Policy, Clumped Environment" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.kmp <*> high20Clumped) >>= print >>
 
-  putStrLn "Low Spanning Tree Policy, Clumped Environment" >>
-  join ((averageAgentPerformance 4 100000) <$> SV.lstp  <*> high20Clumped) >>= print >>
+  --putStrLn "Low Spanning Tree Policy, Clumped Environment" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.lstp  <*> high20Clumped) >>= print >>
 
-  putStrLn "CLSTP, Clumped Environment" >>
-  join ((averageAgentPerformance 4 100000) <$> SV.lkmstp  <*> high20Clumped) >>= print >>
+  --putStrLn "CLSTP, Clumped Environment" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.lkmstp  <*> high20Clumped) >>= print >>
 
-  putStrLn "ALBP, Clumped Environment" >>
-  join ((averageAgentPerformance 4 100000) <$> SV.albp  <*> high20Clumped) >>= print >>
+  --putStrLn "ALBP, Clumped Environment" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.albp  <*> high20Clumped) >>= print >>
 
-  putStrLn "HSTP, Clumped Environment" >>
-  join ((averageAgentPerformance 4 100000) <$> SV.hfsp  <*> high20Clumped) >>= print >>
+  --putStrLn "HSTP, Clumped Environment" >>
+  --join ((averageAgentPerformance 4 100000) <$> SV.hfsp  <*> high20Clumped) >>= print >>
+
+  ----------------
+  --clumpedDropout
+  ----------------
+
+  --putStrLn "Low Sweep Policy, Clumped Environment avgAgentPerfDropout" >> 
+  --high20Clumped >>= avgAgentPerfDropout 4 100000 (const SV.lsPolicy) >>= print >>
+
+  --putStrLn "Clustering Low Policy, Clumped Environment avgAgentPerfDropout" >>
+  --join ((avgAgentPerfDropout 4 100000) <$> SV.kmp <*> high20Clumped) >>= print >>
+
+  putStrLn "Low Spanning Tree Policy, Clumped Environment avgAgentPerfDropout" >>
+  join ((avgAgentPerfDropout 4 100000) <$> SV.lstp  <*> high20Clumped) >>= print >>
+
+  --putStrLn "CLSTP, Clumped Environment avgAgentPerfDropout" >>
+  --join ((avgAgentPerfDropout 4 100000) <$> SV.lkmstp  <*> high20Clumped) >>= print >>
+
+  putStrLn "ALBP, Clumped Environment avgAgentPerfDropout" >>
+  join ((avgAgentPerfDropout 4 100000) <$> SV.albp  <*> high20Clumped) >>= print >>
+
+  putStrLn "HSTP, Clumped Environment avgAgentPerfDropout" >>
+  join ((avgAgentPerfDropout 4 100000) <$> SV.hfsp  <*> high20Clumped) >>= print >>
 
   --encodeEnv <$> (hole <$> newStdGen <*> (newBernoulliEnv <$> newStdGen <*> return 6 <*> return 0 <*> return 25 <*> return 0 <*> return 45 <*> return 0.27) <*> (return $ Env.Position 12 20) <*> return 5) >>= (writeFile "./test/environments/generated/withHole.env") >>
   return ()

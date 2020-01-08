@@ -18,8 +18,8 @@ import qualified Data.Set as Set
 import Data.Text.Prettyprint.Doc
 import Data.Text.Prettyprint.Doc.Util
 
-windowWidth = 3400
-windowHeight = 2000
+windowWidth = 1700--3400
+windowHeight = 1000--2000
 
 edgeRelief = 100 :: Float
 
@@ -31,7 +31,7 @@ defaultFramerate = 60
 
 --turns a number of seconds elapsed into a number of sim timesteps elapsed
 speedupFactor :: Float
-speedupFactor = 0.5
+speedupFactor = 10
 
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
 visualReplay :: Scenario p -> IO ()
@@ -97,18 +97,19 @@ visualReplay2 replay@(ScenarioReplay ws _ _) = do
 main :: IO ()
 main =
   --createReplayWithDropout nDrones <$> SV.fileNameScenarioDropout SV.hfsp nDrones filePath 20000 >>= visualReplay2
-  --SV.fileNameScenarioWithOutput SV.hfsp 3 filePath 25000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.hfsp 1 filePath 25000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.albp 6 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.kmp 6 filePath 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.kmp 6 8 100000 >>= visualReplay
-  SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 14 100000 >>= visualReplay
+  --SV.fullScenarioWithOutput (return $ const SV.lsPolicy) 6 14 100000 >>= visualReplay
   --SV.fullScenarioWithOutput SV.hfsp 1 12 110 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const $ LowSweepPolicy []) 1 11 110 >>= visualReplay
   where
+    filePath = "./test/environments/MovesDemonstrator.env"
     --filePath = "./test/environments/generated/2019-10-23 20:24:12.230291522 UTC/testMixed3.env"
-    filePath = "./test/environments/generated/clumpedNE=0.25T=0.3.env"
+    --filePath = "./test/environments/generated/clumpedNE=0.25T=0.3.env"
     --filePath = "./test/environments/bigEasyGrid.env"
     --filePath = "./test/environments/9.env"
     --filePath = "./test/environments/generated/clumpedNE=0.15T=0.5.env"

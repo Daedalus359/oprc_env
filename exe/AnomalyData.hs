@@ -12,8 +12,15 @@ Fields:
   Median Distance Between Drones
   Ratio of the above two
   How Fast Drones Are Approaching Each Other - Average of maybe 5 time steps?
+  # of in-bounds positions below drone
+  ratio of blue vs green in bounds positions below drone
 Drone Position Changes: Drone moving from (1, 1) to (2, 2) with seven time steps remaining is now at (1.5, 1.5) and moving NE
-  Use Cost function for each move type, 
+  Use Cost function for each move type, divide (cost - remaining) by cost and truncate to two decimal places.
+
+
+STEPS
+-----
+1. Get some sort of file IO and CSV working so I know how to use these
 -}
 
 test = "."

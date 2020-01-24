@@ -1,5 +1,9 @@
 module Main where
 
+--import System.IO
+import qualified Data.Csv as Csv
+import qualified Data.ByteString.Lazy as BS
+
 {-
 REQUIREMENTS
 ------------
@@ -21,6 +25,10 @@ Drone Position Changes: Drone moving from (1, 1) to (2, 2) with seven time steps
 STEPS
 -----
 1. Get some sort of file IO and CSV working so I know how to use these
+2. Get a datatype for the contents of a single CSV row
+3. make an instance of ToRecord for the above by applying toField to each entry, storing results in a list, and then calling record on that list.
+4.  
+
 -}
 
 test = "."
@@ -28,4 +36,4 @@ test = "."
 
 
 main :: IO ()
-main = putStrLn test
+main = BS.writeFile "./sapleCSV" $ Csv.encode [("Name1", 10 :: Int), ("Name2", 11)]

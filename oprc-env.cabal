@@ -28,6 +28,7 @@ library
                         , EnvView
                         , FisherYatesShuffle
                         , HierarchicalPolicy
+                        , LogScenario
                         , MoveCosts
                         , SampleVals
                         , WorldState

@@ -1,0 +1,7 @@
+executable-names:
+-----------------
+make-anomaly-data
+run-environments
+generate-environments
+animate-scenario
+oprc-env

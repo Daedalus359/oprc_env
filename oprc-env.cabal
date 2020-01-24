@@ -110,3 +110,9 @@ executable run-environments
                         , trifecta
   hs-source-dirs:         exe
   default-language:       Haskell2010
+
+executable make-anomaly-data
+  main-is:                AnomalyData.hs
+  build-depends:          base, oprc-env
+  hs-source-dirs:         exe
+  default-language:       Haskell2010

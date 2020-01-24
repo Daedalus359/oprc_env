@@ -33,7 +33,71 @@ STEPS
 
 test = "."
 
+{-
+instance ToRecord
+  ( String
+  , String
+  , String
+  , String
+
+  , String
+  , String
+  , String
+  , String
+
+  , String
+  , String
+  , String
+  , String
+
+  , String
+  , String
+  , String
+  , String
+
+  , String
+  , String
+  , String
+  , String
+  , String
+  , String
+
+  , String) where
+  toRecord tup = undefined
+  -}
+
+--namesRow = Csv.record $ fmap Csv.toField
+namesRow = 
+  [ "Drone1_Pos_X"
+  , "Drone1_Pos_Y"
+  , "Drone1_Alt"
+  , "Drone1_Blue_Frac"
+
+  , "Drone2_Pos_X"
+  , "Drone2_Pos_Y"
+  , "Drone2_Alt"
+  , "Drone2_Blue_Frac"
+
+  , "Drone3_Pos_X"
+  , "Drone3_Pos_Y"
+  , "Drone3_Alt"
+  , "Drone3_Blue_Frac"
+
+  , "Drone4_Pos_X"
+  , "Drone4_Pos_Y"
+  , "Drone4_Alt"
+  , "Drone4_Blue_Frac"
+
+  , "Dist_1_2"
+  , "Dist_1_3"
+  , "Dist_1_4"
+  , "Dist_2_3"
+  , "Dist_2_4"
+  , "Dist_3_4"
+
+  , "Dist_Median"
+  ] 
 
 
 main :: IO ()
-main = BS.writeFile "./sapleCSV" $ Csv.encode [("Name1", 10 :: Int), ("Name2", 11)]
+main = BS.writeFile "./sampleCSV" $ Csv.encode [namesRow]

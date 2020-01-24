@@ -42,9 +42,34 @@ fullLogRun timeLimit numDrones policyF environment = logRun timeLimit scenario
   where
     scenario = mkScenario policyF numDrones environment
 
-namesRow = Csv.record $ fmap Csv.toField ["Drone1 Position", "Drone2 Position", "Drone3 Position", "Drone4 Position"]
-
 data AttractorLogRow =
   AttractorLogRow {
-    name1 :: String
+    d1PosX :: Float
+  , d1PosY :: Float
+  , d1Alt :: Float
+  , d1BlueFrac :: Float
+
+  , d2PosX :: Float
+  , d2PosY :: Float
+  , d2Alt :: Float
+  , d2BlueFrac :: Float
+
+  , d3PosX :: Float
+  , d3PosY :: Float
+  , d3Alt :: Float
+  , d3BlueFrac :: Float
+
+  , d4PosX :: Float
+  , d4PosY :: Float
+  , d4Alt :: Float
+  , d4BlueFrac :: Float
+
+  , dist1_2 :: Float
+  , dist1_3 :: Float
+  , dist1_4 :: Float
+  , dist2_3 :: Float
+  , dist2_4 :: Float
+  , dist3_4 :: Float
+
+  , dist_median :: Float
   }

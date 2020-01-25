@@ -3,6 +3,10 @@ module Main where
 --import System.IO
 import qualified Data.Csv as Csv
 import qualified Data.ByteString.Lazy as BS
+import qualified Data.Vector as Vec
+import qualified Data.Binary as Bin
+
+import LogScenario
 
 {-
 REQUIREMENTS
@@ -33,71 +37,12 @@ STEPS
 
 test = "."
 
-{-
-instance ToRecord
-  ( String
-  , String
-  , String
-  , String
 
-  , String
-  , String
-  , String
-  , String
-
-  , String
-  , String
-  , String
-  , String
-
-  , String
-  , String
-  , String
-  , String
-
-  , String
-  , String
-  , String
-  , String
-  , String
-  , String
-
-  , String) where
-  toRecord tup = undefined
-  -}
-
---namesRow = Csv.record $ fmap Csv.toField
-namesRow = 
-  [ "Drone1_Pos_X"
-  , "Drone1_Pos_Y"
-  , "Drone1_Alt"
-  , "Drone1_Blue_Frac"
-
-  , "Drone2_Pos_X"
-  , "Drone2_Pos_Y"
-  , "Drone2_Alt"
-  , "Drone2_Blue_Frac"
-
-  , "Drone3_Pos_X"
-  , "Drone3_Pos_Y"
-  , "Drone3_Alt"
-  , "Drone3_Blue_Frac"
-
-  , "Drone4_Pos_X"
-  , "Drone4_Pos_Y"
-  , "Drone4_Alt"
-  , "Drone4_Blue_Frac"
-
-  , "Dist_1_2"
-  , "Dist_1_3"
-  , "Dist_1_4"
-  , "Dist_2_3"
-  , "Dist_2_4"
-  , "Dist_3_4"
-
-  , "Dist_Median"
-  ] 
-
+sd = SampleData 1 2
+--sd = AttractorLogRow 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) ["bet", "alp"]
+--header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) LogScenario.namesRow
 
 main :: IO ()
-main = BS.writeFile "./sampleCSV" $ Csv.encode [namesRow]
+main = BS.writeFile "./sampleCSV" $ Csv.encodeByName header [sd]
+-- $ Csv.encode [namesRow]

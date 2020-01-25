@@ -47,6 +47,8 @@ library
                         , SpanningLoop
   build-depends:          base
                         , ad
+                        , binary
+                        , bytestring
                         , cassava
                         , containers
                         , gloss
@@ -118,5 +120,7 @@ executable make-anomaly-data
   build-depends:          base, oprc-env
                         , cassava
                         , bytestring
+                        , vector
+                        , binary
   hs-source-dirs:         exe
   default-language:       Haskell2010

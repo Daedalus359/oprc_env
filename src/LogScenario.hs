@@ -1,5 +1,7 @@
 module LogScenario where
 
+{-# LANGUAGE OverloadedStrings #-}
+
 {-
 Basically, this makes a variant of the scenario management code (i.e. runScenario) that logs information about the WorldState at each time step
 Then, it transforms the minimal information associated with each time step into a "row" that includes some derived quantities
@@ -11,6 +13,8 @@ import WorldState
 import Policy
 import EnvView
 import Env
+import qualified Data.ByteString.Lazy as BS
+import qualified Data.Binary as Bin
 
 data WorldStateMoment =
   WorldStateMoment {
@@ -73,3 +77,58 @@ data AttractorLogRow =
 
   , dist_median :: Float
   }
+
+namesRow = 
+  [ "Drone1_Pos_X"
+  , "Drone1_Pos_Y"
+  , "Drone1_Alt"
+  , "Drone1_Blue_Frac"
+
+  , "Drone2_Pos_X"
+  , "Drone2_Pos_Y"
+  , "Drone2_Alt"
+  , "Drone2_Blue_Frac"
+
+  , "Drone3_Pos_X"
+  , "Drone3_Pos_Y"
+  , "Drone3_Alt"
+  , "Drone3_Blue_Frac"
+
+  , "Drone4_Pos_X"
+  , "Drone4_Pos_Y"
+  , "Drone4_Alt"
+  , "Drone4_Blue_Frac"
+
+  , "Dist_1_2"
+  , "Dist_1_3"
+  , "Dist_1_4"
+  , "Dist_2_3"
+  , "Dist_2_4"
+  , "Dist_3_4"
+
+  , "Dist_Median"
+  ]
+
+instance Csv.ToNamedRecord AttractorLogRow where
+  toNamedRecord (AttractorLogRow
+    x1 y1 a1 f1 
+    x2 y2 a2 f2 
+    x3 y3 a3 f3 
+    x4 y4 a4 f4 
+
+    d12 d13 d14 d23 d24 d34 
+
+    dmed) =
+    Csv.namedRecord $ zipWith Csv.namedField (fmap (BS.toStrict . Bin.encode) namesRow)
+      [x1, y1, a1, f1, 
+       x2, y2, a2, f2, 
+       x3, y3, a3, f3, 
+       x4, y4, a4, f4, 
+       d12, d13, d14, d23, d24, d34, 
+       dmed]
+
+data SampleData = SampleData {alp :: Integer, bet :: Integer}
+
+instance Csv.ToNamedRecord SampleData where
+  toNamedRecord (SampleData a b) = Csv.namedRecord $ zipWith Csv.namedField (fmap (BS.toStrict . Bin.encode) ["alp", "bet"]) [a, b]
+  --[Csv.namedField (BS.toStrict $ Bin.encode "alp") a, Csv.namedField (BS.toStrict $ Bin.encode "bet") b]

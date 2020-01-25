@@ -81,22 +81,22 @@ data AttractorLogRow =
 namesRow = 
   [ "Drone1_Pos_X"
   , "Drone1_Pos_Y"
-  , "Drone1_Alt"
+  , "alt1"
   , "Drone1_Blue_Frac"
 
   , "Drone2_Pos_X"
   , "Drone2_Pos_Y"
-  , "Drone2_Alt"
+  , "alt2"
   , "Drone2_Blue_Frac"
 
   , "Drone3_Pos_X"
   , "Drone3_Pos_Y"
-  , "Drone3_Alt"
+  , "alt3"
   , "Drone3_Blue_Frac"
 
   , "Drone4_Pos_X"
   , "Drone4_Pos_Y"
-  , "Drone4_Alt"
+  , "alt4"
   , "Drone4_Blue_Frac"
 
   , "Dist_1_2"
@@ -132,3 +132,8 @@ data SampleData = SampleData {alp :: Integer, bet :: Integer}
 instance Csv.ToNamedRecord SampleData where
   toNamedRecord (SampleData a b) = Csv.namedRecord $ zipWith Csv.namedField (fmap (BS.toStrict . Bin.encode) ["alp", "bet"]) [a, b]
   --[Csv.namedField (BS.toStrict $ Bin.encode "alp") a, Csv.namedField (BS.toStrict $ Bin.encode "bet") b]
+
+data SomeFields = SomeFields Float Float Float Float Float Float Float
+
+instance Csv.ToNamedRecord SomeFields where
+  toNamedRecord (SomeFields f1 f2 f3 f4 f5 f6 f7) = Csv.namedRecord $ zipWith Csv.namedField (fmap (BS.toStrict . Bin.encode) $ take 7 namesRow) [f1, f2, f3, f4, f5, f6, f7]

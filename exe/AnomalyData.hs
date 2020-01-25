@@ -28,10 +28,13 @@ Drone Position Changes: Drone moving from (1, 1) to (2, 2) with seven time steps
 
 STEPS
 -----
-1. Get some sort of file IO and CSV working so I know how to use these
-2. Get a datatype for the contents of a single CSV row
-3. make an instance of ToRecord for the above by applying toField to each entry, storing results in a list, and then calling record on that list.
-4.  
+1. make an IO ScenarioLog using my fullLogRun function
+2. use fmap and a new function to turn that into an IO AttractorLogRow
+3. fmap (Csv.encodeByName header) into that value to make IO ByteString
+4. above value >>= (BS.writeFile "./PATH_HERE")
+5. get a list of two environments to be generated, run over, and files written as above in one step
+6. get a list of 100 environments to work likewise
+
 
 -}
 
@@ -41,6 +44,8 @@ test = "."
 sd = AttractorLogRow 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
 
 header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) LogScenario.namesRow
+
+--
 
 main :: IO ()
 main = BS.writeFile "./sampleCSV" $ Csv.encodeByName header [sd]

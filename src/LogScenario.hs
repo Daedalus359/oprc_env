@@ -131,9 +131,3 @@ data SampleData = SampleData {alp :: Integer, bet :: Integer}
 
 instance Csv.ToNamedRecord SampleData where
   toNamedRecord (SampleData a b) = Csv.namedRecord $ zipWith Csv.namedField (fmap (BS.toStrict . Bin.encode) ["alp", "bet"]) [a, b]
-  --[Csv.namedField (BS.toStrict $ Bin.encode "alp") a, Csv.namedField (BS.toStrict $ Bin.encode "bet") b]
-
-data SomeFields = SomeFields Float Float Float Float Float Float Float
-
-instance Csv.ToNamedRecord SomeFields where
-  toNamedRecord (SomeFields f1 f2 f3 f4 f5 f6 f7) = Csv.namedRecord $ zipWith Csv.namedField (fmap (BS.toStrict . Bin.encode) $ take 7 namesRow) [f1, f2, f3, f4, f5, f6, f7]

@@ -38,14 +38,9 @@ STEPS
 test = "."
 
 
---sd = SampleData 1 2
 sd = AttractorLogRow 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
---sd = SomeFields 1 2 3 4 5 6 7
 
---header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) ["bet", "alp"]
 header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) LogScenario.namesRow
---header = Vec.fromList $ take 7 $ fmap (BS.toStrict . Bin.encode) LogScenario.namesRow
 
 main :: IO ()
 main = BS.writeFile "./sampleCSV" $ Csv.encodeByName header [sd]
--- $ Csv.encode [namesRow]

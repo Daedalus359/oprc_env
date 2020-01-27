@@ -46,6 +46,12 @@ fullLogRun timeLimit numDrones policyF environment = logRun timeLimit scenario
   where
     scenario = mkScenario policyF numDrones environment
 
+mkAttractorData :: ScenarioLog -> [AttractorLogRow]
+mkAttractorData = fmap mkAttractorRow
+
+mkAttractorRow :: WorldStateMoment -> AttractorLogRow
+mkAttractorRow wsMoment@(WorldStateMoment time ws) = undefined 
+
 data AttractorLogRow =
   AttractorLogRow {
     d1PosX :: Float
@@ -76,6 +82,8 @@ data AttractorLogRow =
   , dist3_4 :: Float
 
   , dist_median :: Float
+
+  , time_current :: Integer
   }
 
 namesRow = 
@@ -107,6 +115,8 @@ namesRow =
   , "Dist_3_4"
 
   , "Dist_Median"
+
+  , "Time_Current"
   ]
 
 instance Csv.ToNamedRecord AttractorLogRow where
@@ -118,14 +128,14 @@ instance Csv.ToNamedRecord AttractorLogRow where
 
     d12 d13 d14 d23 d24 d34 
 
-    dmed) =
+    dmed time) =
     Csv.namedRecord $ zipWith Csv.namedField (fmap (BS.toStrict . Bin.encode) namesRow)
       [x1, y1, a1, f1, 
        x2, y2, a2, f2, 
        x3, y3, a3, f3, 
        x4, y4, a4, f4, 
        d12, d13, d14, d23, d24, d34, 
-       dmed]
+       dmed, (fromIntegral time)]
 
 data SampleData = SampleData {alp :: Integer, bet :: Integer}
 

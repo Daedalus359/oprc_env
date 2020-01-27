@@ -41,7 +41,7 @@ STEPS
 test = "."
 
 
-sd = AttractorLogRow 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1
+sd = AttractorLogRow 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2
 
 header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) LogScenario.namesRow
 

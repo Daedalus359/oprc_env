@@ -9,14 +9,6 @@ Then, it transforms the minimal information associated with each time step into 
 
 --A lot of this ONLY WORKS WITH FOUR DRONES
 
-{-
-TODO:
-1. write blueFrac
-2. use blueFrac to fill f_1 through f_4 in mkAttractorRow
-3. compute distances between drones for mkAttractorRow
-4. refer to the todo in AnomalyData.hs
--}
-
 import qualified Data.Csv as Csv
 import Scenario
 import WorldState
@@ -66,7 +58,6 @@ mkAttractorData = fmap mkAttractorRow
 
 mkAttractorRow :: WorldStateMoment -> AttractorLogRow
 mkAttractorRow wsMoment@(WorldStateMoment time ws@(WorldState env info enStat)) = undefined
-{-
   AttractorLogRow
     x_1
     y_1
@@ -103,11 +94,20 @@ mkAttractorRow wsMoment@(WorldStateMoment time ws@(WorldState env info enStat)) 
     (x_3, y_3, a_3, p_3) = droneStats $ snd $ enStat !! 2
     (x_4, y_4, a_4, p_4) = droneStats $ snd $ enStat !! 3
 
-    [f1, f2, f3, f4] = fmap (blueFrac env) [p_1, p_2, p_3, p_4]
+    [f_1, f_2, f_3, f_4] = fmap (blueFrac env) [p_1, p_2, p_3, p_4]
+
+    d_1_2 = eucD x_1 y_1 x_2 y_2
+    d_1_3 = eucD x_1 y_1 x_3 y_3
+    d_1_4 = eucD x_1 y_1 x_4 y_4
+
+    d_2_3 = eucD x_2 y_2 x_3 y_3
+    d_2_4 = eucD x_2 y_2 x_4 y_4
+    d_3_4 = eucD x_3 y_3 x_4 y_4
 
     d_med = (!! 3) $ sort [d_1_2, d_1_3, d_1_4, d_2_3, d_2_4, d_3_4]
 
--}
+eucD :: Float -> Float -> Float -> Float -> Float
+eucD x1 y1 x2 y2 = sqrt $ (x1 - x2) ^ 2 + (y1 - y2) ^ 2
 
 blueFrac :: Environment -> Position -> Float
 blueFrac (Environment envMap) pos = case numInBounds of

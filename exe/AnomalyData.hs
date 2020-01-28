@@ -5,6 +5,8 @@ import qualified Data.Csv as Csv
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.Vector as Vec
 import qualified Data.Binary as Bin
+import qualified SampleVals as SV
+import Env
 
 import LogScenario
 
@@ -39,6 +41,14 @@ STEPS
 -}
 
 test = "."
+
+easySquareEnv :: IO [Environment]
+easySquareEnv = (sequenceA [SV.envFromFilePath "./test/environments/bigEasyGrid.env"])
+
+ioSlog :: IO ScenarioLog
+ioSlog = fullLogRun 100000 4 <$> SV.hfsp <*> undefined
+
+--
 
 
 sd = AttractorLogRow 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2

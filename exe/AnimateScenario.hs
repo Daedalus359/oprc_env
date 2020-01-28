@@ -31,7 +31,7 @@ defaultFramerate = 60
 
 --turns a number of seconds elapsed into a number of sim timesteps elapsed
 speedupFactor :: Float
-speedupFactor = 10
+speedupFactor = 100
 
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
 visualReplay :: Scenario p -> IO ()
@@ -97,7 +97,7 @@ visualReplay2 replay@(ScenarioReplay ws _ _) = do
 main :: IO ()
 main =
   --createReplayWithDropout nDrones <$> SV.fileNameScenarioDropout SV.hfsp nDrones filePath 20000 >>= visualReplay2
-  SV.fileNameScenarioWithOutput SV.hfsp 1 filePath 25000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.hfsp 2 filePath 25000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.albp 6 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
@@ -107,10 +107,10 @@ main =
   --SV.fullScenarioWithOutput SV.hfsp 1 12 110 >>= visualReplay
   --SV.fullScenarioWithOutput (return $ const $ LowSweepPolicy []) 1 11 110 >>= visualReplay
   where
-    filePath = "./test/environments/MovesDemonstrator.env"
+    --filePath = "./test/environments/MovesDemonstrator.env"
     --filePath = "./test/environments/generated/2019-10-23 20:24:12.230291522 UTC/testMixed3.env"
     --filePath = "./test/environments/generated/clumpedNE=0.25T=0.3.env"
-    --filePath = "./test/environments/bigEasyGrid.env"
+    filePath = "./test/environments/bigEasyGrid.env"
     --filePath = "./test/environments/9.env"
     --filePath = "./test/environments/generated/clumpedNE=0.15T=0.5.env"
     --filePath = "./test/environments/spanningTreeTester.env"

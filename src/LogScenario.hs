@@ -7,6 +7,8 @@ Basically, this makes a variant of the scenario management code (i.e. runScenari
 Then, it transforms the minimal information associated with each time step into a "row" that includes some derived quantities
 -}
 
+--A lot of this ONLY WORKS WITH FOUR DRONES
+
 import qualified Data.Csv as Csv
 import Scenario
 import WorldState
@@ -15,6 +17,8 @@ import EnvView
 import Env
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.Binary as Bin
+import Data.List
+import Drone
 
 data WorldStateMoment =
   WorldStateMoment {
@@ -50,7 +54,84 @@ mkAttractorData :: ScenarioLog -> [AttractorLogRow]
 mkAttractorData = fmap mkAttractorRow
 
 mkAttractorRow :: WorldStateMoment -> AttractorLogRow
-mkAttractorRow wsMoment@(WorldStateMoment time ws) = undefined 
+mkAttractorRow wsMoment@(WorldStateMoment time ws@(WorldState env info enStat)) = undefined
+{-
+  AttractorLogRow
+    x_1
+    y_1
+    a_1
+    f_1
+
+    x_2
+    y_2
+    a_2
+    f_2
+
+    x_3
+    y_3
+    a_3
+    f_3
+
+    x_4
+    y_4
+    a_4
+    f_4
+
+    d_1_2
+    d_1_3
+    d_1_4
+    d_2_3
+    d_2_4
+    d_3_4
+
+    d_med
+    time
+  where
+    (x_1, y_1, a_1, p_1) = droneStats $ snd $ enStat !! 0
+    (x_2, y_2, a_2, p_2) = droneStats $ snd $ enStat !! 1
+    (x_3, y_3, a_3, p_3) = droneStats $ snd $ enStat !! 2
+    (x_4, y_4, a_4, p_4) = droneStats $ snd $ enStat !! 3
+
+    [f1, f2, f3, f4] = fmap (blueFrac env) [p_1, p_2, p_3, p_4]
+
+    d_med = (!! 3) $ sort [d_1_2, d_1_3, d_1_4, d_2_3, d_2_4, d_3_4]
+
+-}
+
+blueFrac :: Environment -> Position -> Float
+blueFrac = undefined
+
+droneStats :: DroneStatus -> (Float, Float, Float, Position)
+droneStats (Unassigned (DronePos pos@(Position x y) alt)) = (fromIntegral x, fromIntegral y, floatAlt, pos)
+  where
+    floatAlt = case alt of
+      High -> 1.0
+      Low -> 0.0
+droneStats (Assigned action (DronePos pos@(Position x y) alt)) = (fromIntegral x, fromIntegral y, floatAlt, pos)
+  where
+    floatAlt = case alt of
+      High -> 1.0
+      Low -> 0.0
+droneStats (Acting action stepsRemainingI dpos@(DronePos pos@(Position x y) alt)) = (x_mixed, y_mixed, alt_mixed, pos)
+  where
+    stepsRemaining = fromIntegral stepsRemainingI
+    (newPos, progressFrac) = case action of
+      MoveCardinal cardinalDir -> (DronePos (hopFrom pos $ deltas cardinalDir) alt, stepsRemaining / 10.0)
+      MoveIntercardinal icDir -> (DronePos (hopFrom pos $ deltas icDir) alt, stepsRemaining / 14.0)
+      MoveVertical Ascend -> case alt of
+        High -> (dpos, 1.0)
+        Low -> ((DronePos (Position x y) High), stepsRemaining / 10.0)
+      MoveVertical Descend -> case alt of
+        High -> ((DronePos (Position x y) Low), stepsRemaining / 10.0)
+        Low -> (dpos, 1.0)
+      Hover -> (dpos, 1.0)
+    (x_init, y_init, alt_init, _) = droneStats (Unassigned dpos)
+    (x_final, y_final, alt_final, _) = droneStats (Unassigned newPos)
+    x_mixed = x_final * progressFrac + x_init * (1 - progressFrac)
+    y_mixed = y_final * progressFrac + y_init * (1 - progressFrac)
+    alt_mixed = alt_final * progressFrac + alt_init * (1 - progressFrac)
+
+
 
 data AttractorLogRow =
   AttractorLogRow {

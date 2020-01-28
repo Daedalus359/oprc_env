@@ -28,6 +28,9 @@ import qualified Data.Binary as Bin
 import Data.List
 import Drone
 
+import qualified Data.Map.Strict as Map
+import Data.Maybe
+
 data WorldStateMoment =
   WorldStateMoment {
     time :: Integer
@@ -107,7 +110,14 @@ mkAttractorRow wsMoment@(WorldStateMoment time ws@(WorldState env info enStat)) 
 -}
 
 blueFrac :: Environment -> Position -> Float
-blueFrac = undefined
+blueFrac (Environment envMap) pos = case numInBounds of
+  0 -> 0.0
+  _ -> (fromIntegral numBlues) / (fromIntegral numInBounds)
+  where
+    numBlues = length $ filter (== Far) colors
+    colors = fmap getDetail $ catMaybes $ fmap (\k -> Map.lookup k envMap) $ chebyshevCluster 1 pos
+    numInBounds = length colors
+    getDetail (Patch detReq) = detReq
 
 droneStats :: DroneStatus -> (Float, Float, Float, Position)
 droneStats (Unassigned (DronePos pos@(Position x y) alt)) = (fromIntegral x, fromIntegral y, floatAlt, pos)

@@ -13,7 +13,7 @@ import System.Random
 filePrefix :: String
 filePrefix = "./test/environments/generated/"
 
-numEnvs = 9
+numEnvs = 100
 
 main :: IO ()
 main = foldr writeFilesAccum makeDateDir [1 .. numEnvs]
@@ -41,7 +41,7 @@ main = foldr writeFilesAccum makeDateDir [1 .. numEnvs]
     ioEnv = (\gen -> sampleEnvironment gen eg) <$> newStdGen
 
     eg :: EnvGen
-    eg = MixedGen [(00.0, fstGen), (100.0, threeGen)]
+    eg = MixedGen [(30.0, fstGen), (30.0, sndGen), (40.0, threeGen)]
 
     fstGen :: EnvGen
     fstGen = mkEGBernoulli 0.8 6 0 50 0 50

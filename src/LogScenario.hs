@@ -57,7 +57,7 @@ mkAttractorData :: ScenarioLog -> [AttractorLogRow]
 mkAttractorData = fmap mkAttractorRow
 
 mkAttractorRow :: WorldStateMoment -> AttractorLogRow
-mkAttractorRow wsMoment@(WorldStateMoment time ws@(WorldState env info enStat)) = undefined
+mkAttractorRow wsMoment@(WorldStateMoment time ws@(WorldState env info enStat)) = 
   AttractorLogRow
     x_1
     y_1
@@ -145,10 +145,9 @@ droneStats (Acting action stepsRemainingI dpos@(DronePos pos@(Position x y) alt)
       Hover -> (dpos, 1.0)
     (x_init, y_init, alt_init, _) = droneStats (Unassigned dpos)
     (x_final, y_final, alt_final, _) = droneStats (Unassigned newPos)
-    x_mixed = x_final * progressFrac + x_init * (1 - progressFrac)
-    y_mixed = y_final * progressFrac + y_init * (1 - progressFrac)
-    alt_mixed = alt_final * progressFrac + alt_init * (1 - progressFrac)
-
+    x_mixed = x_final * (1 - progressFrac) + x_init * progressFrac
+    y_mixed = y_final * (1 - progressFrac) + y_init * progressFrac
+    alt_mixed = alt_final * (1 - progressFrac) + alt_init * progressFrac
 
 
 data AttractorLogRow =

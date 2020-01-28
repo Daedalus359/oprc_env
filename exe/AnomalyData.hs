@@ -30,14 +30,7 @@ Drone Position Changes: Drone moving from (1, 1) to (2, 2) with seven time steps
 
 STEPS
 -----
-1. make an IO ScenarioLog using my fullLogRun function
-2. use fmap mkAttractorData IO AttractorLogRow
-3. fmap (Csv.encodeByName header) into that value to make IO ByteString
-4. above value >>= (BS.writeFile "./PATH_HERE")
-5. get a list of two environments to be generated, run over, and files written as above in one step
 6. get a list of 100 environments to work likewise
-
-
 -}
 
 test = "."
@@ -45,8 +38,36 @@ test = "."
 easySquareEnv :: IO [Environment]
 easySquareEnv = (sequenceA [SV.envFromFilePath "./test/environments/bigEasyGrid.env"])
 
+nominalEnvs :: IO [Environment]
+nominalEnvs = sequenceA $ fmap SV.envFromFilePath $ fmap (\ns -> "./test/environments/generated/attractor_nominal_environments/testMixed" ++ ns ++ ".env") $ fmap show [1 .. 2]
+
+eSingle :: IO Environment
+eSingle = fmap head easySquareEnv
+
 ioSlog :: IO ScenarioLog
-ioSlog = fullLogRun 100000 4 <$> SV.hfsp <*> undefined
+ioSlog = fullLogRun 100000 4 <$> SV.hfsp <*> eSingle
+
+ioRow :: IO [AttractorLogRow]
+ioRow = fmap mkAttractorData ioSlog
+
+ioCSV :: IO BS.ByteString
+ioCSV = fmap (Csv.encodeByName header) ioRow
+
+ioSlogs :: IO [ScenarioLog]
+ioSlogs = fmap fmap (fullLogRun 100000 4 <$> SV.hfsp) <*> nominalEnvs
+
+ioCSVs :: IO [BS.ByteString]
+ioCSVs = fmap ((fmap $ Csv.encodeByName header) . (fmap mkAttractorData)) ioSlogs
+
+makeFiles :: [BS.ByteString] -> IO ()
+makeFiles logs = foldr (>>) (return ()) actions 
+  where
+    actions :: [IO ()]
+    actions = zipWith BS.writeFile fileNames logs
+
+    fileNames :: [String]
+    fileNames = fmap ("./attractorData/nominal/data_nominal_" ++ ) $ fmap show [1 ..]
+
 
 --
 
@@ -58,4 +79,6 @@ header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) LogScenario.namesRow
 --
 
 main :: IO ()
-main = BS.writeFile "./sampleCSV" $ Csv.encodeByName header [sd]
+main = ioCSVs >>= makeFiles
+
+ --BS.writeFile "./sampleCSV" $ Csv.encodeByName header [sd]

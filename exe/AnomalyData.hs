@@ -29,7 +29,7 @@ Drone Position Changes: Drone moving from (1, 1) to (2, 2) with seven time steps
 STEPS
 -----
 1. make an IO ScenarioLog using my fullLogRun function
-2. use fmap and a new function to turn that into an IO AttractorLogRow
+2. use fmap mkAttractorData IO AttractorLogRow
 3. fmap (Csv.encodeByName header) into that value to make IO ByteString
 4. above value >>= (BS.writeFile "./PATH_HERE")
 5. get a list of two environments to be generated, run over, and files written as above in one step

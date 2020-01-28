@@ -9,6 +9,14 @@ Then, it transforms the minimal information associated with each time step into 
 
 --A lot of this ONLY WORKS WITH FOUR DRONES
 
+{-
+TODO:
+1. write blueFrac
+2. use blueFrac to fill f_1 through f_4 in mkAttractorRow
+3. compute distances between drones for mkAttractorRow
+4. refer to the todo in AnomalyData.hs
+-}
+
 import qualified Data.Csv as Csv
 import Scenario
 import WorldState

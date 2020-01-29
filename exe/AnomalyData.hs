@@ -39,7 +39,7 @@ easySquareEnv :: IO [Environment]
 easySquareEnv = (sequenceA [SV.envFromFilePath "./test/environments/bigEasyGrid.env"])
 
 nominalEnvs :: IO [Environment]
-nominalEnvs = sequenceA $ fmap SV.envFromFilePath $ fmap (\ns -> "./test/environments/generated/attractor_nominal_environments/testMixed" ++ ns ++ ".env") $ fmap show [1 .. 2]
+nominalEnvs = sequenceA $ fmap SV.envFromFilePath $ fmap (\ns -> "./test/environments/generated/attractor_nominal_environments/testMixed" ++ ns ++ ".env") $ fmap show [1 .. 100]
 
 eSingle :: IO Environment
 eSingle = fmap head easySquareEnv

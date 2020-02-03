@@ -26,7 +26,6 @@ import qualified Diagrams.Backend.SVG.CmdLine as BE
 import Control.Monad
 
 --general utilities
-import Util (nTimes)
 import Control.Applicative
 import System.Random as Random
 
@@ -59,8 +58,6 @@ demoDatatypes = foldr (>>) (return ())
       show SV.envInfo,
       "\nshowing a WorldState",
       show SV.worldState,
-      "\nshowing the same WorldState after 4 updates (no new actions commanded)",
-      show $ nTimes 4 (updateState []) SV.worldState,
       ""
     ]
   )
@@ -83,7 +80,7 @@ main =
 
   --SV.fileNameScenarioWithOutput SV.hfsp 3 "./test/environments/generated/clumpedNE=0.25T=0.3.env" 25000 >>
 
-  putStrLn "Average Performance of ..." >>
+  --putStrLn "Average Performance of ..." >>
 
   --putStrLn "Low Sweep Policy, Simple Environment" >>
   --averageAgentPerformance 2 100 (const SV.lsPolicy) [SV.env] >>= print >>
@@ -183,14 +180,14 @@ main =
   --putStrLn "Clustering Low Policy, Clumped Environment avgAgentPerfDropout" >>
   --join ((avgAgentPerfDropout 4 100000) <$> SV.kmp <*> high20Clumped) >>= print >>
 
-  putStrLn "Low Spanning Tree Policy, Clumped Environment avgAgentPerfDropout" >>
-  join ((avgAgentPerfDropout 4 100000) <$> SV.lstp  <*> high20Clumped) >>= print >>
+  --putStrLn "Low Spanning Tree Policy, Clumped Environment avgAgentPerfDropout" >>
+  --join ((avgAgentPerfDropout 4 100000) <$> SV.lstp  <*> high20Clumped) >>= print >>
 
   --putStrLn "CLSTP, Clumped Environment avgAgentPerfDropout" >>
   --join ((avgAgentPerfDropout 4 100000) <$> SV.lkmstp  <*> high20Clumped) >>= print >>
 
-  putStrLn "ALBP, Clumped Environment avgAgentPerfDropout" >>
-  join ((avgAgentPerfDropout 4 100000) <$> SV.albp  <*> high20Clumped) >>= print >>
+  --putStrLn "ALBP, Clumped Environment avgAgentPerfDropout" >>
+  --join ((avgAgentPerfDropout 4 100000) <$> SV.albp  <*> high20Clumped) >>= print >>
 
   putStrLn "HSTP, Clumped Environment avgAgentPerfDropout" >>
   join ((avgAgentPerfDropout 4 100000) <$> SV.hfsp  <*> high20Clumped) >>= print >>

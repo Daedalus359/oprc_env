@@ -267,8 +267,9 @@ instance Policy AdaptiveLowBFSPolicy where
         --once the not-wirth-visiting waypoints have been pruned for this time step, this is a simple matter of checking if both the waypoints and directions are empty and the drone is idle
 
       --step 1: in light of the most recent envInfo, filter the waypoints list of each drone to just those positions that still merit a visit
-      filteredWaypointsMap = Map.mapKeys (removeCompletedWaypoints envInfo) currentDronesMap
-        --Map.mapKeys id map
+      filteredWaypointsMap = Map.mapKeys removeF currentDronesMap
+      
+      removeF = filterWaypointsByFootprint incompleteLocs envInfo
 
       --step 0: check the existing map entries with the current ensembleStatus in case a drone has dropped out
       currentDronesMap = Map.filterWithKey (droneInSet aliveDrones) map
@@ -317,8 +318,6 @@ refreshWaypoints cpf enStat boundsSet wpc territoryFP mapSoFar = Map.insert (set
     --newWaypoints = fromMaybe [] $  toAtomicPath boundsSet (fromJust groundPos) coarseWPs
     newWaypoints = cpf boundsSet territoryFP root
 
-
-
     --use enStat and the HasDroneTerritory instance to figure out the best root for the BFS tree
     DroneTerritory drone _ = getDT wpc
     groundPos = findGroundPos drone enStat
@@ -331,10 +330,15 @@ dtpNeedsNewMoves :: EnsembleStatus -> DTPath -> Bool
 dtpNeedsNewMoves enStat (DTPath (DroneTerritory drone _) path dirs) = (null path) && (null dirs) && isIdle
   where
     isIdle = fromMaybe True $ fmap isUnassigned $ lookup drone enStat
-removeCompletedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
-removeCompletedWaypoints envInfo w = setWP w $ filter (flip Set.member incompleteLocs) $ getWP w
-  where
-    incompleteLocs = incompleteLocations envInfo
+
+--removeCompletedWaypoints :: HasWaypoints w => EnvironmentInfo -> w -> w
+--removeCompletedWaypoints envInfo w = setWP w $ filter (flip Set.member incompleteLocs) $ getWP w
+  --where
+    --incompleteLocs = incompleteLocations envInfo
+
+filterWaypointsByFootprint :: HasWaypoints w => Footprint -> EnvironmentInfo -> w -> w
+filterWaypointsByFootprint fp envInfo w = setWP w $ dropWhile (not . (flip Set.member fp)) $ getWP w
+--filterWaypointsByFootprint fp envInfo w = setWP w $ filter (flip Set.member fp) $ getWP w
 
 
 --probably makes sense to create a function that explores all high then all low for now

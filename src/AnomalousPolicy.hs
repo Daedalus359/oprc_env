@@ -20,8 +20,10 @@ import System.Random
 {-
 Meant as a hacky redo of my "High First Spanning Tree Policy" where sometimes drones fail and share territory
 
-TODO:
+DONE:
 propagate a boolean value called maybeAnom through my two policy types, get everything compiling again
+
+TODO:
 create a function that uses errorGen to decide whether to introduce an anomaly (figure out a good probability)
 manage reassigning the results of kMeans to respect the type of anomaly present, if any
 redo AdaptiveLowBFSPolicyAn so that it maintains the same territory confusion from HightFirst

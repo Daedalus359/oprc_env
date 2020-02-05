@@ -48,12 +48,10 @@ logRun timeLimit s = case (overTime || finished) of
     finished = isTerminal nowWS
 
 --same as the above, but manages scenario initialization as well
-fullLogRun :: (Policy p) => Bool -> Integer -> Int -> (WorldView -> p) -> Environment -> ScenarioLog
-fullLogRun nominal timeLimit numDrones policyF environment = logRun timeLimit scenario
+fullLogRun :: (Policy p) => Integer -> Int -> (WorldView -> p) -> Environment -> ScenarioLog
+fullLogRun timeLimit numDrones policyF environment = logRun timeLimit scenario
   where
-    scenario = if nominal
-      then mkScenario policyF numDrones environment
-      else undefined
+    scenario = mkScenario policyF numDrones environment
 
 mkAttractorData :: ScenarioLog -> [AttractorLogRow]
 mkAttractorData = fmap mkAttractorRow

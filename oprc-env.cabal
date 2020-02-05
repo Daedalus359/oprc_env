@@ -21,6 +21,7 @@ library
   hs-source-dirs:         src
   exposed-modules:        AgentUtils
                         , AnimateReplay
+                        , AnomalousPolicy
                         , Drone
                         , Ensemble
                         , Env

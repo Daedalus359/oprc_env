@@ -7,6 +7,8 @@ import qualified Data.Vector as Vec
 import qualified Data.Binary as Bin
 import qualified SampleVals as SV
 import Env
+import EnvView
+import HierarchicalPolicy
 
 import LogScenario
 
@@ -31,8 +33,12 @@ Drone Position Changes: Drone moving from (1, 1) to (2, 2) with seven time steps
 nominalEnvs :: IO [Environment]
 nominalEnvs = sequenceA $ fmap SV.envFromFilePath $ fmap (\ns -> "./test/environments/generated/attractor_nominal_environments/testMixed" ++ ns ++ ".env") $ fmap show [1 .. 100]
 
+attractorPolicy :: Bool -> IO (WorldView -> HighFirstBFSPolicy)
+attractorPolicy True = SV.hfsp
+attractorPolicy False = undefined
+
 ioSlogs :: Bool -> IO [ScenarioLog]
-ioSlogs nominal = fmap fmap (fullLogRun nominal 100000 4 <$> SV.hfsp) <*> nominalEnvs
+ioSlogs nominal = fmap fmap (fullLogRun 100000 4 <$> (attractorPolicy True)) <*> nominalEnvs
 
 ioCSVs :: Bool -> IO [BS.ByteString]
 ioCSVs nominal = fmap ((fmap $ Csv.encodeByName header) . (fmap mkAttractorData)) (ioSlogs nominal)

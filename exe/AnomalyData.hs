@@ -26,59 +26,33 @@ Fields:
   ratio of blue vs green in bounds positions below drone
 Drone Position Changes: Drone moving from (1, 1) to (2, 2) with seven time steps remaining is now at (1.5, 1.5) and moving NE
   Use Cost function for each move type, divide (cost - remaining) by cost and truncate to two decimal places.
-
-
-STEPS
------
-6. get a list of 100 environments to work likewise
 -}
-
-test = "."
-
-easySquareEnv :: IO [Environment]
-easySquareEnv = (sequenceA [SV.envFromFilePath "./test/environments/bigEasyGrid.env"])
 
 nominalEnvs :: IO [Environment]
 nominalEnvs = sequenceA $ fmap SV.envFromFilePath $ fmap (\ns -> "./test/environments/generated/attractor_nominal_environments/testMixed" ++ ns ++ ".env") $ fmap show [1 .. 100]
 
-eSingle :: IO Environment
-eSingle = fmap head easySquareEnv
+ioSlogs :: Bool -> IO [ScenarioLog]
+ioSlogs nominal = fmap fmap (fullLogRun nominal 100000 4 <$> SV.hfsp) <*> nominalEnvs
 
-ioSlog :: IO ScenarioLog
-ioSlog = fullLogRun 100000 4 <$> SV.hfsp <*> eSingle
+ioCSVs :: Bool -> IO [BS.ByteString]
+ioCSVs nominal = fmap ((fmap $ Csv.encodeByName header) . (fmap mkAttractorData)) (ioSlogs nominal)
 
-ioRow :: IO [AttractorLogRow]
-ioRow = fmap mkAttractorData ioSlog
-
-ioCSV :: IO BS.ByteString
-ioCSV = fmap (Csv.encodeByName header) ioRow
-
-ioSlogs :: IO [ScenarioLog]
-ioSlogs = fmap fmap (fullLogRun 100000 4 <$> SV.hfsp) <*> nominalEnvs
-
-ioCSVs :: IO [BS.ByteString]
-ioCSVs = fmap ((fmap $ Csv.encodeByName header) . (fmap mkAttractorData)) ioSlogs
-
-makeFiles :: [BS.ByteString] -> IO ()
-makeFiles logs = foldr (>>) (return ()) actions 
+makeFiles :: Bool -> [BS.ByteString] -> IO ()
+makeFiles nominal logs = foldr (>>) (return ()) actions 
   where
     actions :: [IO ()]
     actions = zipWith BS.writeFile fileNames logs
 
     fileNames :: [String]
-    fileNames = fmap ("./attractorData/nominal/data_nominal_" ++ ) $ fmap show [1 ..]
+    fileNames = fmap (("./attractorData/" ++ nominalityStr ++ "/data_nominal_") ++ ) $ fmap show [1 ..]
 
-
---
-
-
-sd = AttractorLogRow 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2
+    nominalityStr = if nominal then "nominal" else "anomalous"
 
 header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) LogScenario.namesRow
 
 --
 
 main :: IO ()
-main = ioCSVs >>= makeFiles
-
- --BS.writeFile "./sampleCSV" $ Csv.encodeByName header [sd]
+main = (ioCSVs nominal) >>= (makeFiles nominal)
+  where
+    nominal = True --generate nominal or anomalous data

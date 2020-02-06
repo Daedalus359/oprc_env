@@ -1,6 +1,7 @@
 module SampleVals where
 
 import AgentUtils
+import AnomalousPolicy
 import Env
 import Drone
 import Ensemble
@@ -357,3 +358,6 @@ hfsp = initializeHFBFSP 10 <$> newStdGen
 
 hsfp :: HighSweepPolicy
 hsfp = HighSweepPolicy HighSweep []
+
+anomp :: IO (WorldView -> HighFirstBFSPolicyAn)
+anomp = initializeHFBFSPAn 10 <$> newStdGen

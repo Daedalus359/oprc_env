@@ -17,16 +17,18 @@ import qualified Data.Set as Set
 import qualified Data.Sequence as SQ
 import System.Random
 
+-- !!! HACKY CODE !!! WORKS WITH FOUR DRONE SCENARIOS
+
 {-
 Meant as a hacky redo of my "High First Spanning Tree Policy" where sometimes drones fail and share territory
 
 DONE:
 propagate a boolean value called maybeAnom through my two policy types, get everything compiling again
-
-TODO:
-create a function that uses errorGen to decide whether to introduce an anomaly (figure out a good probability)
 manage reassigning the results of kMeans to respect the type of anomaly present, if any
 redo AdaptiveLowBFSPolicyAn so that it maintains the same territory confusion from HightFirst
+
+TODO:
+tweak the probability in rollNewAnomaly as needed
 -}
 
 --newly introduced Maybe parameter says whether we are in non-anomalous mode (Nothing) or have a particular anomaly (Just 1 2, etc.)
@@ -44,7 +46,10 @@ instance Policy HighFirstBFSPolicyAn where
       then nextMove (HighFirstBFSPolicyAn LowSweep gen kMeansResetMap maybeAnom) wv
       else (nas, HighFirstBFSPolicyAn HighSweep newPolicyGen newMap maybeNewAnom)
     where
-      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap High wv) ([], Map.empty) $ Map.mapKeys (removeObservedWaypoints toDo) actionableMap
+      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap High wv) ([], Map.empty) $ Map.mapKeys (removeObservedWaypoints toDo) anomalousMap
+
+      anomalousMap = anomalizeMap maybeNewAnom actionableMap
+        --map a function that will look for a DTPath with the "recpient drone", give it territory found by seeking out the current territory of the "target" drones
 
       actionableMap =
         if anyDroneNeedsTerritory
@@ -75,6 +80,14 @@ instance Policy HighFirstBFSPolicyAn where
       (kmGen, newPolicyGen) = split successorGen
       (errorGen, successorGen) = split gen
 
+anomalizeMap :: SubstAnomaly -> (Map.Map DTPath Footprint) -> (Map.Map DTPath Footprint)
+anomalizeMap Nothing map = map
+anomalizeMap (Just (recipient, target)) map = newMap
+  where
+    --step 1: find the territory associated with "target"
+    targetTerritory = snd $ head $ Map.toList $ Map.filterWithKey (\dtp@(DTPath dt _ _) -> \a -> target == (getDrone dt)) map
+    --step 2: find the DTPath associated with "recipient" and change its territory to what "target" originally had
+    newMap = Map.mapWithKey (\dtp@(DTPath dt _ _) -> \a -> if (recipient == (getDrone dt)) then targetTerritory else a) map --inefficient but OK
 
 --the HighFirstBFSPolicy that is functionally identical to the given ALBP
 fromALBPAn :: AdaptiveLowBFSPolicyAn -> HighFirstBFSPolicyAn
@@ -84,8 +97,8 @@ fromALBPAn (AdaptiveLowBFSPolicyAn gen map mA) = HighFirstBFSPolicyAn LowSweep g
 toALBPAn :: HighFirstBFSPolicyAn -> AdaptiveLowBFSPolicyAn
 toALBPAn (HighFirstBFSPolicyAn _ gen map mA) = AdaptiveLowBFSPolicyAn gen map mA
 
-initializeHFBFSP :: Int -> StdGen -> WorldView -> HighFirstBFSPolicyAn
-initializeHFBFSP iterations gen wv@(WorldView envInfo enStat) = HighFirstBFSPolicyAn HighSweep polGen (fmap (detailedSetFromQuadCenters 3 (incompleteLocations envInfo)) $ kMeansAlt High iterations kmGen envInfo dtpSeq) Nothing
+initializeHFBFSPAn :: Int -> StdGen -> WorldView -> HighFirstBFSPolicyAn
+initializeHFBFSPAn iterations gen wv@(WorldView envInfo enStat) = HighFirstBFSPolicyAn HighSweep polGen (fmap (detailedSetFromQuadCenters 3 (incompleteLocations envInfo)) $ kMeansAlt High iterations kmGen envInfo dtpSeq) Nothing
   where
     dtpSeq = SQ.fromList $ fmap (\(drone, pos) -> DTPath (DroneTerritory drone pos) [] []) $ fmap (fmap groundPos) enStat
     (kmGen, polGen) = split gen
@@ -96,7 +109,14 @@ type SubstAnomaly = Maybe (Drone, Drone)
 
 rollNewAnomaly :: StdGen -> SubstAnomaly -> SubstAnomaly
 rollNewAnomaly erg oldAn = case oldAn of
-  Nothing -> undefined
+  Nothing -> if (errorVal > threshold)
+    then Just (DroneID recipient, DroneID target)
+    else oldAn
+    where
+      (errorVal, nextGen) = randomR (0 :: Float, 1) erg
+      threshold = (1999 :: Float) / 2000
+      (recipient, threeGen) = randomR (1 :: Int, 4) nextGen
+      target = head $ dropWhile (== recipient) $ randomRs (1 :: Int, 4) threeGen
   Just _ -> oldAn
 
 instance Policy AdaptiveLowBFSPolicyAn where
@@ -105,7 +125,9 @@ instance Policy AdaptiveLowBFSPolicyAn where
 
       --step 6: command the previously computed directions to any idle drone
       --step 5: use A* (with penalties?) to give directions to the next waypoint for any IDLE drone that does not already have directions (after step 4)
-      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap Low wv) ([], Map.empty) actionableMap
+      (nas, newMap) = Map.foldrWithKey (accumNextActionsAndMap Low wv) ([], Map.empty) anomalousMap
+
+      anomalousMap = anomalizeMap maybeNewAnom actionableMap
       
       actionableMap =
         if anyDroneNeedsTerritory

@@ -68,15 +68,13 @@ instance Policy HighFirstBFSPolicyAn where
       
       boundsSet = toFootprint envInfo
 
-      anythingToDo = Set.null toDo
+      anythingToDo = not $ Set.null toDo
       toDo = unseenLocations envInfo --what is still worth vising from the standpoint of a high policy
       blankSlate (DTPath dt _ _) = DTPath dt [] []
       blankMap = Map.fromSet (const Set.empty) $ Set.map blankSlate $ Map.keysSet map
       kMeansResetMap = fmap (detailedSetFromQuadCenters 2 (incompleteLocations envInfo)) $ kMeansInternal ((coarseQuadrantCenters 2) . incompleteLocations) kmGen envInfo 10 blankMap--ok to use kmGen in two places because only one gets run
 
-      maybeNewAnom = case maybeAnom of
-        Nothing -> undefined
-        ma@(Just _) -> ma
+      maybeNewAnom = rollNewAnomaly errorGen maybeAnom
       (kmGen, newPolicyGen) = split successorGen
       (errorGen, successorGen) = split gen
 
@@ -114,7 +112,7 @@ rollNewAnomaly erg oldAn = case oldAn of
     else oldAn
     where
       (errorVal, nextGen) = randomR (0 :: Float, 1) erg
-      threshold = (1999 :: Float) / 2000
+      threshold = (9 :: Float) / 2000
       (recipient, threeGen) = randomR (1 :: Int, 4) nextGen
       target = head $ dropWhile (== recipient) $ randomRs (1 :: Int, 4) threeGen
   Just _ -> oldAn

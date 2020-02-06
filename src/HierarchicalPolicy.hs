@@ -50,7 +50,7 @@ instance Policy HighFirstBFSPolicy where
       boundsSet = toFootprint envInfo
       (kmGen, newPolicyGen) = split gen
 
-      anythingToDo = Set.null toDo
+      anythingToDo = not $ Set.null toDo
       toDo = unseenLocations envInfo --what is still worth vising from the standpoint of a high policy
       blankSlate (DTPath dt _ _) = DTPath dt [] []
       blankMap = Map.fromSet (const Set.empty) $ Set.map blankSlate $ Map.keysSet map

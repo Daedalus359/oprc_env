@@ -97,7 +97,7 @@ visualReplay2 replay@(ScenarioReplay ws _ _) = do
 main :: IO ()
 main =
   --createReplayWithDropout nDrones <$> SV.fileNameScenarioDropout SV.hfsp nDrones filePath 20000 >>= visualReplay2
-  SV.fileNameScenarioWithOutput SV.hfsp 2 filePath 25000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.anomp 4 filePath 25000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.albp 6 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay

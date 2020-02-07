@@ -1,5 +1,6 @@
 module Main where
 
+import AnomalousPolicy
 import qualified AnimateReplay as AR
 import Env
 import qualified SampleVals as SV
@@ -34,8 +35,9 @@ speedupFactor :: Float
 speedupFactor = 300
 
 --modify this to calculate the width of the scenario and pass a value based on that to drawReplay as the offset argument
-visualReplay :: Scenario p -> IO ()
+visualReplay :: Scenario HighFirstBFSPolicyAn -> IO ()
 visualReplay sc = do
+                    print $ getPolicy sc
                     putStrLn "Number of Patches"
                     print (Set.size fp)
                     simulate windowDisplay white defaultFramerate initModel drawF updateF
@@ -97,7 +99,7 @@ visualReplay2 replay@(ScenarioReplay ws _ _) = do
 main :: IO ()
 main =
   --createReplayWithDropout nDrones <$> SV.fileNameScenarioDropout SV.hfsp nDrones filePath 20000 >>= visualReplay2
-  SV.fileNameScenarioWithOutput SV.anomp 4 filePath 25000 >>= visualReplay
+  SV.fileNameScenarioWithOutput SV.anomp nDrones filePath 25000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.albp 6 filePath 20000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lkmstp 6 filePath 10000 >>= visualReplay
   --SV.fileNameScenarioWithOutput SV.lstp 1 filePath 100000 >>= visualReplay
@@ -110,14 +112,14 @@ main =
     --filePath = "./test/environments/MovesDemonstrator.env"
     --filePath = "./test/environments/generated/2019-10-23 20:24:12.230291522 UTC/testMixed3.env"
     --filePath = "./test/environments/generated/clumpedNE=0.25T=0.3.env"
-    filePath = "./test/environments/bigEasyGrid.env"
+    filePath = "./test/environments/ClusteryEnv.env"
     --filePath = "./test/environments/9.env"
     --filePath = "./test/environments/generated/clumpedNE=0.15T=0.5.env"
     --filePath = "./test/environments/spanningTreeTester.env"
     --filePath = "./test/environments/tinySpanningTreeTester.env"
     --filePath = "./test/environments/reallyTinySpanningTreeTester.env"
 
-    nDrones = 6
+    nDrones = 4
 
 quickDraw :: (a -> Picture) -> a -> IO ()
 quickDraw f a = display windowDisplay white $ f a

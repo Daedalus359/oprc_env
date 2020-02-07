@@ -46,7 +46,6 @@ instance Policy HighFirstBFSPolicy where
       currentDronesMap = Map.filterWithKey (droneInSet aliveDrones) map
       aliveDrones = Set.fromList $ fmap fst enStat
 
-      
       boundsSet = toFootprint envInfo
       (kmGen, newPolicyGen) = split gen
 

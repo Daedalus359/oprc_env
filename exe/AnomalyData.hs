@@ -9,6 +9,7 @@ import qualified SampleVals as SV
 import Env
 import EnvView
 import HierarchicalPolicy
+import AnomalousPolicy
 
 import LogScenario
 
@@ -33,12 +34,12 @@ Drone Position Changes: Drone moving from (1, 1) to (2, 2) with seven time steps
 nominalEnvs :: IO [Environment]
 nominalEnvs = sequenceA $ fmap SV.envFromFilePath $ fmap (\ns -> "./test/environments/generated/attractor_nominal_environments/testMixed" ++ ns ++ ".env") $ fmap show [1 .. 100]
 
-attractorPolicy :: Bool -> IO (WorldView -> HighFirstBFSPolicy)
-attractorPolicy True = SV.hfsp
-attractorPolicy False = undefined
+attractorPolicy :: Bool -> IO (WorldView -> HighFirstBFSPolicyAn)
+attractorPolicy True = undefined --SV.hfsp
+attractorPolicy False = SV.anomp
 
 ioSlogs :: Bool -> IO [ScenarioLog]
-ioSlogs nominal = fmap fmap (fullLogRun 100000 4 <$> (attractorPolicy True)) <*> nominalEnvs
+ioSlogs nominal = fmap fmap (fullLogRun 100000 4 <$> (attractorPolicy nominal)) <*> nominalEnvs
 
 ioCSVs :: Bool -> IO [BS.ByteString]
 ioCSVs nominal = fmap ((fmap $ Csv.encodeByName header) . (fmap mkAttractorData)) (ioSlogs nominal)
@@ -47,10 +48,10 @@ makeFiles :: Bool -> [BS.ByteString] -> IO ()
 makeFiles nominal logs = foldr (>>) (return ()) actions 
   where
     actions :: [IO ()]
-    actions = zipWith BS.writeFile fileNames logs
+    actions = zipWith (\fn -> \log -> putStrLn ("Generating file: " ++ fn) >> BS.writeFile fn log) fileNames logs
 
     fileNames :: [String]
-    fileNames = fmap (("./attractorData/" ++ nominalityStr ++ "/data_nominal_") ++ ) $ fmap show [1 ..]
+    fileNames = fmap (("./attractorData/" ++ nominalityStr ++ "/data_" ++ nominalityStr ++ "_") ++ ) $ fmap show [1 ..]
 
     nominalityStr = if nominal then "nominal" else "anomalous"
 
@@ -61,4 +62,4 @@ header = Vec.fromList $ fmap (BS.toStrict . Bin.encode) LogScenario.namesRow
 main :: IO ()
 main = (ioCSVs nominal) >>= (makeFiles nominal)
   where
-    nominal = True --generate nominal or anomalous data
+    nominal = False --generate nominal or anomalous data

@@ -15,10 +15,12 @@ import WorldState
 import Policy
 import EnvView
 import Env
+import AnomalousPolicy
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.Binary as Bin
 import Data.List
 import Drone
+import System.IO.Unsafe
 
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -52,6 +54,56 @@ fullLogRun :: (Policy p) => Integer -> Int -> (WorldView -> p) -> Environment ->
 fullLogRun timeLimit numDrones policyF environment = logRun timeLimit scenario
   where
     scenario = mkScenario policyF numDrones environment
+
+fullLogRunAY :: Integer -> Int -> (WorldView -> HighFirstBFSPolicyAn) -> Environment -> ScenarioLog
+fullLogRunAY timeLimit numDrones policyF environment = logRunAnomalyYell False timeLimit scenario
+  where
+    scenario = mkScenario policyF numDrones environment
+
+logRunAnomalyYell :: Bool -> Integer -> Scenario HighFirstBFSPolicyAn -> ScenarioLog
+logRunAnomalyYell lastWasAnom timeLimit s@(Scenario (HighFirstBFSPolicyAn _ _ _ substAnomaly) _ _ _) = case (overTime || finished) of
+  False -> wsm : (logRunAnomalyYell anomExists timeLimit $ stepScenario s)
+  True -> [wsm]
+
+  where
+    anomExists = case substAnomaly of 
+      Nothing -> False
+      (Just _) -> True
+    nowTime = unsafePerformIO $ (if ((not lastWasAnom) && anomExists) then (putStrLn anomAnnouncement) else (return ())) >> (return $ getTime s)
+    nowWS = getWorldState s
+
+    wsm :: WorldStateMoment
+    wsm = WorldStateMoment nowTime nowWS
+
+    overTime = nowTime >= timeLimit
+    finished = isTerminal nowWS
+
+    anomAnnouncement = "Anomaly begins at time " ++ (show $ getTime s) ++ ": " ++ (show substAnomaly)
+
+fullLogRunIO :: Integer -> Int -> (WorldView -> HighFirstBFSPolicyAn) -> Environment -> IO ScenarioLog
+fullLogRunIO timeLimit numDrones policyF environment = logRunIO False timeLimit scenario
+  where
+    scenario = mkScenario policyF numDrones environment
+
+logRunIO :: Bool -> Integer -> Scenario HighFirstBFSPolicyAn -> IO ScenarioLog
+logRunIO lastWasAnom timeLimit s@(Scenario (HighFirstBFSPolicyAn _ _ _ substAnomaly) _ _ _) = printMessage >> addLogEntry
+  where
+    printMessage = if ((not lastWasAnom) && anomExists) then (putStrLn anomAnnouncement) else (return ())
+    anomAnnouncement = "Anomaly begins at time " ++ (show $ getTime s) ++ ": " ++ (show substAnomaly)
+    anomExists = case substAnomaly of 
+      Nothing -> False
+      (Just _) -> True
+
+    addLogEntry = case (overTime || finished) of
+      False -> fmap ((:) wsm) (logRunIO anomExists timeLimit $ stepScenario s)
+      True -> return [wsm]
+
+    overTime = (getTime s) >= timeLimit
+    finished = isTerminal (getWorldState s)
+
+
+    wsm :: WorldStateMoment
+    wsm = WorldStateMoment (getTime s) (getWorldState s)
 
 mkAttractorData :: ScenarioLog -> [AttractorLogRow]
 mkAttractorData = fmap mkAttractorRow

@@ -1,6 +1,7 @@
 module Main where
 
 --import System.IO
+import Control.Monad
 import qualified Data.Csv as Csv
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.Vector as Vec
@@ -39,7 +40,11 @@ attractorPolicy True = undefined --SV.hfsp
 attractorPolicy False = SV.anomp
 
 ioSlogs :: Bool -> IO [ScenarioLog]
-ioSlogs nominal = fmap fmap (fullLogRun 100000 4 <$> (attractorPolicy nominal)) <*> nominalEnvs
+ioSlogs True = fmap fmap (fullLogRun 15000 4 <$> (attractorPolicy True)) <*> nominalEnvs
+ioSlogs False = join $ fmap sequenceA $ fmap fmap ioLogger <*> nominalEnvs
+  where
+    ioLogger :: IO (Environment -> IO ScenarioLog)
+    ioLogger = (fullLogRunIO 15000 4 <$> (attractorPolicy False))
 
 ioCSVs :: Bool -> IO [BS.ByteString]
 ioCSVs nominal = fmap ((fmap $ Csv.encodeByName header) . (fmap mkAttractorData)) (ioSlogs nominal)
@@ -47,7 +52,7 @@ ioCSVs nominal = fmap ((fmap $ Csv.encodeByName header) . (fmap mkAttractorData)
 makeFiles :: Bool -> [BS.ByteString] -> IO ()
 makeFiles nominal logs = foldr (>>) (return ()) actions 
   where
-    actions :: [IO ()]
+    actions :: [IO ()]  
     actions = zipWith (\fn -> \log -> putStrLn ("Generating file: " ++ fn) >> BS.writeFile fn log) fileNames logs
 
     fileNames :: [String]

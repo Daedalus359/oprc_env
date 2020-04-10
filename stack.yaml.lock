@@ -3,10 +3,17 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: PSQueue-1.1.0.1@sha256:07b8e8141fbc6f6666a70389d8b8d6963d09cbd698f0740a079c835713c95c5f,1318
+    pantry-tree:
+      size: 214
+      sha256: e872bcbce50f2c648b0af9c10760c5242b823262487fb23ac6a144e3cf71e6e1
+  original:
+    hackage: PSQueue-1.1.0.1
 snapshots:
 - completed:
-    size: 428787
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/6/35.yaml
-    sha256: f2ce58e96ad78750c355afc8fcd0bfbd06c8e1381050c59bc5c934577ebef872
-  original: lts-6.35
+    size: 523878
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/3.yaml
+    sha256: 470c46c27746a48c7c50f829efc0cf00112787a7804ee4ac7a27754658f6d92c
+  original: lts-14.3

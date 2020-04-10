@@ -85,6 +85,7 @@ instance Policy HighFirstBFSPolicyAn where
       kMeansResetMap = fmap (detailedSetFromQuadCenters 2 (incompleteLocations envInfo)) $ kMeansInternal ((coarseQuadrantCenters 2) . incompleteLocations) kmGen envInfo 10 blankMap--ok to use kmGen in two places because only one gets run
 
       (maybeNewAnom, anomIsNew) = rollNewAnomaly errorGen maybeAnom
+
       (kmGen, newPolicyGen) = split successorGen
       (errorGen, successorGen) = split gen
 
@@ -117,7 +118,7 @@ type SubstAnomaly = Maybe (Drone, Drone)
 
 rollNewAnomaly :: StdGen -> SubstAnomaly -> (SubstAnomaly, Bool)
 rollNewAnomaly erg oldAn = case oldAn of
-  Nothing -> if (errorVal > 0.0001)
+  Nothing -> if (errorVal > 0.9997)
     then (Just (DroneID recipient, DroneID target), True)
     else (oldAn, False)
     where
